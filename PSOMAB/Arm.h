@@ -33,8 +33,8 @@ public:
     std::vector<int> get_action_vector(); 
 
 
-    double update_k(int k_var);
-    double update_r(double r_var);
+    void update_k(int k_var);
+    void update_r(double r_var);
     void set_action_vector_element(int index, int value);
     void print_action_vector();
 
