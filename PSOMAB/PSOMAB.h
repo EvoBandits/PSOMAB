@@ -48,26 +48,23 @@ struct solution{
 class PSOMAB
 {
 private:
-    unsigned long max_iter_or_sim_number;
-    int m;
+    unsigned long max_iter_or_sim_number; //ToDo ???
+    int m; //ToDo ???
 
-    std::vector<int> vec_x_min; // D-dimensional Vector of the smallest possible values a solution can have.
-    std::vector<int> vec_x_max; // D-Dimensional Vector of the largest possible values a solution can have.
+    std::vector<int> vec_x_min; // D-dimensional Vector of the smallest possible values a solution can have --> lower bounds
+    std::vector<int> vec_x_max; // D-Dimensional Vector of the largest possible values a solution can have --> upper bounds
     
-    std::vector<std::vector<int>> init_solutions;
-        
-    double mutation_rate=0.0;
-    double crossover_rate=0.0;
-    double mutation_span=0.0;
-    int obj=0;
-    int stopping_criterion=0;
-    int sim_counter=0;
+    std::vector<std::vector<int>> init_solutions; // Matrix of initial solutions (pop_s * D)
+
+    int obj=0; //ToDo ???
+    int stopping_criterion=0; //ToDo ???
+    int sim_counter=0; //ToDo ???
 
     
-    std::vector<Arm> arms;  
-    LUT lookuptree;
+    std::vector<Arm> arms; //ToDo ???
+    LUT lookuptree; //ToDo ???
        
-    std::multiset<MS_element, std::less<>> MS;
+    std::multiset<MS_element, std::less<>> MS; //ToDo ???
     
     ////// PSO 
     std::vector<std::multiset<MS_element, std::less<>>> MS_vec;
@@ -102,7 +99,7 @@ public:
     void print_Q_tree(int i);
     void print_best_sol_of_each();
     
-    PSOMAB(unsigned long max_gen, int pop_s, double mutation, double crossover, double mu_span, int objective, int stopping_criterion, unsigned s, std::vector<int> s_ll, std::vector<int> s_ul);
+    PSOMAB(unsigned long max_gen, int pop_s, int objective, int stopping_criterion, unsigned seed, std::vector<int> s_ll, std::vector<int> s_ul);
     ~PSOMAB();
 
 };
