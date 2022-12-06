@@ -4,6 +4,9 @@
 #include <iostream>
 using namespace boost::multiprecision;
 
+// ToDo: schauen ob HashTable besser wäre
+// ToDo: überprüfen ob es möglich ist diesen großen Int loszuwerden
+
 struct node {
   int128_t search_index;
   int arm_index;
