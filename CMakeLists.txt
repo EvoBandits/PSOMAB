@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(PSOMAB)
 include_directories(third_party/boost_1_80_0)
+include_directories(third_party/eigen-3.4.0)
 
 add_executable(PSOMAB
         PSOMAB/Arm.cpp
