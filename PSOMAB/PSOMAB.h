@@ -51,7 +51,6 @@ private:
   std::vector<std::vector<int>>
       init_solutions; // Matrix of initial solutions (pop_s * D)
 
-  int obj = 0;                // ToDo ???
   int stopping_criterion = 0; // ToDo ???
   int sim_counter = 0;        // ToDo ???
 
@@ -90,7 +89,7 @@ public:
   void print_Q_tree(int i);
   void print_best_sol_of_each();
 
-  PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s, int objective,
+  PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
          int stopping_criterion, unsigned seed, std::vector<int> s_ll,
          std::vector<int> s_ul);
   ~PSOMAB();

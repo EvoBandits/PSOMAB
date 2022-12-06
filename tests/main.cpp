@@ -176,7 +176,7 @@ int main(){
         //ANMERKUNG: MR, CR sowie sigma_d (mutation width) bei PSOMAB ohne Funktion (dies sind ursprüngliche GMAB Parameter)
         
         // run the min-problems TP4_D05 - TP4_20           ... and TP1 as well as TP3   (Please change the objective function within Arm.cpp if you change your test problem)
-        PSOMAB instance = PSOMAB(inventory, 10000, m, 0, 1, seed, x_lb, x_ub); //itarations, population_size, mutation_rate, crossover_rate, mutation_span , objective ( 0=min, 1=max), 1== sim obs
+        PSOMAB instance = PSOMAB(inventory, 10000, m, 1, seed, x_lb, x_ub); //itarations, population_size, mutation_rate, crossover_rate, mutation_span , objective ( 0=min, 1=max), 1== sim obs
         //(budget, m, mutatation_probability, crossover_probability, sigma_d (mutation width), objective (0:min, 1:max), modus (0: budget=number of GMAB iterations, 1: budget=number of simulation observations), seed, x_lb, x_ub)
         
         
