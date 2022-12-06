@@ -48,6 +48,8 @@ private:
   std::vector<int> vec_x_max; // D-Dimensional Vector of the largest possible
                               // values a solution can have --> upper bounds
 
+  int dimension; // D
+
   std::set<std::vector<int>>
       init_solutions; // Matrix of initial solutions (pop_s * D)
 
@@ -91,7 +93,7 @@ public:
 
   PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
          int stopping_criterion, unsigned seed, std::vector<int> s_ll,
-         std::vector<int> s_ul);
+         std::vector<int> s_ul, int D);
   ~PSOMAB();
 };
 
