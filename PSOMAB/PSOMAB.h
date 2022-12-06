@@ -61,7 +61,7 @@ private:
   std::vector<std::multiset<MS_element, std::less<>>> MS_vec;
   std::vector<std::vector<Arm>> arms_vec; // Arm-Speicher eines jeden Paricles
   std::vector<Arm> current_particles;     // Arme der current iteration
-  std::vector<Eigen::VectorXi> velocity; // velocity
+  std::vector<std::vector<int>> velocity; // velocity
   std::vector<LUT> lookuptree_vec;
 
   std::vector<Arm> arms_global;
