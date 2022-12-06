@@ -60,7 +60,6 @@ int PSOMAB::run() {
         lookuptree_vec.push_back(
             lookuptree_temp); // Füge (lokalen) LUT dem Vektor aller lokalen
                               // LUTs hinzu
-
         // insert into Lookuptree (LUT)
         int128_t search_index = calc_solution_code(
             arms.at(i).get_action_vector()); // Berechne "unique integer" bzw.
@@ -85,7 +84,8 @@ int PSOMAB::run() {
             arms.at(i)); // Füge Arm "arms.at(i)" dem Gedächtnis des i-ten
                          // Partikels hinzu
 
-        arms_vec[i].at(0).pull_arm(); // Ziehe entsprechenden arm 0: Es gibt arms.size()
+        arms_vec[i].at(0).pull_arm(
+            obj); // Ziehe entsprechenden arm 0: Es gibt arms.size()
                   // speicher_listen, in jeder liste wird hier nur das 1.
                   // Element befüllt.
         sim_counter += 1; // erhöhe den totalen sim obs. counter
@@ -179,7 +179,6 @@ int PSOMAB::run() {
       double c2 = 1;
       double v = 0.2;
 
-      // ToDo: Zwischenwerte (b1 und b2) runden sinnvoll???
       for (int g = 0; g < current_particles.at(k).get_action_vector().size();
            g++) {
         int b1 = round(random_number_unif(0, c1) * 1.0 *
@@ -189,19 +188,30 @@ int PSOMAB::run() {
                        (arms_vec[best_global_particle_index][best_global_index]
                             .get_action_vector()[g] -
                         current_particles[k].get_action_vector()[g]));
+        best_individual_diff.push_back(b1);
+        best_global_diff.push_back(b2);
+      }
 
-        velocity[k][g] = round(v * velocity[k][g] + b1 + b2); // update velocity
+      for (int g = 0; g < current_particles.at(k).get_action_vector().size();
+           g++) {
+        new_velocity.push_back(round(v * velocity[k][g] +
+                                     best_individual_diff[g] +
+                                     best_global_diff[g]));
+        velocity[k][g] = new_velocity[g]; /// VELOCITY UPDATE
+      }
 
-        int new_value = current_particles[k].get_action_vector()[g] + velocity[k][g]; // update position
-
-        // ToDo: wie mit Werten außerhalb der Bounds umgehen, einfach mit random Wert ersetzen sinnvoll?
-        if (new_value > vec_x_max[g])
+      for (int g = 0; g < current_particles.at(k).get_action_vector().size();
+           g++) {
+        int new_value =
+            current_particles[k].get_action_vector()[g] + velocity[k][g];
+        if (new_value > vec_x_max[g]) {
           new_value = random_number(vec_x_min[g], vec_x_max[g]);
-
-        if (new_value < vec_x_min[g])
+        }
+        if (new_value < vec_x_min[g]) {
           new_value = random_number(vec_x_min[g], vec_x_max[g]);
-
-        current_particles[k].set_action_vector_element(g, new_value); /// PARTICLE UPDATE
+        }
+        current_particles[k].set_action_vector_element(
+            g, new_value); /// PARTICLE UPDATE
       }
     }
     //////////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +260,7 @@ int PSOMAB::run() {
                   .get_r(); // // Store current mean in cache (before update)
 
           // pull_arm
-          arms_vec[i].at(var).pull_arm(); // pull arm
+          arms_vec[i].at(var).pull_arm(obj); // pull arm
           sim_counter += 1;                  // increase total sim_counter
 
           // global
@@ -321,7 +331,7 @@ int PSOMAB::run() {
         }
       } else {
         // existiert noch nicht
-        Arm new_arm(function, current_particles[i].get_action_vector(),
+        Arm new_arm(current_particles[i].get_action_vector(),
                     0); // 0 = cost info, eigentlich nicht notwendig
 
         arms_vec[i].push_back(new_arm); // füge Arm dem lokalen Arm Gedächtnis
@@ -449,7 +459,7 @@ int PSOMAB::run() {
       double r_before_update =
           arms_vec[i].at(best_individual_arm_indices[i]).get_r(); // für global
 
-      arms_vec[i].at(best_individual_arm_indices[i]).pull_arm();
+      arms_vec[i].at(best_individual_arm_indices[i]).pull_arm(obj);
       sim_counter += 1;
 
       // global
@@ -634,8 +644,8 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
     }
   }
 
-  double true_value = 0;
-      //arms_global.at(return_index2).function_value(); // no noise
+  double true_value =
+      arms_global.at(return_index2).function_value(obj, false); // no noise
   /// TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
   /// RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
 
