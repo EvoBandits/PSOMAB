@@ -720,59 +720,31 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
 
   int return_index2 = 0;
   last_element_reached = false;
-
-  if (obj == 0) { // minimization Problem
-    double best_ucb_value = 1000000000;
-    while (last_element_reached == false) {
-      int arm_index = (*it_norm2).arm_index;
-      if (arms_global.at(arm_index).get_k() == max_number_pulls) {
-        last_element_reached = true;
-      }
-      if (1 -
-              (ucb_norm_max - arms_global.at(arm_index).get_r() /
-                                  arms_global.at(arm_index).get_k()) /
-                  (ucb_norm_max - ucb_norm_min) +
-              sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k()) <
-          best_ucb_value) {
-        best_ucb_value =
-            1 -
+  double best_ucb_value = 1000000000;
+  while (last_element_reached == false) {
+    int arm_index = (*it_norm2).arm_index;
+    if (arms_global.at(arm_index).get_k() == max_number_pulls) {
+      last_element_reached = true;
+    }
+    if (1 -
             (ucb_norm_max - arms_global.at(arm_index).get_r() /
                                 arms_global.at(arm_index).get_k()) /
                 (ucb_norm_max - ucb_norm_min) +
-            sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k());
-        return_index2 = arm_index;
-      }
-      if (ucb_norm_max == ucb_norm_min) {
-        return_index2 = arm_index;
-      } // sonst wäre Nenner W_k - B_k null und in oberer if bedingung würde inf
-        // < minvalue2 stehen
-      it_norm2++;
-    }
-  } else { // maximization Problem
-    double best_ucb_value = -1000000000;
-    while (last_element_reached == false) {
-      int arm_index = (*it_norm2).arm_index;
-      if (arms_global.at(arm_index).get_k() == max_number_pulls) {
-        last_element_reached = true;
-      }
-      if ((ucb_norm_max - arms_global.at(arm_index).get_r() /
+            sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k()) <
+        best_ucb_value) {
+      best_ucb_value =
+          1 -
+          (ucb_norm_max - arms_global.at(arm_index).get_r() /
                               arms_global.at(arm_index).get_k()) /
-                  (ucb_norm_max - ucb_norm_min) -
-              sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k()) >
-          best_ucb_value) {
-        best_ucb_value =
-            (ucb_norm_max - arms_global.at(arm_index).get_r() /
-                                arms_global.at(arm_index).get_k()) /
-                (ucb_norm_max - ucb_norm_min) -
-            sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k());
-        return_index2 = arm_index;
-      }
-      if (ucb_norm_max == ucb_norm_min) {
-        return_index2 = arm_index;
-      } // sonst wäre Nenner W_k - B_k null und in oberer if bedingung würde inf
-        // < minvalue2 stehen
-      it_norm2++;
+              (ucb_norm_max - ucb_norm_min) +
+          sqrt(2 * log(sim_counter) / arms_global.at(arm_index).get_k());
+      return_index2 = arm_index;
     }
+    if (ucb_norm_max == ucb_norm_min) {
+      return_index2 = arm_index;
+    } // sonst wäre Nenner W_k - B_k null und in oberer if bedingung würde inf
+      // < minvalue2 stehen
+    it_norm2++;
   }
 
   double true_value =
@@ -807,10 +779,10 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
   // true_value<<std::endl;
 }
 
-PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s, int objective,
+PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
                int stopping_criterion, unsigned seed, std::vector<int> x_lb,
                std::vector<int> x_ub)
-    : opti_func{func}, max_iter_or_sim_number{max_gen}, m{pop_s}, obj(objective),
+    : opti_func{func}, max_iter_or_sim_number{max_gen}, m{pop_s},
       stopping_criterion(stopping_criterion) {
 
   e.seed(seed); // initialize seed
