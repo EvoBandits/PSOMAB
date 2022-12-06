@@ -725,9 +725,9 @@ void PSOMAB::save_solution(int z) {// z iterationszahl
 
 PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
                int stopping_criterion, unsigned seed, std::vector<int> x_lb,
-               std::vector<int> x_ub)
+               std::vector<int> x_ub, int D)
     : opti_func{func}, max_iter_or_sim_number{max_gen}, m{pop_s},
-      stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub} {
+      stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
   e.seed(seed);// initialize seed
 
@@ -735,14 +735,14 @@ PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_g
   // the first iteration.
   for (int i = 0; i < pop_s; i++) {
     std::vector<int> v;
-    for (int j = 0; j < x_lb.size(); j++) {
+    for (int j = 0; j < dimension; j++) {
       v.push_back(random_number(x_lb[j], x_ub[j]));
     }
 
     // Check if v is unique, and if not generate new vector
     while (init_solutions.count(v) > 0) {
       v.clear();
-      for (int j = 0; j < x_lb.size(); j++) {
+      for (int j = 0; j < dimension; j++) {
         v.push_back(random_number(x_lb[j], x_ub[j]));
       }
     }
