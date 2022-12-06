@@ -32,7 +32,7 @@ double random_number_unif(int a, int b) {
 };
 
 // calculates the solution code, i.e. unique integer
-int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
+int128_t PSOMAB::calc_solution_code(std::vector<int> x) {
   int128_t search_index = 0;
   int dim = x.size();
   for (int i = 0; i < dim; i++) {
@@ -70,9 +70,10 @@ int PSOMAB::run() {
                            // lokalen LUT hinzu.  "0" deshalb, da es der erste
                            // Knoten ist.
 
-        Eigen::VectorXi init_velocity;
-        init_velocity.setZero(arms.at(i).get_action_vector().size());
-
+        std::vector<int> init_velocity;
+        for (int q = 0; q < arms.at(i).get_action_vector().size(); q++) {
+          init_velocity.push_back(0); // initialise velocity with 0
+        }
         velocity.push_back(init_velocity);
 
         current_particles.push_back(arms.at(i)); // x_i
@@ -175,6 +176,10 @@ int PSOMAB::run() {
     //////////////////////////////////////////////////////////////////////////////////////
     for (int k = 0; k < m; k++) {
 
+      std::vector<int> new_velocity;
+
+      std::vector<int> best_individual_diff;
+      std::vector<int> best_global_diff;
       double c1 = 2.5;
       double c2 = 1;
       double v = 0.2;
@@ -339,7 +344,7 @@ int PSOMAB::run() {
 
         double r_before_update = arms_vec[i].back().get_r(); // for global
         // neuen Arm ziehen
-        arms_vec[i].back().pull_arm();
+        arms_vec[i].back().pull_arm(obj);
         sim_counter += 1;
 
         // global
@@ -537,6 +542,133 @@ int PSOMAB::run() {
   return 0; // dummy return
 }
 
+std::vector<std::vector<int>>
+PSOMAB::get_history() { // gibt die gesamte Historie aller Arme zurück, in der
+                        // Form: {Anzahl besuche| Aktionen}
+  std::vector<std::vector<int>> history;
+  for (int o = 0; o < arms_global.size(); o++) {
+    std::vector<int> a;
+    a.push_back(int(arms_global.at(o).get_k()));
+    for (int u = 0; u < arms_global.at(o).get_action_vector().size(); u++) {
+      a.push_back(arms_global.at(o).get_action_vector().at(u));
+    }
+    history.push_back(a);
+  }
+  return history;
+}
+
+// prints all nodes of global MS. The first node is the node/solution considered
+// to be best.
+void PSOMAB::print_Q_tree_global() {
+  std::multiset<MS_element, std::less<>>::iterator it = MS_global.begin();
+  for (int o = 0; o < MS_global.size(); o++) {
+    int arm_index = (*it).arm_index;
+
+    std::cout << "index of x: " << arm_index << "   ";
+    for (int i = 0; i < vec_x_min.size(); i++) {
+      std::cout << arms_global.at(arm_index).get_action_vector()[i] << " ";
+    }
+    std::cout << "  N(x): ";
+    std::cout << arms_global.at(arm_index).get_k();
+    std::cout << " sample_mean: ";
+    std::cout << arms_global.at(arm_index).get_r() /
+                     arms_global.at(arm_index).get_k()
+              << std::endl;
+
+    it++;
+  }
+  std::cout << "press any key to continue " << std::endl;
+  std::cin.ignore();
+}
+
+void PSOMAB::print_Q_tree(int i) {
+  std::multiset<MS_element, std::less<>>::iterator it = MS_vec[i].begin();
+  for (int o = 0; o < MS_vec[i].size(); o++) {
+    int arm_index = (*it).arm_index;
+
+    // For UCB-normalized approach only
+    std::cout << "index: " << arm_index << "   ";
+    std::cout << arms_vec[i].at(arm_index).get_action_vector()[0] << " ";
+    std::cout << arms_vec[i].at(arm_index).get_action_vector()[1] << "   ";
+    std::cout << " Q: ";
+    std::cout << arms_vec[i].at(arm_index).get_r() /
+                     arms_vec[i].at(arm_index).get_k();
+    std::cout << "   k: " << arms_vec[i].at(arm_index).get_k() << std::endl;
+
+    it++;
+  }
+  std::cin.ignore();
+}
+
+void PSOMAB::print_best_sol_of_each() {
+  for (int i = 0; i < arms.size(); i++) {
+    std::multiset<MS_element, std::less<>>::iterator it = MS_vec[i].begin();
+    int arm_index = (*it).arm_index;
+
+    std::cout << "index: " << arm_index << "   ";
+    std::cout << arms_vec[i].at(arm_index).get_action_vector()[0] << " ";
+    std::cout << arms_vec[i].at(arm_index).get_action_vector()[1] << "   ";
+    std::cout << " Q: ";
+    std::cout << arms_vec[i].at(arm_index).get_r() /
+                     arms_vec[i].at(arm_index).get_k();
+    std::cout << "   k: " << arms_vec[i].at(arm_index).get_k() << std::endl;
+  }
+  std::cout << std::endl;
+}
+
+void PSOMAB::save_diversity(std::vector<int> indices, int total_rep) {
+  std::vector<int> D(arms[indices[0]].get_action_vector().size(), 0);
+
+  for (int i = 0; i < indices.size(); i++) {
+    for (int j = 0; j < arms[indices[i]].get_action_vector().size(); j++) {
+      D[j] += arms[indices[i]].get_action_vector()[j];
+    }
+  }
+
+  std::vector<double> means; // Means von 1, ... , bis zur max Dimension
+  for (int j = 0; j < D.size(); j++) {
+    means.push_back(D[j] * 1.0 / indices.size());
+  }
+
+  ///
+  std::vector<double> variances(arms[indices[0]].get_action_vector().size(), 0);
+  std::vector<double> stand_dev(arms[indices[0]].get_action_vector().size(), 0);
+
+  for (int i = 0; i < indices.size(); i++) {
+    for (int j = 0; j < arms[indices[i]].get_action_vector().size(); j++) {
+      variances[j] +=
+          pow(means[j] - arms[indices[i]].get_action_vector()[j], 2);
+    }
+  }
+  int n = indices.size();
+  for (int j = 0; j < variances.size(); j++) {
+    variances[j] = variances[j] / (n - 1);
+    stand_dev[j] = sqrt(variances[j]);
+  }
+
+  double normalized_res = 0;
+  for (int j = 0; j < stand_dev.size(); j++) {
+    normalized_res += stand_dev[j];
+  }
+
+  normalized_res = normalized_res / stand_dev.size();
+
+  std::vector<double> result{total_rep * 1.0, normalized_res};
+  diversity.push_back(result);
+}
+
+void PSOMAB::save_timesteps(int z) {
+  for (int v = 1; v < 101; v++) {
+    if (arms.size() >= v * 1000 and V < v * 1000) {
+      long long int size = arms.size();
+      timestamps.push_back(
+          {duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+               .count(),
+           size, z});
+    }
+  }
+  V = arms.size();
+}
 
 void PSOMAB::save_solution(int z) { // z iterationszahl
   // For UCB-normalized approach only
@@ -652,39 +784,50 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
   if (stopping_criterion ==
       1) { // falls nach max anzahl an simulation observations abgebrochen wird
            // (wird sim_counter an erster stelle angezeigt)
-    best_solutions.emplace_back(sim_counter, arms_global.at(return_index2).get_action_vector(),
+    best_solutions.push_back(
+        solution(sim_counter, arms_global.at(return_index2).get_action_vector(),
                  arms_global.at(return_index2).get_k(),
                  arms_global.at(return_index2).get_r() /
                      arms_global.at(return_index2).get_k(),
-                 true_value);
+                 true_value));
   } else { // d.h. falls nach max anzahl an iterationen abgebrochen wird (wird z
            // = iterationszahl an erster stelle angezeigt)
-    best_solutions.emplace_back(z, arms_global.at(return_index2).get_action_vector(),
+    best_solutions.push_back(
+        solution(z, arms_global.at(return_index2).get_action_vector(),
                  arms_global.at(return_index2).get_k(),
                  arms_global.at(return_index2).get_r() /
                      arms_global.at(return_index2).get_k(),
-                 true_value);
+                 true_value));
   }
+
+  // std::cout <<  best_solutions.back().obs_number << " " <<
+  // arms.at(return_index2).get_action_vector().at(0)<< ","<<
+  // arms.at(return_index2).get_action_vector().at(1) << "   N:" <<
+  // arms.at(return_index2).get_k()<< "  Q:"<<
+  // arms.at(return_index2).get_r()/arms.at(return_index2).get_k() << " True:"<<
+  // true_value<<std::endl;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int objective,
-               int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb,
-               Eigen::VectorXi x_ub)
-    : function{func}, max_iter_or_sim_number{max_gen}, m{pop_s}, obj(objective),
+PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
+               int stopping_criterion, unsigned seed, std::vector<int> x_lb,
+               std::vector<int> x_ub)
+    : max_iter_or_sim_number{max_gen}, m{pop_s}, obj(objective),
       stopping_criterion(stopping_criterion) {
 
   e.seed(seed); // initialize seed
 
-  vec_x_min = x_ub;
-  vec_x_max = x_lb;
+  // ToDo: sinnigkeit überprüfen, warum doppelt und woher die dimensionen
+  for (int i = 0; i < x_lb.size(); i++) {
+    vec_x_max.push_back(x_ub.at(i));
+    vec_x_min.push_back(x_lb.at(i));
+  }
 
   // The following procedure ensures that only unique solutions are generated in
   // the first iteration.
   for (int i = 0; i < pop_s; i++) {
-    Eigen::VectorXi v(x_lb.size());
-    // fill vector with random values between bounds from x_lb and x_ub
+    std::vector<int> v;
     for (int j = 0; j < x_lb.size(); j++) {
-      v(j) = random_number(x_lb[j], x_ub[j]);
+      v.push_back(random_number(x_lb[j], x_ub[j]));
     }
 
     bool stop_while = false;
@@ -704,8 +847,9 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
         }
       }
       if (!is_unique) {
+        v.clear();
         for (int j = 0; j < x_lb.size(); j++) {
-          v(j) = (random_number(x_lb[j], x_ub[j]));
+          v.push_back(random_number(x_lb[j], x_ub[j]));
         }
       } else {
         stop_while = true; // stop if candidate is unqie
@@ -715,7 +859,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
         v); // required to check wheather all elements are unique
 
     // add arm to "arms", i.e. where all arms are stored
-    Arm new_arm(func, v,
+    Arm new_arm(v,
                 0); // 0 = cost info, last element (0) is actually not necessary
     arms.push_back(new_arm);
   }

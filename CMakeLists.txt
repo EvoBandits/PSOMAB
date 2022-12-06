@@ -12,7 +12,6 @@ add_executable(PSOMAB
         PSOMAB/Arm.h
         PSOMAB/LUT.cpp
         PSOMAB/LUT.h
-        tests/main.cpp
+        PSOMAB/main.cpp
         PSOMAB/PSOMAB.cpp
-        PSOMAB/PSOMAB.h
-        tests/inventory_problem.h)
+        PSOMAB/PSOMAB.h)
