@@ -175,8 +175,6 @@ int PSOMAB::run() {
     //////////////////////////////////////////////////////////////////////////////////////
     for (int k = 0; k < m; k++) {
 
-      std::vector<int> new_velocity;
-
       std::vector<int> best_individual_diff;
       std::vector<int> best_global_diff;
       double c1 = 2.5;
@@ -192,22 +190,13 @@ int PSOMAB::run() {
                        (arms_vec[best_global_particle_index][best_global_index]
                             .get_action_vector()[g] -
                         current_particles[k].get_action_vector()[g]));
-        best_individual_diff.push_back(b1);
-        best_global_diff.push_back(b2);
-      }
 
-      for (int g = 0; g < current_particles.at(k).get_action_vector().size();
-           g++) {
-        new_velocity.push_back(round(v * velocity[k][g] +
-                                     best_individual_diff[g] +
-                                     best_global_diff[g]));
-        velocity[k][g] = new_velocity[g]; /// VELOCITY UPDATE
-      }
+        velocity[k][g] = round(v * velocity[k][g] + b1 + b2); /// VELOCITY UPDATE
 
-      for (int g = 0; g < current_particles.at(k).get_action_vector().size();
-           g++) {
         int new_value =
             current_particles[k].get_action_vector()[g] + velocity[k][g];
+
+        // ToDo: ist das das richtige vorgehen bei werten außerhalb der range?
         if (new_value > vec_x_max[g]) {
           new_value = random_number(vec_x_min[g], vec_x_max[g]);
         }
