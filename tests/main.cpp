@@ -13,7 +13,7 @@
  * 
  * 
  * */
-#include <stdio.h>
+#include <cstdio>
 #include "PSOMAB.h"
 #include <iostream>
 #include <iomanip>
@@ -22,6 +22,8 @@
 #include <chrono> 
 #include <fstream>
 #include <string>
+
+#include "inventory_problem.h"
 
 
 
@@ -130,8 +132,10 @@ int main(){
     
     //TP1
     
-    std::vector<int> x_lb{1,1};
-    std::vector<int> x_ub{100,100};  
+    Eigen::VectorXi x_lb(2);
+    x_lb << 1, 1;
+    Eigen::VectorXi x_ub(2);
+    x_ub << 100, 100;
     
     
     //TP_2
@@ -174,7 +178,7 @@ int main(){
         //ANMERKUNG: MR, CR sowie sigma_d (mutation width) bei PSOMAB ohne Funktion (dies sind ursprüngliche GMAB Parameter)
         
         // run the min-problems TP4_D05 - TP4_20           ... and TP1 as well as TP3   (Please change the objective function within Arm.cpp if you change your test problem)
-        PSOMAB instance = PSOMAB(10000, m, 0, 1, seed, x_lb, x_ub); //itarations, population_size, mutation_rate, crossover_rate, mutation_span , objective ( 0=min, 1=max), 1== sim obs
+        PSOMAB instance = PSOMAB(funccc_value, 10000, m, 0, 1, seed, x_lb, x_ub); //itarations, population_size, mutation_rate, crossover_rate, mutation_span , objective ( 0=min, 1=max), 1== sim obs
         //(budget, m, mutatation_probability, crossover_probability, sigma_d (mutation width), objective (0:min, 1:max), modus (0: budget=number of GMAB iterations, 1: budget=number of simulation observations), seed, x_lb, x_ub)
         
         
@@ -202,7 +206,7 @@ int main(){
             std::cout <<i << "/"<<number_of_samples << " runs|"<<"budget:"<<instance.best_solutions.at(k).obs_number<<" | true:"<< instance.best_solutions.at(k).true_func_val << "  mean:"<<instance.best_solutions.at(k).mean_func_val<<"  ";
             std::cout <<"N: " <<instance.best_solutions.at(k).N<< "   ";
             for(int q=0; q<instance.best_solutions.at(k).x.size(); q++){
-                std::cout << instance.best_solutions.at(k).x.at(q) << " " ;
+                std::cout << instance.best_solutions.at(k).x(q) << " " ;
             }
             std::cout << std::endl;
             

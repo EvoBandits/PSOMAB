@@ -25,12 +25,12 @@ struct MS_element {
 
 struct solution {
   int obs_number;     // the "obs-number"-th observation over the course of time
-  std::vector<int> x; // x
+  Eigen::VectorXi x; // x
   int N;
   double mean_func_val = 0.0; // meanfunction value
   double true_func_val = 0.0; // truefunction value
 
-  solution(int obs_number, std::vector<int> x, int N, double mean_func_val,
+  solution(int obs_number, Eigen::VectorXi x, int N, double mean_func_val,
            double true_func_val)
       : obs_number(obs_number), x(x), N(N), mean_func_val(mean_func_val),
         true_func_val(true_func_val) {}
@@ -43,12 +43,12 @@ private:
   unsigned long max_iter_or_sim_number; // ToDo ???
   int m;                                // ToDo ???
 
-  std::vector<int> vec_x_min; // D-dimensional Vector of the smallest possible
+  Eigen::VectorXi vec_x_min; // D-dimensional Vector of the smallest possible
                               // values a solution can have --> lower bounds
-  std::vector<int> vec_x_max; // D-Dimensional Vector of the largest possible
+  Eigen::VectorXi vec_x_max; // D-Dimensional Vector of the largest possible
                               // values a solution can have --> upper bounds
 
-  std::vector<std::vector<int>>
+  std::vector<Eigen::VectorXi>
       init_solutions; // Matrix of initial solutions (pop_s * D)
 
   int obj = 0;                // ToDo ???
@@ -69,28 +69,21 @@ private:
   std::multiset<MS_element, std::less<>> MS_global;
   ////// PSO
 
+  std::function<double(Eigen::VectorXi)> function;
+
 public:
   std::vector<solution> best_solutions;
   std::vector<std::vector<double>> diversity;
 
-  int128_t calc_solution_code(std::vector<int> x);
+  int128_t calc_solution_code(Eigen::VectorXi x);
   int run();
 
   std::vector<std::vector<int>> get_history();
   void save_solution(int z);
-  void save_diversity(std::vector<int> indices, int total_rep);
 
-  int V = 10000000; // only required to save timestamps, no internal PSOMAB
-                    // functionality
-  std::vector<std::vector<long long int>> timestamps;
-  void save_timesteps(int z); // save timestamps
-  void print_Q_tree_global();
-  void print_Q_tree(int i);
-  void print_best_sol_of_each();
-
-  PSOMAB(unsigned long max_gen, int pop_s, int objective,
-         int stopping_criterion, unsigned seed, std::vector<int> s_ll,
-         std::vector<int> s_ul);
+  PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int objective,
+         int stopping_criterion, unsigned seed, Eigen::VectorXi s_ll,
+         Eigen::VectorXi s_ul);
   ~PSOMAB();
 };
 
