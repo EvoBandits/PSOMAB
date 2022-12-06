@@ -172,7 +172,7 @@ int PSOMAB::run() {
 
     //////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////AB HIER HIER EIGENTLICHE PSO
-    ///FUNKTIONALITÄT/////////////////
+    /// FUNKTIONALITÄT/////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     for (int k = 0; k < m; k++) {
 
@@ -221,12 +221,12 @@ int PSOMAB::run() {
     }
     //////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////BIS HIER EIGENTLICHE PSO
-    ///FUNKTIONALITÄT//////////////////////
+    /// FUNKTIONALITÄT//////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////AB HIER HIER PRIMÄR MEMORY (d.h. MAB)
-    ///FUNKTIONALITÄT//////////
+    /// FUNKTIONALITÄT//////////
     //////////////////////////////////////////////////////////////////////////////////////
     for (unsigned int i = 0; i < current_particles.size(); i++) {
       int128_t search_index = calc_solution_code(
@@ -234,8 +234,8 @@ int PSOMAB::run() {
               .get_action_vector()); // berechne "unique integer" aka search
                                      // index
       const int arm_index = lookuptree_vec[i].search(
-          search_index); // Suche im lokalen LUT des i-ten partikel nach
-                         // arm_index
+          search_index);    // Suche im lokalen LUT des i-ten partikel nach
+                            // arm_index
       if (arm_index >= 0) { // alle arm_index >= 0 existieren, -1 falls arm noch
                             // nicht vorhanden
         // existiert bereits
@@ -438,7 +438,7 @@ int PSOMAB::run() {
     }
     //////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////BIS HIER HIER PRIMÄR MEMORY
-    ///FUNKTIONALITÄT///////////////////
+    /// FUNKTIONALITÄT///////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
     // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
@@ -816,7 +816,6 @@ PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
 
   e.seed(seed); // initialize seed
 
-
   // ToDo: sinnigkeit überprüfen, warum doppelt und woher die dimensionen
   for (int i = 0; i < x_lb.size(); i++) {
     vec_x_max.push_back(x_ub.at(i));
@@ -834,7 +833,9 @@ PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
     bool stop_while = false;
     while (!stop_while) {
       bool is_unique = true;
-      for (auto & init_solution : init_solutions) { // Passes through all previous solutions within init_solutions
+      for (auto &init_solution :
+           init_solutions) { // Passes through all previous solutions within
+                             // init_solutions
         bool all_same = true;
         for (int k = 0; k < x_lb.size(); k++) {
           if (v[k] != init_solution[k]) {
@@ -861,10 +862,6 @@ PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
     Arm new_arm(v,
                 0); // 0 = cost info, last element (0) is actually not necessary
     arms.push_back(new_arm);
-
-    // insert new arm into LUT
-    int128_t search_index = calc_solution_code(v);
-    lookuptree.insert(i, search_index);
   }
 }
 
