@@ -5,9 +5,10 @@
 #include <vector>
 
 class Arm {
-private:
+ private:
   std::vector<int> action_vector;
-  int calc_cost_info{};
+
+  // ToDo: sind das überbleibsel von GMAB?
   double mu{};
   double sigma{};
 
@@ -15,10 +16,11 @@ private:
   double k{};
   double Q{};
 
-public:
+  std::function<double(std::vector<int>)> arm_function;
+
+ public:
   void reset_arm();
   double function_value();
-  std::function<double(std::vector<int>)> arm_function;
   double pull_arm();
   double get_Q();
   double get_k();
@@ -32,9 +34,9 @@ public:
   void set_action_vector_element(int index, int value);
   void print_action_vector();
 
-  Arm(std::function<double(std::vector<int>)> func, std::vector<int> permutation, int calc_cost_info, double init_r = 0.0,
+  Arm(std::function<double(std::vector<int>)> func, std::vector<int> permutation, double init_r = 0.0,
       double init_k = 0.0, double init_Q = -1000000000.0);
   ~Arm();
 };
 
-#endif // _Arm_H_
+#endif// _Arm_H_
