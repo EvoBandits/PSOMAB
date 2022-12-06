@@ -64,6 +64,8 @@ private:
   std::vector<std::vector<int>> velocity; // velocity
   std::vector<LUT> lookuptree_vec;
 
+  std::function<double(std::vector<int>)> opti_func;
+
   std::vector<Arm> arms_global;
   LUT lookuptree_global;
   std::multiset<MS_element, std::less<>> MS_global;
@@ -88,7 +90,7 @@ public:
   void print_Q_tree(int i);
   void print_best_sol_of_each();
 
-  PSOMAB(unsigned long max_gen, int pop_s, int objective,
+  PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s, int objective,
          int stopping_criterion, unsigned seed, std::vector<int> s_ll,
          std::vector<int> s_ul);
   ~PSOMAB();

@@ -85,8 +85,7 @@ int PSOMAB::run() {
             arms.at(i)); // Füge Arm "arms.at(i)" dem Gedächtnis des i-ten
                          // Partikels hinzu
 
-        arms_vec[i].at(0).pull_arm(
-            obj); // Ziehe entsprechenden arm 0: Es gibt arms.size()
+        arms_vec[i].at(0).pull_arm(); // Ziehe entsprechenden arm 0: Es gibt arms.size()
                   // speicher_listen, in jeder liste wird hier nur das 1.
                   // Element befüllt.
         sim_counter += 1; // erhöhe den totalen sim obs. counter
@@ -265,7 +264,7 @@ int PSOMAB::run() {
                   .get_r(); // // Store current mean in cache (before update)
 
           // pull_arm
-          arms_vec[i].at(var).pull_arm(obj); // pull arm
+          arms_vec[i].at(var).pull_arm(); // pull arm
           sim_counter += 1;                  // increase total sim_counter
 
           // global
@@ -336,7 +335,7 @@ int PSOMAB::run() {
         }
       } else {
         // existiert noch nicht
-        Arm new_arm(current_particles[i].get_action_vector(),
+        Arm new_arm(opti_func, current_particles[i].get_action_vector(),
                     0); // 0 = cost info, eigentlich nicht notwendig
 
         arms_vec[i].push_back(new_arm); // füge Arm dem lokalen Arm Gedächtnis
@@ -344,7 +343,7 @@ int PSOMAB::run() {
 
         double r_before_update = arms_vec[i].back().get_r(); // for global
         // neuen Arm ziehen
-        arms_vec[i].back().pull_arm(obj);
+        arms_vec[i].back().pull_arm();
         sim_counter += 1;
 
         // global
@@ -464,7 +463,7 @@ int PSOMAB::run() {
       double r_before_update =
           arms_vec[i].at(best_individual_arm_indices[i]).get_r(); // für global
 
-      arms_vec[i].at(best_individual_arm_indices[i]).pull_arm(obj);
+      arms_vec[i].at(best_individual_arm_indices[i]).pull_arm();
       sim_counter += 1;
 
       // global
@@ -777,7 +776,7 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
   }
 
   double true_value =
-      arms_global.at(return_index2).function_value(obj, false); // no noise
+      arms_global.at(return_index2).function_value(); // no noise
   /// TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
   /// RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
 
@@ -808,10 +807,10 @@ void PSOMAB::save_solution(int z) { // z iterationszahl
   // true_value<<std::endl;
 }
 
-PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
+PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s, int objective,
                int stopping_criterion, unsigned seed, std::vector<int> x_lb,
                std::vector<int> x_ub)
-    : max_iter_or_sim_number{max_gen}, m{pop_s}, obj(objective),
+    : opti_func{func}, max_iter_or_sim_number{max_gen}, m{pop_s}, obj(objective),
       stopping_criterion(stopping_criterion) {
 
   e.seed(seed); // initialize seed
@@ -859,7 +858,7 @@ PSOMAB::PSOMAB(unsigned long max_gen, int pop_s, int objective,
         v); // required to check wheather all elements are unique
 
     // add arm to "arms", i.e. where all arms are stored
-    Arm new_arm(v,
+    Arm new_arm(opti_func, v,
                 0); // 0 = cost info, last element (0) is actually not necessary
     arms.push_back(new_arm);
   }
