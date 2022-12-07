@@ -8,22 +8,22 @@
 #include <vector>
 
 void Arm::reset_arm() {
-  r = 0.0;
-  Q = 0.0;
-  k = 0.0;
+        r = 0.0;
+        Q = 0.0;
+        k = 0.0;
 }
 
 double Arm::function_value() {
-  return arm_function(action_vector);
+        return arm_function(action_vector);
 }
 
 double Arm::pull_arm() {
-  double G = (*this).function_value();
+        double G = (*this).function_value();
 
-  r = r + G;
-  k = k + 1;
+        r = r + G;
+        k = k + 1;
 
-  return G;
+        return G;
 }
 
 double Arm::get_Q() { return Q; }
@@ -39,16 +39,16 @@ void Arm::update_k(int k_var) { k = k + k_var; }
 void Arm::update_r(double r_var) { r = r + r_var; }
 
 void Arm::set_action_vector_element(int index, int value) {
-  action_vector[index] = value;
+        action_vector[index] = value;
 }
 
 std::vector<int> Arm::get_action_vector() { return action_vector; }
 
 void Arm::print_action_vector() {
-  for (int i : action_vector) {
-    std::cout << i << " ";
-  }
-  std::cout << std::endl;
+        for (int i : action_vector) {
+                std::cout << i << " ";
+        }
+        std::cout << std::endl;
 }
 
 Arm::Arm(std::function<double(std::vector<int>)> func, std::vector<int> permutation, double init_r,

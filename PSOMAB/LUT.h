@@ -8,33 +8,33 @@ using namespace boost::multiprecision;
 // ToDo: überprüfen ob es möglich ist diesen großen Int loszuwerden
 
 struct node {
-  int128_t search_index;
-  int arm_index;
-  node *left;
-  node *right;
+        int128_t search_index;
+        int arm_index;
+        node *left;
+        node *right;
 };
 
 class LUT {
 
-  node *root;
+        node *root;
 
-  node *makeEmpty(node *t);
+        node *makeEmpty(node *t);
 
- public:
-  void insert(int arm_index, int128_t search_index) {
-    root = insert(arm_index, search_index, root);
-  }
+       public:
+        void insert(int arm_index, int128_t search_index) {
+                root = insert(arm_index, search_index, root);
+        }
 
-  int search(int128_t search_index) {
-    return find(root, search_index);
-  }
+        int search(int128_t search_index) {
+                return find(root, search_index);
+        }
 
-  int find(node *t, int128_t search_index);
-  node *insert(int arm_index, int128_t search_index, node *t);
-  node *clone(node *ptr);
-  LUT();
-  LUT(const LUT &old_LUT);// PSO COPY
-  ~LUT();
+        int find(node *t, int128_t search_index);
+        node *insert(int arm_index, int128_t search_index, node *t);
+        node *clone(node *ptr);
+        LUT();
+        LUT(const LUT &old_LUT);// PSO COPY
+        ~LUT();
 };
 
 #endif// _LUT_H_
