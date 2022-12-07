@@ -79,17 +79,10 @@ class PSOMAB {
         int128_t calc_solution_code(std::vector<int> x);
         int run();
 
-        std::vector<std::vector<int>> get_history();
         void save_solution(int z);
-        void save_diversity(std::vector<int> indices, int total_rep);
 
-        int V = 10000000;// only required to save timestamps, no internal PSOMAB
-                         // functionality
-        std::vector<std::vector<long long int>> timestamps;
-        void save_timesteps(int z);// save timestamps
-        void print_Q_tree_global();
-        void print_Q_tree(int i);
-        void print_best_sol_of_each();
+        void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
+        void MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z);
 
         PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
                int stopping_criterion, unsigned seed, std::vector<int> s_ll,
