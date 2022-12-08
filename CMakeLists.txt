@@ -14,4 +14,4 @@ add_executable(PSOMAB
         PSOMAB/LUT.h
         tests/main.cpp
         PSOMAB/PSOMAB.cpp
-        PSOMAB/PSOMAB.h tests/problems/inventory.h)
+        PSOMAB/PSOMAB.h tests/problems/inventory.h PSOMAB/RandomNumber.cpp PSOMAB/RandomNumber.h)

@@ -36,8 +36,6 @@ struct solution {
               true_func_val(true_func_val) {}
 };
 
-/////////////////////////////////////
-
 class PSOMAB {
        private:
         unsigned long max_iter_or_sim_number;// ToDo ???
@@ -87,7 +85,6 @@ class PSOMAB {
         PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
                int stopping_criterion, unsigned seed, std::vector<int> s_ll,
                std::vector<int> s_ul, int D);
-        ~PSOMAB();
 };
 
 #endif// _PSOMAB_H_
