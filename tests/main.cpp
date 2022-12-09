@@ -1,4 +1,4 @@
-#include "PSOMAB.h"
+#include "../pack_name/PSOMAB/PSOMAB.h"
 #include <iostream>
 
 #include "problems/inventory.h"
