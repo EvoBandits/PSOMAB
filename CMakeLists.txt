@@ -8,10 +8,13 @@ include_directories(third_party/boost_1_80_0)
 include_directories(third_party/eigen-3.4.0)
 
 add_executable(PSOMAB
-        PSOMAB/Arm.cpp
-        PSOMAB/Arm.h
-        PSOMAB/LUT.cpp
-        PSOMAB/LUT.h
+        pack_name/PSOMAB/Arm.cpp
+        pack_name/PSOMAB/Arm.h
+        pack_name/PSOMAB/LUT.cpp
+        pack_name/PSOMAB/LUT.h
+        pack_name/PSOMAB/PSOMAB.cpp
+        pack_name/PSOMAB/PSOMAB.h
+        pack_name/PSOMAB/RandomNumber.cpp
+        pack_name/PSOMAB/RandomNumber.h
         tests/main.cpp
-        PSOMAB/PSOMAB.cpp
-        PSOMAB/PSOMAB.h tests/problems/inventory.h PSOMAB/RandomNumber.cpp PSOMAB/RandomNumber.h)
+        tests/problems/inventory.h)
