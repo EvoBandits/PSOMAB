@@ -511,3 +511,6 @@ PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_g
                 arms.push_back(new_arm);
         }
 }
+std::vector<solution> PSOMAB::getBest_solutions() {
+        return best_solutions;
+}
