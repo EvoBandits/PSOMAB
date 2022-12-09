@@ -9,6 +9,7 @@
 #include <set>
 #include <vector>
 
+// ToDo bad practice
 using namespace boost::multiprecision;
 
 ///////
@@ -54,6 +55,8 @@ class PSOMAB {
         int stopping_criterion = 0;// ToDo ???
         int sim_counter = 0;       // ToDo ???
 
+        std::vector<solution> best_solutions;
+
         std::vector<Arm> arms;// ToDo ???
 
         ////// PSO
@@ -68,19 +71,21 @@ class PSOMAB {
         std::vector<Arm> arms_global;
         LUT lookuptree_global;
         std::multiset<MS_element, std::less<>> MS_global;
-        ////// PSO
 
-       public:
-        std::vector<solution> best_solutions;
         std::vector<std::vector<double>> diversity;
 
+        void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
+        ////// PSO
+
         int128_t calc_solution_code(std::vector<int> x);
-        int run();
+
+        void MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z);
 
         void save_solution(int z);
 
-        void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
-        void MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z);
+       public:
+        int run();
+        std::vector<solution> getBest_solutions();
 
         PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
                int stopping_criterion, unsigned seed, std::vector<int> s_ll,
