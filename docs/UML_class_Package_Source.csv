@@ -1,0 +1,33 @@
+Id,Name,Shape Library,Page ID,Contained By,Group,Line Source,Line Destination,Source Arrow,Destination Arrow,Status,Text Area 1,Text Area 2,Text Area 3,Comments
+1,Document,,,,,,,,,Draft,UML class,,,
+2,Page,,,,,,,,,,UML Class,,,
+3,Class,UML,2,,,,,,,,OptimizationAlgorithm,,,
+4,Rounded Rectangle Container,Flowchart Shapes,2,,25,,,,,,,,,
+5,Text,Standard,2,4,25,,,,,,Learn about this template,,,
+6,Text,Standard,2,4,25,,,,,,"UML Class Diagram Tutorials (Hold Shift + ⌘ or Ctrl, then click)",,,
+7,Button,UI Mockups,2,4,25,,,,,,Read about UML class diagrams,,,
+8,Button,UI Mockups,2,4,25,,,,,,Watch a UML class diagram tutorial,,,
+9,Button,UI Mockups,2,4,25,,,,,,Watch Lucidchart basic tutorials,,,
+10,User Image,User Images,2,4,25,,,,,,,,,
+11,MinimalTextBlock,Standard,2,4,25,,,,,,"UML class diagrams map out the structure of a particular system by modeling its classes, attributes, operations, and relationships between objects.   To customize this template:
+Click on any shape and type the information you would like to include. 
+Add and arrange class shapes as needed.
+Update cardinality.
+Click on a line and navigate to the properties bar to adjust the endpoints.
+Click on a line and hover over the gear icon to add multiplicities.
+Add additional lines by hovering over a shape and clicking the red dot",,,
+12,Class,UML,2,,26,,,,,,Population,,,
+13,Class,UML,2,,,,,,,,PSO,,,
+14,Class,UML,2,,,,,,,,PSOMAB,,,
+15,Class,UML,2,,,,,,,,Solution,,,
+16,Class,UML,2,,,,,,,,ARM,,,
+17,Class,UML,2,,,,,,,,LUT,,,
+18,Line,,2,,,3,13,Generalization,None,,,,,
+19,Line,,2,,,13,14,Generalization,None,,,,,
+20,Line,,2,,,14,17,Open Arrow,None,,,,,
+21,Line,,2,,,14,16,Open Arrow,None,,,,,
+22,Line,,2,,,12,13,None,Open Arrow,,,,,
+23,Line,,2,,,16,15,None,Open Arrow,,,,,
+24,Line,,2,,,15,12,None,Composition,,,,,
+25,Group 1,,2,,,,,,,,,,,
+26,Group 2,,2,,,,,,,,,,,
