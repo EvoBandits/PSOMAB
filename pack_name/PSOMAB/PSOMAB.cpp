@@ -37,6 +37,7 @@ void PSOMAB::PSO(int best_global_particle_index, int best_global_index, std::vec
                 double c2 = 1;
                 double v = 0.2;
 
+                // with eigen for loop can bis discarded
                 for (int g = 0; g < current_particles.at(k).get_action_vector().size(); g++) {
                         // ToDo: ist runden hier richtig?
                         std::uniform_real_distribution<double> uniform_real_distribution_c1(0, c1);
@@ -234,6 +235,7 @@ int PSOMAB::run() {
                                                   // lokalen LUT hinzu.  "0" deshalb, da es der erste
                                                   // Knoten ist.
 
+                                // for loop not needed with eigen
                                 std::vector<int> init_velocity;
                                 for (int q = 0; q < arms.at(i).get_action_vector().size(); q++) {
                                         init_velocity.push_back(0);// initialise velocity with 0
@@ -485,6 +487,7 @@ void PSOMAB::save_solution(int z) {// z iterationszahl
         }
 }
 
+// random initialization can be shortend by eigen
 PSOMAB::PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, std::vector<int> x_lb, std::vector<int> x_ub, int D) : opti_func{std::move(func)}, max_iter_or_sim_number{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         // The following procedure ensures that only unique solutions are generated in
