@@ -7,10 +7,9 @@
 #include <queue>
 #include <random>
 #include <set>
+#include <utility>
 #include <vector>
-
-// ToDo bad practice
-using namespace boost::multiprecision;
+#include "Eigen/Core"
 
 ///////
 
@@ -26,14 +25,14 @@ struct MS_element {
 
 struct solution {
         int obs_number;    // the "obs-number"-th observation over the course of time
-        std::vector<int> x;// x
+        Eigen::VectorXi x;// x
         int N;
         double mean_func_val = 0.0;// meanfunction value
         double true_func_val = 0.0;// truefunction value
 
-        solution(int obs_number, std::vector<int> x, int N, double mean_func_val,
+        solution(int obs_number, Eigen::VectorXi x, int N, double mean_func_val,
                  double true_func_val)
-            : obs_number(obs_number), x(x), N(N), mean_func_val(mean_func_val),
+            : obs_number(obs_number), x(std::move(x)), N(N), mean_func_val(mean_func_val),
               true_func_val(true_func_val) {}
 };
 
@@ -42,14 +41,14 @@ class PSOMAB {
         unsigned long max_iter_or_sim_number;// ToDo ???
         int m;                               // ToDo ???
 
-        std::vector<int> vec_x_min;// D-dimensional Vector of the smallest possible
+        Eigen::VectorXi vec_x_min;// D-dimensional Vector of the smallest possible
                                    // values a solution can have --> lower bounds
-        std::vector<int> vec_x_max;// D-Dimensional Vector of the largest possible
+        Eigen::VectorXi vec_x_max;// D-Dimensional Vector of the largest possible
                                    // values a solution can have --> upper bounds
 
         int dimension;// D
 
-        std::set<std::vector<int>>
+        std::vector<Eigen::VectorXi>
             init_solutions;// Matrix of initial solutions (pop_s * D)
 
         int stopping_criterion = 0;// ToDo ???
@@ -63,10 +62,10 @@ class PSOMAB {
         std::vector<std::multiset<MS_element, std::less<>>> MS_vec;
         std::vector<std::vector<Arm>> arms_vec;// Arm-Speicher eines jeden Paricles
         std::vector<Arm> current_particles;    // Arme der current iteration
-        std::vector<std::vector<int>> velocity;// velocity
+        std::vector<Eigen::VectorXi> velocity;// velocity
         std::vector<LUT> lookuptree_vec;
 
-        std::function<double(std::vector<int>)> opti_func;
+        std::function<double(Eigen::VectorXi)> opti_func;
 
         std::vector<Arm> arms_global;
         LUT lookuptree_global;
@@ -77,7 +76,7 @@ class PSOMAB {
         void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
         ////// PSO
 
-        int128_t calc_solution_code(std::vector<int> x);
+        int128_t calc_solution_code(Eigen::VectorXi x);
 
         void MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z);
 
@@ -87,9 +86,9 @@ class PSOMAB {
         int run();
         std::vector<solution> getBest_solutions();
 
-        PSOMAB(std::function<double(std::vector<int>)> func, unsigned long max_gen, int pop_s,
-               int stopping_criterion, unsigned seed, std::vector<int> s_ll,
-               std::vector<int> s_ul, int D);
+        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s,
+               int stopping_criterion, unsigned seed, Eigen::VectorXi s_ll,
+               Eigen::VectorXi s_ul, int D);
 };
 
 #endif// _PSOMAB_H_

@@ -3,6 +3,7 @@
 
 #include <random>
 #include <vector>
+#include "Eigen/Core"
 
 std::default_random_engine re(1);
 
@@ -11,7 +12,7 @@ double poisson_random_number(double a) {
         return random_integer(re);
 };
 
-double inventory(std::vector<int> action_vector) {
+double inventory(Eigen::VectorXi action_vector) {
         int s = action_vector[0];
         int S = action_vector[1] + s;
         int inventory_before_ordering = S;

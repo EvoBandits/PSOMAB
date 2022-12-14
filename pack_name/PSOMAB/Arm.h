@@ -3,10 +3,11 @@
 #include <functional>
 #include <random>
 #include <vector>
+#include "Eigen/Core"
 
 class Arm {
        private:
-        std::vector<int> action_vector;
+        Eigen::VectorXi action_vector;
 
         // ToDo: sind das überbleibsel von GMAB?
         double mu{};
@@ -16,7 +17,7 @@ class Arm {
         double k{};
         double Q{};
 
-        std::function<double(std::vector<int>)> arm_function;
+        std::function<double(Eigen::VectorXi)> arm_function;
 
        public:
         void reset_arm();
@@ -27,16 +28,15 @@ class Arm {
         double get_r();
         double get_mu();
 
-        std::vector<int> get_action_vector();
+        Eigen::VectorXi get_action_vector();
 
         void update_k(int k_var);
         void update_r(double r_var);
         void set_action_vector_element(int index, int value);
         void print_action_vector();
 
-        Arm(std::function<double(std::vector<int>)> func, std::vector<int> permutation, double init_r = 0.0,
+        Arm(std::function<double(Eigen::VectorXi)> func, Eigen::VectorXi permutation, double init_r = 0.0,
             double init_k = 0.0, double init_Q = -1000000000.0);
-        ~Arm();
 };
 
 #endif// _Arm_H_
