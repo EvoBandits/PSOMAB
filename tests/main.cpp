@@ -5,8 +5,10 @@
 
 int main() {
 
-        std::vector<int> x_lb{1, 1};
-        std::vector<int> x_ub{100, 100};
+        Eigen::VectorXi x_lb(2);
+        x_lb << 1, 1;
+        Eigen::VectorXi x_ub(2);
+        x_ub << 100, 100;
 
         int m = 10;
 

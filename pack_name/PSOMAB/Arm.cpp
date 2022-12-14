@@ -42,7 +42,7 @@ void Arm::set_action_vector_element(int index, int value) {
         action_vector[index] = value;
 }
 
-std::vector<int> Arm::get_action_vector() { return action_vector; }
+Eigen::VectorXi Arm::get_action_vector() { return action_vector; }
 
 void Arm::print_action_vector() {
         for (int i : action_vector) {
@@ -51,8 +51,7 @@ void Arm::print_action_vector() {
         std::cout << std::endl;
 }
 
-Arm::Arm(std::function<double(std::vector<int>)> func, std::vector<int> permutation, double init_r,
+Arm::Arm(std::function<double(Eigen::VectorXi)> func, Eigen::VectorXi permutation, double init_r,
          double init_k, double init_Q)
     : arm_function{std::move(func)}, action_vector{std::move(permutation)}, r{init_r}, k{init_k}, Q{init_Q} {}
 
-Arm::~Arm() {}
