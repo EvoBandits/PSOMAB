@@ -34,7 +34,7 @@ void PSOMAB::PSO(int best_global_particle_index, int best_global_index, std::vec
                 double v = 0.2;
 
                 // with eigen for loop can bis discarded
-                for (int g = 0; g < current_particles.at(k).get_action_vector().size(); g++) {
+                for (int g = 0; g < dimension; g++) {
                         // ToDo: ist runden hier richtig?
                         std::uniform_real_distribution<double> uniform_real_distribution_c1(0, c1);
                         std::uniform_real_distribution<double> uniform_real_distribution_c2(0, c2);
@@ -55,7 +55,7 @@ void PSOMAB::PSO(int best_global_particle_index, int best_global_index, std::vec
         }
 }
 
-void PSOMAB::MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z) {
+void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
         for (unsigned int i = 0; i < current_particles.size(); i++) {
                 int128_t search_index = calc_solution_code(current_particles[i].get_action_vector());// berechne "unique integer" aka search index
                 const int arm_index = lookuptree_vec[i].search(search_index);                        // Suche im lokalen LUT des i-ten partikel nach arm_index
@@ -112,7 +112,7 @@ void PSOMAB::MAB(int save_solution_every_x, std::vector<int> best_individual_arm
                                 //////end global////////
 
                                 if (stopping_criterion == 1) {// stop after max observations
-                                        if (sim_counter % save_solution_every_x == 0) {
+                                        if (sim_counter % 100 == 0) {
                                                 save_solution(z);
                                         }// save solution
                                         if (sim_counter == max_iter_or_sim_number) {
@@ -190,7 +190,7 @@ void PSOMAB::MAB(int save_solution_every_x, std::vector<int> best_individual_arm
 
                         //////////////
                         if (stopping_criterion == 1) {// stop after max observations
-                                if (sim_counter % save_solution_every_x == 0) {
+                                if (sim_counter % 100 == 0) {
                                         save_solution(z);
                                 }// save solution
                                 if (sim_counter == max_iter_or_sim_number) {
@@ -318,7 +318,7 @@ int PSOMAB::run() {
 
                 PSOMAB::PSO(best_global_particle_index, best_global_index, best_individual_arms);
 
-                MAB(save_solution_every_x, best_individual_arm_indices, z);
+                MAB(best_individual_arm_indices, z);
 
                 // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
                 // Sample Means zu erhalten. Das passiert in der folgenden For loop
@@ -481,7 +481,6 @@ void PSOMAB::save_solution(int z) {// z iterationszahl
         }
 }
 
-// random initialization can be shortend by eigen
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_iter_or_sim_number{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
