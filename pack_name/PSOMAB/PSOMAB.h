@@ -10,8 +10,7 @@
 #include <utility>
 #include <vector>
 #include "Eigen/Core"
-
-///////
+#include <unordered_set>
 
 struct MS_element {
         int arm_index;
@@ -74,11 +73,10 @@ class PSOMAB {
         std::vector<std::vector<double>> diversity;
 
         void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
-        ////// PSO
 
         int128_t calc_solution_code(Eigen::VectorXi x);
 
-        void MAB(int save_solution_every_x, std::vector<int> best_individual_arm_indices, int z);
+        void MAB(std::vector<int> best_individual_arm_indices, int z);
 
         void save_solution(int z);
 
