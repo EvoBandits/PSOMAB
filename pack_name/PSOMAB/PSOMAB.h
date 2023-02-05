@@ -50,7 +50,6 @@ class PSOMAB {
         std::vector<Eigen::VectorXi>
             init_solutions;// Matrix of initial solutions (pop_s * D)
 
-        int stopping_criterion = 0;// ToDo ???
         int sim_counter = 0;       // ToDo ???
 
         std::vector<solution> best_solutions;
@@ -84,8 +83,7 @@ class PSOMAB {
         void run();
         std::vector<solution> getBest_solutions();
 
-        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s,
-               int stopping_criterion, unsigned seed, Eigen::VectorXi s_ll,
+        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll,
                Eigen::VectorXi s_ul, int D);
 };
 

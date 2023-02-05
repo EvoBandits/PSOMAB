@@ -12,7 +12,7 @@ int main() {
 
         int m = 10;
 
-        PSOMAB instance = PSOMAB(inventory, 10000, m, 1, 1, x_lb, x_ub, 2);
+        PSOMAB instance = PSOMAB(inventory, 10000, m, 1, x_lb, x_ub, 2);
         instance.run();
 
         for (auto &best_solution : instance.getBest_solutions()) {
