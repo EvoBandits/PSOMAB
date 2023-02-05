@@ -111,14 +111,11 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
                                 MS_global.insert(MS_element(var_global, arms_global.at(var_global).get_r() / arms_global.at(var_global).get_k()));// füge neu zu MS_global hinzu
                                 //////end global////////
 
-                                if (stopping_criterion == 1) {// stop after max observations
-                                        if (sim_counter % 100 == 0) {
-                                                save_solution(z);
-                                        }// save solution
-                                        if (sim_counter == max_sim) {
-                                                return;
-                                        }// max_generations ist im fall von stopping_criterion==1 ein dummy
-                                         // für die max anzahl an observations
+                                if (sim_counter % 100 == 0) {
+                                        save_solution(z);
+                                }// save solution
+                                if (sim_counter == max_sim) {
+                                        return;
                                 }
                                 //////////////
 
@@ -189,14 +186,11 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
                         // global ende
 
                         //////////////
-                        if (stopping_criterion == 1) {// stop after max observations
-                                if (sim_counter % 100 == 0) {
-                                        save_solution(z);
-                                }// save solution
-                                if (sim_counter == max_sim) {
-                                        return;
-                                }// max_generations ist im fall von stopping_criterion==1 ein dummy
-                                 // für die max anzahl an observations
+                        if (sim_counter % 100 == 0) {
+                                save_solution(z);
+                        }// save solution
+                        if (sim_counter == max_sim) {
+                                return;
                         }
                         //////////////
 
@@ -313,26 +307,15 @@ void PSOMAB::run() {
                         // global ende
 
                         //////////////
-                        if (stopping_criterion == 1) {// stop after max observations
-                                if (sim_counter % save_solution_every_x == 0) {
-                                        save_solution(z);
-                                }// save solution
-                                if (sim_counter == max_sim) {
-                                        return;
-                                }// max_generations ist im fall von stopping_criterion==1 ein dummy für
-                                 // die max anzahl an observations
+                        if (sim_counter % save_solution_every_x == 0) {
+                                save_solution(z);
+                        }// save solution
+                        if (sim_counter == max_sim) {
+                                return;
                         }
                         //////////////
 
                         MS_vec[i].insert(MS_element(best_individual_arm_indices[i], arms_vec[i].at(best_individual_arm_indices[i]).get_r() / arms_vec[i].at(best_individual_arm_indices[i]).get_k()));
-                }
-
-                // at the end of each iteration
-                if (z % 1 == 0) {
-                        if (stopping_criterion == 0) {// if stopping criterion = max number of iterations
-                                save_solution(
-                                    z);// save the solution that is currently considered to be the best
-                        }
                 }
         }
 }
@@ -406,13 +389,10 @@ void PSOMAB::save_solution(int z) {// z iterationszahl
         /// TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
         /// RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
 
-        if (stopping_criterion == 1) {// falls nach max anzahl an simulation observations abgebrochen wird
-                                      // (wird sim_counter an erster stelle angezeigt)
-                best_solutions.emplace_back(sim_counter, arms_global.at(return_index2).get_action_vector(), arms_global.at(return_index2).get_k(), arms_global.at(return_index2).get_r() / arms_global.at(return_index2).get_k(), true_value);
-        } else {// d.h. falls nach max anzahl an iterationen abgebrochen wird (wird z
-                // = iterationszahl an erster stelle angezeigt)
-                best_solutions.emplace_back(z, arms_global.at(return_index2).get_action_vector(), arms_global.at(return_index2).get_k(), arms_global.at(return_index2).get_r() / arms_global.at(return_index2).get_k(), true_value);
-        }
+        // falls nach max anzahl an simulation observations abgebrochen wird
+        // (wird sim_counter an erster stelle angezeigt)
+        best_solutions.emplace_back(sim_counter, arms_global.at(return_index2).get_action_vector(), arms_global.at(return_index2).get_k(), arms_global.at(return_index2).get_r() / arms_global.at(return_index2).get_k(), true_value);
+
 }
 
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
@@ -430,7 +410,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, m{pop_s}, vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pop_s; i++) {
