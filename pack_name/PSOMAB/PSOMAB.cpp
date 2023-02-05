@@ -481,39 +481,28 @@ void PSOMAB::save_solution(int z) {// z iterationszahl
         }
 }
 
+Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
+        Eigen::VectorXi v(dimension);
+        // generate random solutions as long as they are not unique
+        while (true) {
+                for (int j = 0; j < dimension; j++) {
+                        std::uniform_int_distribution<int> uniform_dist(x_lb(j), x_ub(j));
+                        v(j) = uniform_dist(generator);
+                }
+                if (std::find(solutions.begin(), solutions.end(), v) == solutions.end()) {
+                        break;
+                }
+        }
+        return v;
+}
+
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_iter_or_sim_number{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pop_s; i++) {
                 Eigen::VectorXi v(dimension);
-                for (int j = 0; j < dimension; j++) {
-                        std::uniform_int_distribution<int> uniform_int_distribution(x_lb[j], x_ub[j]);
-                        v(j) = uniform_int_distribution(generator);
-                }
-
-                bool stop_while = false;
-                while (!stop_while) {
-                        bool is_unique = true;
-                        for (auto &init_solution : init_solutions) {// Passes through all previous solutions within init_solutions
-                                bool all_same = true;
-                                for (int k = 0; k < dimension; k++) {
-                                        if (v[k] != init_solution[k]) {
-                                                all_same = false;
-                                        }
-                                }
-                                if (all_same) {
-                                        is_unique = false;
-                                }
-                        }
-                        if (!is_unique) {
-                                for (int j = 0; j < dimension; j++) {
-                                        std::uniform_int_distribution<int> uniform_int_distribution(x_lb[j], x_ub[j]);
-                                        v(j) = uniform_int_distribution(generator);
-                                }
-                        } else {
-                                stop_while = true;//stop if candidate is unqie
-                        }
-                }
+                // generate random solutions as long as they are not unique
+                v = generate_unique_solution(init_solutions, x_lb, x_ub, dimension);
                 init_solutions.push_back(v);//required to check wheather all elements are unique
 
                 // add arm to "arms", i.e. where all arms are stored
