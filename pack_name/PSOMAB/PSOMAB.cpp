@@ -218,67 +218,6 @@ void PSOMAB::run() {
                                         // solution is stored for "log-file" data
 
         for (int z = 1; z <= max_iter_or_sim_number; z++) {
-                if (z == 1) {// first iteration   !!!LOGIK IN DER ERSTEN ITERATION!!!
-                        for (int i = 0; i < arms.size(); i++) {
-
-                                LUT lookuptree_temp;                      // erzeuge für jeden Partikel einen (lokalen) LUT
-                                lookuptree_vec.push_back(lookuptree_temp);// Füge (lokalen) LUT dem Vektor aller lokalen
-                                                                          // LUTs hinzu
-                                // insert into Lookuptree (LUT)
-                                int128_t search_index = calc_solution_code(arms.at(i).get_action_vector());// Berechne "unique integer" bzw.
-                                                                                                           // search key/index
-                                lookuptree_vec.at(i).insert(0, search_index);                              // Füge einen neuen Knoten mit (search index, 0) dem
-                                                                                                           // lokalen LUT hinzu.  "0" deshalb, da es der erste
-                                                                                                           // Knoten ist.
-
-                                // for loop not needed with eigen
-                                Eigen::VectorXi init_velocity;
-                                init_velocity.setZero(dimension);
-                                velocity.push_back(init_velocity);
-
-                                current_particles.push_back(arms.at(i));// x_i
-
-                                std::vector<Arm> arms_temp;       // Vektor an Armen
-                                arms_vec.push_back(arms_temp);    // arms_vec[i]: Arm-Gedächtnis
-                                                                  // (Arm-Vektor) des i-ten Partikels
-                                arms_vec[i].push_back(arms.at(i));// Füge Arm "arms.at(i)" dem Gedächtnis des i-ten
-                                                                  // Partikels hinzu
-
-                                arms_vec[i].at(0).pull_arm();// Ziehe entsprechenden arm 0: Es gibt arms.size()
-                                                             // speicher_listen, in jeder liste wird hier nur das 1.
-                                                             // Element befüllt.
-                                sim_counter += 1;            // erhöhe den totalen sim obs. counter
-                                //////////////
-                                if (stopping_criterion == 1) {// stop after max observations
-                                        if (sim_counter % save_solution_every_x == 0) {
-                                                save_solution(z);
-                                        }// save solution
-                                        if (sim_counter == max_iter_or_sim_number) {
-                                                return;
-                                        }
-                                }
-
-                                double Q_PSO = arms_vec[i].at(0).get_r() / arms_vec[i].at(0).get_k();// current sample mean
-
-                                std::multiset<MS_element, std::less<>> MS_temp;// erzeuge für jeden Partikel einen (lokalen) SAT
-                                MS_vec.emplace_back(MS_temp);                  // Füge (lokalen) SAT dem Vektor aller lokalen SATs hinzu
-                                MS_vec[i].insert(MS_element(0, Q_PSO));        // // Füge einen neuen Knoten mit (Q:PSO:sample
-                                                                               // mean, 0) dem lokalen SAT hinzu.     0 : Index
-                                                                               // des ersten Arms (in jeder der arms.size()
-                                                                               // Listen = diese sind partikelspezifisch)
-
-                                /// global
-                                int128_t search_index_global = calc_solution_code(arms_vec[i].at(0).get_action_vector());// berechne "unique integer"
-                                                                                                                         // aka search index
-                                lookuptree_global.insert(i, search_index);                                               // füge entsprechenden knoten in den GLOBALEN LUT
-                                arms_global.push_back(arms_vec[i].at(0));                                                // füge den arm (zugehörig zum Knoten) in das
-                                                                                                                         // GLOBALE Arm gedächntis
-                                MS_global.insert(MS_element(i, Q_PSO));                                                  // füge einen entsprechenden Knoten in den GLOBALEN SAT ein
-                                                                                                                         // (i: Index im globalen Arm Gedächtnis, Q_PSO: Sample
-                                                                                                                         // Mean)   //  hier i oben 0, da hier ->globaler <- Baum
-                                                                                                                         // aufgebaut wird
-                        }
-                }
 
                 // After first iteration
                 if (z == 1) {
@@ -492,18 +431,82 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
+
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_iter_or_sim_number{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pop_s; i++) {
+
+                // initialize vector of solutions
                 Eigen::VectorXi v(dimension);
                 // generate random solutions as long as they are not unique
                 v = generate_unique_solution(init_solutions, x_lb, x_ub, dimension);
                 init_solutions.push_back(v);//required to check wheather all elements are unique
-
                 // add arm to "arms", i.e. where all arms are stored
                 Arm new_arm(opti_func, v, 0);// 0 = cost info, last element (0) is actually not necessary
                 arms.push_back(new_arm);
+
+                // initialize velocity vector
+                Eigen::VectorXi init_velocity;
+                init_velocity.setZero(dimension);
+                velocity.push_back(init_velocity);
+
+                ////////////////////
+
+                // erzeuge für jeden Partikel einen (lokalen) LUT
+                LUT lookuptree_temp;
+
+                // Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
+                lookuptree_vec.push_back(lookuptree_temp);
+
+                // insert into Lookuptree (LUT)
+                int128_t search_index = calc_solution_code(arms.at(i).get_action_vector());// Berechne "unique integer" bzw.
+                // search key/index
+                lookuptree_vec.at(i).insert(0, search_index);                              // Füge einen neuen Knoten mit (search index, 0) dem
+                // lokalen LUT hinzu.  "0" deshalb, da es der erste
+                // Knoten ist.
+
+                current_particles.push_back(arms.at(i));// x_i
+
+                std::vector<Arm> arms_temp;       // Vektor an Armen
+                arms_vec.push_back(arms_temp);    // arms_vec[i]: Arm-Gedächtnis
+                // (Arm-Vektor) des i-ten Partikels
+                arms_vec[i].push_back(arms.at(i));// Füge Arm "arms.at(i)" dem Gedächtnis des i-ten
+                // Partikels hinzu
+
+                arms_vec[i].at(0).pull_arm();// Ziehe entsprechenden arm 0: Es gibt arms.size()
+                // speicher_listen, in jeder liste wird hier nur das 1.
+                // Element befüllt.
+                sim_counter += 1;            // erhöhe den totalen sim obs. counter
+                //////////////
+                if (stopping_criterion == 1) {// stop after max observations
+                        if (sim_counter % 100 == 0) {
+                                save_solution(1);
+                        }// save solution
+                        if (sim_counter == max_iter_or_sim_number) {
+                                return;
+                        }
+                }
+
+                double Q_PSO = arms_vec[i].at(0).get_r() / arms_vec[i].at(0).get_k();// current sample mean
+
+                std::multiset<MS_element, std::less<>> MS_temp;// erzeuge für jeden Partikel einen (lokalen) SAT
+                MS_vec.emplace_back(MS_temp);                  // Füge (lokalen) SAT dem Vektor aller lokalen SATs hinzu
+                MS_vec[i].insert(MS_element(0, Q_PSO));        // // Füge einen neuen Knoten mit (Q:PSO:sample
+                // mean, 0) dem lokalen SAT hinzu.     0 : Index
+                // des ersten Arms (in jeder der arms.size()
+                // Listen = diese sind partikelspezifisch)
+
+                /// global
+                int128_t search_index_global = calc_solution_code(arms_vec[i].at(0).get_action_vector());// berechne "unique integer"
+                // aka search index
+                lookuptree_global.insert(i, search_index);                                               // füge entsprechenden knoten in den GLOBALEN LUT
+                arms_global.push_back(arms_vec[i].at(0));                                                // füge den arm (zugehörig zum Knoten) in das
+                // GLOBALE Arm gedächntis
+                MS_global.insert(MS_element(i, Q_PSO));                                                  // füge einen entsprechenden Knoten in den GLOBALEN SAT ein
+                // (i: Index im globalen Arm Gedächtnis, Q_PSO: Sample
+                // Mean)   //  hier i oben 0, da hier ->globaler <- Baum
+                // aufgebaut wird
         }
 }
 std::vector<solution> PSOMAB::getBest_solutions() {
