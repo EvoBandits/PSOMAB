@@ -37,8 +37,8 @@ struct solution {
 
 class PSOMAB {
        private:
-        unsigned long max_iter_or_sim_number;// ToDo ???
-        int m;                               // ToDo ???
+        unsigned long max_sim;// max number of simulations
+        int m; // number of particles
 
         Eigen::VectorXi vec_x_min;// D-dimensional Vector of the smallest possible
                                    // values a solution can have --> lower bounds

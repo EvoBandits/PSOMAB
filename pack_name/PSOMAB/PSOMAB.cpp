@@ -115,7 +115,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
                                         if (sim_counter % 100 == 0) {
                                                 save_solution(z);
                                         }// save solution
-                                        if (sim_counter == max_iter_or_sim_number) {
+                                        if (sim_counter == max_sim) {
                                                 return;
                                         }// max_generations ist im fall von stopping_criterion==1 ein dummy
                                          // für die max anzahl an observations
@@ -193,7 +193,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
                                 if (sim_counter % 100 == 0) {
                                         save_solution(z);
                                 }// save solution
-                                if (sim_counter == max_iter_or_sim_number) {
+                                if (sim_counter == max_sim) {
                                         return;
                                 }// max_generations ist im fall von stopping_criterion==1 ein dummy
                                  // für die max anzahl an observations
@@ -217,7 +217,7 @@ void PSOMAB::run() {
         int save_solution_every_x = 100;// if stopping criterion = max number of sim. obs.: each 100th
                                         // solution is stored for "log-file" data
 
-        for (int z = 1; z <= max_iter_or_sim_number; z++) {
+        for (int z = 1; z <= max_sim; z++) {
 
                 // After first iteration
                 if (z == 1) {
@@ -317,7 +317,7 @@ void PSOMAB::run() {
                                 if (sim_counter % save_solution_every_x == 0) {
                                         save_solution(z);
                                 }// save solution
-                                if (sim_counter == max_iter_or_sim_number) {
+                                if (sim_counter == max_sim) {
                                         return;
                                 }// max_generations ist im fall von stopping_criterion==1 ein dummy für
                                  // die max anzahl an observations
@@ -430,7 +430,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_iter_or_sim_number{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, int stopping_criterion, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, m{pop_s}, stopping_criterion(stopping_criterion), vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pop_s; i++) {
