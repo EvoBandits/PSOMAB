@@ -213,7 +213,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
         }
 }
 
-int PSOMAB::run() {
+void PSOMAB::run() {
         int save_solution_every_x = 100;// if stopping criterion = max number of sim. obs.: each 100th
                                         // solution is stored for "log-file" data
 
@@ -254,7 +254,7 @@ int PSOMAB::run() {
                                                 save_solution(z);
                                         }// save solution
                                         if (sim_counter == max_iter_or_sim_number) {
-                                                return 0;
+                                                return;
                                         }
                                 }
 
@@ -379,7 +379,7 @@ int PSOMAB::run() {
                                         save_solution(z);
                                 }// save solution
                                 if (sim_counter == max_iter_or_sim_number) {
-                                        return 0;
+                                        return;
                                 }// max_generations ist im fall von stopping_criterion==1 ein dummy für
                                  // die max anzahl an observations
                         }
@@ -396,11 +396,7 @@ int PSOMAB::run() {
                         }
                 }
 
-                ///////// only to log the timestamps, no actual PSOMAB function
-                // save_timesteps(z);
-                /////////
         }
-        return 0;// dummy return
 }
 
 void PSOMAB::save_solution(int z) {// z iterationszahl

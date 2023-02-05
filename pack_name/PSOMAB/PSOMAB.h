@@ -81,7 +81,7 @@ class PSOMAB {
         void save_solution(int z);
 
        public:
-        int run();
+        void run();
         std::vector<solution> getBest_solutions();
 
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s,
