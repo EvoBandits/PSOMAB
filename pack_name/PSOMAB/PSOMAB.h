@@ -55,8 +55,6 @@ class PSOMAB {
         LUT lookuptree_global;
         std::multiset<MS_element, std::less<>> MS_global;
 
-        std::vector<std::vector<double>> diversity;
-
         void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
 
         int128_t calc_solution_code(Eigen::VectorXi x);
