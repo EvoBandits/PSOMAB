@@ -11,6 +11,7 @@
 #include <vector>
 #include "Eigen/Core"
 #include <unordered_set>
+#include "Solution.h"
 
 struct MS_element {
         int arm_index;
@@ -22,18 +23,7 @@ struct MS_element {
         MS_element(int arm_index, double Q) : arm_index(arm_index), Q(Q) {}
 };
 
-struct solution {
-        int obs_number;    // the "obs-number"-th observation over the course of time
-        Eigen::VectorXi x;// x
-        int N;
-        double mean_func_val = 0.0;// meanfunction value
-        double true_func_val = 0.0;// truefunction value
 
-        solution(int obs_number, Eigen::VectorXi x, int N, double mean_func_val,
-                 double true_func_val)
-            : obs_number(obs_number), x(std::move(x)), N(N), mean_func_val(mean_func_val),
-              true_func_val(true_func_val) {}
-};
 
 class PSOMAB {
        private:
