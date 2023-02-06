@@ -208,27 +208,19 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices, int z) {
 }
 
 void PSOMAB::run() {
-        int save_solution_every_x = 100;// if stopping criterion = max number of sim. obs.: each 100th
-                                        // solution is stored for "log-file" data
-
         for (int z = 1; z <= max_sim; z++) {
 
                 // After first iteration
                 if (z == 1) {
-                        save_solution(
-                            z);// save the solution that is currently considered to be the best
+                        // save the solution that is currently considered to be the best
+                        save_solution(z);
                 }
 
-                std::vector<Arm> best_individual_arms;       //
-                std::vector<int> best_individual_arm_indices;//
+                std::vector<Arm> best_individual_arms;
+                std::vector<int> best_individual_arm_indices;
 
                 double best_global_Q;
-                best_global_Q = 1000000000;// hier muss NICHT zwischen min oder max
-                                           // optimierungsproblem unterschieden werden.
-                //                         in Arm Funktion werden max probleme mit (-1)
-                //                         multiplikation zu äquiv. min problemen gemacht,
-                //                         deshalb ist hier ein hoher positiver Q Wert immer
-                //                         richtig.
+                best_global_Q = 1000000000;
                 int best_global_index;         // index des glabal best arm
                 int best_global_particle_index;// Welches der insgesamt m Partel den global
                                                // best arm enthält
@@ -255,7 +247,7 @@ void PSOMAB::run() {
 
                 // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
                 // Sample Means zu erhalten. Das passiert in der folgenden For loop
-                for (unsigned int i = 0; i < current_particles.size(); i++) {
+                for (int i = 0; i < current_particles.size(); i++) {
                         auto it = MS_vec[i].find(MS_element(best_individual_arm_indices[i], arms_vec[i].at(best_individual_arm_indices[i]).get_r() / arms_vec[i].at(best_individual_arm_indices[i]).get_k()));
                         int var = (*it).arm_index;
                         while (var != best_individual_arm_indices[i]) {// Falls zwei Lösungen den selben
@@ -307,7 +299,7 @@ void PSOMAB::run() {
                         // global ende
 
                         //////////////
-                        if (sim_counter % save_solution_every_x == 0) {
+                        if (sim_counter % 100 == 0) {
                                 save_solution(z);
                         }// save solution
                         if (sim_counter == max_sim) {
@@ -422,7 +414,6 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
                 init_solutions.push_back(v);//required to check wheather all elements are unique
                 // add arm to "arms", i.e. where all arms are stored
                 Arm new_arm(opti_func, v, 0);// 0 = cost info, last element (0) is actually not necessary
-                arms.push_back(new_arm);
 
                 // initialize velocity vector
                 Eigen::VectorXi init_velocity;
@@ -435,12 +426,12 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
 
                 // insert into Lookuptree (LUT)
                 // Berechne "unique integer" bzw. search key/index
-                int128_t search_index = calc_solution_code(arms.at(i).get_action_vector());
+                int128_t search_index = calc_solution_code(new_arm.get_action_vector());
                 // Füge einen neuen Knoten mit (search index, 0) dem lokalen LUT hinzu. "0" deshalb, da es der erste Knoten ist.
                 lookuptree_vec.at(i).insert(0, search_index);
 
                 // x_i
-                current_particles.push_back(arms.at(i));
+                current_particles.push_back(new_arm);
 
                 // Vektor an Armen
                 std::vector<Arm> arms_temp;
@@ -448,7 +439,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
                 arms_vec.push_back(arms_temp);
                 // (Arm-Vektor) des i-ten Partikels
                 // Füge Arm "arms.at(i)" dem Gedächtnis des i-ten Partikels hinzu
-                arms_vec[i].push_back(arms.at(i));
+                arms_vec[i].push_back(new_arm);
 
                 // Ziehe entsprechenden arm 0: Es gibt arms.size() speicher_listen, in jeder liste wird hier nur das 1. Element befüllt.
                 arms_vec[i].at(0).pull_arm();

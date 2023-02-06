@@ -38,7 +38,7 @@ struct solution {
 class PSOMAB {
        private:
         unsigned long max_sim;// max number of simulations
-        int m; // number of particles
+        int m; // number of particles, population size
 
         Eigen::VectorXi vec_x_min;// D-dimensional Vector of the smallest possible
                                    // values a solution can have --> lower bounds
@@ -50,11 +50,9 @@ class PSOMAB {
         std::vector<Eigen::VectorXi>
             init_solutions;// Matrix of initial solutions (pop_s * D)
 
-        int sim_counter = 0;       // ToDo ???
+        int sim_counter = 0; // number of simulations done so far  // ToDo: move to arm class as static variable
 
         std::vector<solution> best_solutions;
-
-        std::vector<Arm> arms;// ToDo ???
 
         ////// PSO
         std::vector<std::multiset<MS_element, std::less<>>> MS_vec;
