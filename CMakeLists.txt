@@ -18,4 +18,4 @@ add_executable(PSOMAB
         pack_name/PSOMAB/RandomNumber.cpp
         pack_name/PSOMAB/RandomNumber.h
         tests/main.cpp
-        tests/problems/inventory.h)
+        tests/problems/inventory.h pack_name/PSOMAB/PSO.cpp pack_name/PSOMAB/PSO.h pack_name/PSOMAB/Solution.cpp pack_name/PSOMAB/Solution.h)

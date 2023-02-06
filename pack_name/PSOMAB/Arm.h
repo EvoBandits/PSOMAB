@@ -33,7 +33,6 @@ class Arm {
         void update_k(int k_var);
         void update_r(double r_var);
         void set_action_vector_element(int index, int value);
-        void print_action_vector();
 
         Arm(std::function<double(Eigen::VectorXi)> func, Eigen::VectorXi permutation, double init_r = 0.0,
             double init_k = 0.0, double init_Q = -1000000000.0);

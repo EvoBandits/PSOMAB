@@ -50,8 +50,6 @@ class PSOMAB {
         std::vector<Eigen::VectorXi>
             init_solutions;// Matrix of initial solutions (pop_s * D)
 
-        int sim_counter = 0; // number of simulations done so far  // ToDo: move to arm class as static variable
-
         std::vector<solution> best_solutions;
 
         ////// PSO
@@ -73,9 +71,9 @@ class PSOMAB {
 
         int128_t calc_solution_code(Eigen::VectorXi x);
 
-        void MAB(std::vector<int> best_individual_arm_indices, int z);
+        void MAB(std::vector<int> best_individual_arm_indices);
 
-        void save_solution(int z);
+        void save_solution();
 
        public:
         void run();
@@ -83,6 +81,7 @@ class PSOMAB {
 
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll,
                Eigen::VectorXi s_ul, int D);
+        int sum_arm_k();
 };
 
 #endif// _PSOMAB_H_
