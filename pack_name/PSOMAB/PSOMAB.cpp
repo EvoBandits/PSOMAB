@@ -56,20 +56,23 @@ void PSOMAB::PSO(int best_global_particle_index, int best_global_index, std::vec
 }
 
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
-        for (unsigned int i = 0; i < current_particles.size(); i++) {
-                int128_t search_index = calc_solution_code(current_particles[i].get_action_vector());// berechne "unique integer" aka search index
-                const int arm_index = lookuptree_vec[i].search(search_index);                        // Suche im lokalen LUT des i-ten partikel nach arm_index
-                if (arm_index >= 0) {                                                                // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden existiert bereits
-                        bool check_if_arm_was_in_current_arms = false;
-                        if (arm_index == best_individual_arm_indices[i]) {
-                                check_if_arm_was_in_current_arms = true;
-                        }
-                        if (!check_if_arm_was_in_current_arms) {
-
-                                auto it = MS_vec[i].find(MS_element(arm_index, arms_vec[i].at(arm_index).get_r() / arms_vec[i].at(arm_index).get_k()));
+        // current_particles.size() == m
+        for (int i = 0; i < current_particles.size(); i++) {
+                // berechne "unique integer" aka search index
+                int128_t search_index = calc_solution_code(current_particles[i].get_action_vector());
+                // Suche im lokalen LUT des i-ten partikel nach arm_index
+                const int arm_index = lookuptree_vec[i].search(search_index);
+                // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden
+                // existiert bereits
+                if (arm_index >= 0) {
+                        if (arm_index != best_individual_arm_indices[i]) {
                                 // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
+                                auto it = MS_vec[i].find(MS_element(arm_index, arms_vec[i].at(arm_index).get_r() / arms_vec[i].at(arm_index).get_k()));
+
                                 int var = (*it).arm_index;
-                                while (var != arm_index) {// If two nodes have the same mean value, the case var!=arm_index max occur In this case, the tree must be iterated further until var==arm_index in order to actually find the correct (SAT) node
+                                // If two nodes have the same mean value, the case var!=arm_index max occur
+                                // In this case, the tree must be iterated further until var==arm_index in order to actually find the correct (SAT) node
+                                while (var != arm_index) {
                                         it++;
                                         var = (*it).arm_index;
                                 }
@@ -78,7 +81,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 double r_before_update = arms_vec[i].at(var).get_r();// // Store current mean in cache (before update)
 
                                 // pull_arm
-                                arms_vec[i].at(var).pull_arm();// pull arm
+                                arms_vec[i].at(var).pull_arm();
 
                                 // global
                                 double r_after_update = arms_vec[i].at(var).get_r();                // // Store current mean in cache (after update)
@@ -235,11 +238,12 @@ void PSOMAB::run() {
 
                         auto it_PSO = MS_vec[k].begin();
 
-                        int arm_index = (*it_PSO).arm_index;
+                        int arm_index = (*it_PSO).arm_index; // index des besten arms der aktuellen Iteration
 
                         best_individual_arms.push_back(arms_vec[k].at(arm_index));// weise es den Armen der aktuellen Iteration zu
                         best_individual_arm_indices.push_back(arm_index);
 
+                        // update global best
                         if ((*it_PSO).Q < best_global_Q) {
                                 best_global_Q = (*it_PSO).Q;
                                 best_global_particle_index = k;
