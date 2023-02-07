@@ -71,6 +71,7 @@ class PSOMAB {
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll,
                Eigen::VectorXi s_ul, int D);
         void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
+        void add_to_global_memory(int128_t search_index_global, const Arm &test);
 };
 
 #endif// _PSOMAB_H_

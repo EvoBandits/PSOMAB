@@ -83,6 +83,18 @@ void PSOMAB::update_global_state(int arm_index_global, double r_before_update, d
         MS_global.insert(MS_element(var_global, arms_global.at(var_global).get_r() / arms_global.at(var_global).get_k()));
 }
 
+void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test) {
+        // füge den arm zu global arms hinzu
+        arms_global.push_back(test);
+
+        // füge neuen knoten in lookuptree ein
+        int new_index_global = (int) arms_global.size() - 1;
+        lookuptree_global.insert(new_index_global, std::move(search_index_global));
+
+        // füge neuen knoten in MS_GLOBAL ein
+        MS_global.insert(MS_element(new_index_global, arms_global.at(new_index_global).get_r() / arms_global.at(new_index_global).get_k()));
+}
+
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
         // current_particles.size() == m
         for (int i = 0; i < current_particles.size(); i++) {
@@ -118,6 +130,8 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 double r_after_update = arms_vec[i].at(var).get_r();
                                 // Suche entsprechenden Arm im global LUT arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_global
                                 const int arm_index_global = lookuptree_global.search(search_index);
+
+                                // Update global SAT
                                 update_global_state(arm_index_global, r_before_update, r_after_update);
 
                                 if (sum_arm_k() % 100 == 0) {
@@ -126,13 +140,9 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 if (sum_arm_k() == max_sim) {
                                         return;
                                 }
-                                //////////////
 
-                                MS_vec[i].insert(MS_element(
-                                    var,
-                                    arms_vec[i].at(var).get_r() / arms_vec[i].at(var).get_k()));// Füge gezogenen Arm dem Lokal
-                                                                                                // SAT hinzu (er wurde zuvor
-                                                                                                // aus dem lok. SAT entfernt).
+                                // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
+                                MS_vec[i].insert(MS_element(var,arms_vec[i].at(var).get_r() / arms_vec[i].at(var).get_k()));
                         }
                 } else {
                         // existiert noch nicht
@@ -156,34 +166,25 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
                         const int arm_index_global = lookuptree_global.search(search_index_global);
 
-                        // falls knoten bereits im GLOBAL LUT existiert
                         if (arm_index_global >= 0) {
+                                // falls knoten bereits im GLOBAL LUT existiert
+
+                                // Update global SAT
                                 update_global_state(arm_index_global, r_before_update, r_after_update);
 
                         } else {
-                                // existiert im GLOBAL LUT noch nicht
-
-                                // füge den arm zu global arms hinzu
-                                arms_global.push_back(arms_vec[i].back());
+                                // falls knoten noch nicht im GLOBAL LUT existiert
 
                                 // füge neuen knoten in lookuptree ein
-                                int new_index_global = (int) arms_global.size() - 1;
-                                lookuptree_global.insert(new_index_global, search_index);
-
-                                // füge neuen knoten in MS_GLOBAL ein
-                                MS_global.insert(MS_element(new_index_global, arms_global.at(new_index_global).get_r() / arms_global.at(new_index_global).get_k()));
-
+                                add_to_global_memory(search_index, arms_vec[i].back());
                         }
-                        // global ende
 
-                        //////////////
                         if (sum_arm_k() % 100 == 0) {
                                 save_solution();
                         }// save solution
                         if (sum_arm_k() == max_sim) {
                                 return;
                         }
-                        //////////////
 
                         // In lokalen LUT einfügen
                         int new_index = (int) arms_vec[i].size() - 1;
@@ -295,7 +296,6 @@ void PSOMAB::run() {
 
                         // füge neu zu MS_global hinzu
                         MS_global.insert(MS_element(var_global, arms_global.at(var_global).get_r() / arms_global.at(var_global).get_k()));
-
 
                         // global ende
 
