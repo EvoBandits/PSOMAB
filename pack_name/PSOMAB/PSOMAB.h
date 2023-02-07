@@ -62,6 +62,7 @@ class PSOMAB {
         void MAB(std::vector<int> best_individual_arm_indices);
 
         void save_solution();
+        int sum_arm_k();
 
        public:
         void run();
@@ -69,7 +70,7 @@ class PSOMAB {
 
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll,
                Eigen::VectorXi s_ul, int D);
-        int sum_arm_k();
+        void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
 };
 
 #endif// _PSOMAB_H_
