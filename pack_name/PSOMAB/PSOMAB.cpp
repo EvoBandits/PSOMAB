@@ -134,13 +134,6 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 // Update global SAT
                                 update_global_state(arm_index_global, r_before_update, r_after_update);
 
-                                if (sum_arm_k() % 100 == 0) {
-                                        save_solution();
-                                }// save solution
-                                if (sum_arm_k() == max_sim) {
-                                        return;
-                                }
-
                                 // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
                                 MS_vec[i].insert(MS_element(var, arms_vec[i].at(var).reward() / arms_vec[i].at(var).num_pulls()));
                         }
@@ -177,13 +170,6 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
 
                                 // füge neuen knoten in lookuptree ein
                                 add_to_global_memory(search_index, arms_vec[i].back());
-                        }
-
-                        if (sum_arm_k() % 100 == 0) {
-                                save_solution();
-                        }// save solution
-                        if (sum_arm_k() == max_sim) {
-                                return;
                         }
 
                         // In lokalen LUT einfügen
