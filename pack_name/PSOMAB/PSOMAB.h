@@ -12,6 +12,7 @@
 #include "Eigen/Core"
 #include <unordered_set>
 #include "Solution.h"
+#include "PSO.h"
 
 struct MS_element {
         int arm_index;
@@ -55,8 +56,6 @@ class PSOMAB {
         LUT lookuptree_global;
         std::multiset<MS_element, std::less<>> MS_global;
 
-        void PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms);
-
         int128_t calc_solution_code(Eigen::VectorXi x);
 
         void MAB(std::vector<int> best_individual_arm_indices);
@@ -64,12 +63,13 @@ class PSOMAB {
         void save_solution();
         int sum_arm_k();
 
+        PSO pso;
+
        public:
         void run();
         std::vector<solution> getBest_solutions();
 
-        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll,
-               Eigen::VectorXi s_ul, int D);
+        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll, Eigen::VectorXi s_ul, int D);
         void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
 };
