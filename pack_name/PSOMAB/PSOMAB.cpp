@@ -25,36 +25,6 @@ int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
         return search_index;
 }
 
-//
-void PSOMAB::PSO(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms) {
-        for (int k = 0; k < m; k++) {
-
-                double c1 = 2.5;
-                double c2 = 1;
-                double v = 0.2;
-
-                // with eigen for loop can bis discarded
-                for (int g = 0; g < dimension; g++) {
-                        // ToDo: ist runden hier richtig?
-                        std::uniform_real_distribution<double> uniform_real_distribution_c1(0, c1);
-                        std::uniform_real_distribution<double> uniform_real_distribution_c2(0, c2);
-                        int b1 = round(uniform_real_distribution_c1(generator) * 1.0 * (best_individual_arms[k].get_action_vector()[g] - current_particles[k].get_action_vector()[g]));
-                        int b2 = round(uniform_real_distribution_c2(generator) * 1.0 * (arms_vec[best_global_particle_index][best_global_index].get_action_vector()[g] - current_particles[k].get_action_vector()[g]));
-
-                        velocity[k][g] = round(v * velocity[k][g] + b1 + b2);
-
-                        int new_value = current_particles[k].get_action_vector()[g] + velocity[k][g];
-
-                        // ToDo: ist das das richtige vorgehen bei werten außerhalb der range?
-                        if (new_value > vec_x_max[g] || new_value < vec_x_min[g]) {
-                                std::uniform_int_distribution<int> uniform_int_distribution(vec_x_min[g], vec_x_max[g]);
-                                new_value = uniform_int_distribution(generator);
-                        }
-                        current_particles[k].set_action_vector_element(g, new_value);
-                }
-        }
-}
-
 void PSOMAB::update_global_state(int arm_index_global, double r_before_update, double r_after_update) {
         auto it_global = MS_global.find(MS_element(arm_index_global, arms_global.at(arm_index_global).reward() / arms_global.at(arm_index_global).num_pulls()));
         int var_global = (*it_global).arm_index;
@@ -227,7 +197,7 @@ void PSOMAB::run() {
                         }
                 }
 
-                PSOMAB::PSO(best_global_particle_index, best_global_index, best_individual_arms);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity, m, dimension, vec_x_min, vec_x_max);
 
                 MAB(best_individual_arm_indices);
 
