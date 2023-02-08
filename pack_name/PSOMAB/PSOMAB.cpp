@@ -314,78 +314,51 @@ void PSOMAB::run() {
 }
 
 void PSOMAB::save_solution() {
-        // For UCB-normalized approach only
-        int max_number_pulls = -1000000000;
+        int max_number_pulls = std::numeric_limits<int>::min();
 
-        auto it = MS_global.begin();
-        int return_index1 = 0;// xxx max pulls
-        for (int o = 0; o < MS_global.size(); o++) {
-                int arm_index = (*it).arm_index;
-
-                // For UCB-normalized approach only
-                if (arms_global.at(arm_index).num_pulls() > max_number_pulls) {
-                        max_number_pulls = arms_global.at(arm_index).num_pulls();
+        // nochmal überprüfen mit ursprungscode
+        for (const auto &arm : arms_global) {
+                if (arm.num_pulls() > max_number_pulls) {
+                        max_number_pulls = arm.num_pulls();
                 }
-                // For UCB-normalized approach only
-
-                it++;
         }
 
-        // For UCB-normalized approach only
-        double ucb_norm_min = 1000000000;
-        double ucb_norm_max = -1000000000;
+        double ucb_norm_min = std::numeric_limits<int>::max();
+        double ucb_norm_max = std::numeric_limits<int>::min();
 
-        auto it_norm = MS_global.begin();
-
-        bool last_element_reached = false;
-        while (!last_element_reached) {
-                int arm_index = (*it_norm).arm_index;
+        for (auto it : MS_global) {
+                int arm_index = it.arm_index;
+                ucb_norm_min = std::min(ucb_norm_min, arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls());
+                ucb_norm_max = std::max(ucb_norm_max, arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls());
                 if (arms_global.at(arm_index).num_pulls() == max_number_pulls) {
-                        last_element_reached = true;
+                        break;
                 }
-                if (arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls() < ucb_norm_min) {
-                        ucb_norm_min = arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls();
-                }
-                if (arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls() > ucb_norm_max) {
-                        ucb_norm_max = arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls();
-                }
-
-                it_norm++;
         }
 
-        // For UCB-normalized approach only
-        auto it_norm2 = MS_global.begin();
-        // ucb_norm_min; //best
-        // ucb_norm_max; //worst
-
-        int return_index2 = 0;
-        last_element_reached = false;
-        double best_ucb_value = 1000000000;
-        while (!last_element_reached) {
-                int arm_index = (*it_norm2).arm_index;
-                if (arms_global.at(arm_index).num_pulls() == max_number_pulls) {
-                        last_element_reached = true;
-                }
-                if (1 - (ucb_norm_max - arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_arm_k()) / arms_global.at(arm_index).num_pulls()) < best_ucb_value) {
-                        best_ucb_value = 1 - (ucb_norm_max - arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_arm_k()) / arms_global.at(arm_index).num_pulls());
-                        return_index2 = arm_index;
-                }
+        int return_index = 0;
+        double best_ucb_value = std::numeric_limits<int>::max();
+        for (auto it : MS_global) {
+                int arm_index = it.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
-                        return_index2 = arm_index;
-                }// sonst wäre Nenner W_k - B_k null und in oberer if bedingung würde inf
-                // < minvalue2 stehen
-                it_norm2++;
+                        return_index = arm_index;
+                }
+                double ucb = 1 - (ucb_norm_max - arms_global.at(arm_index).reward() / arms_global.at(arm_index).num_pulls()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_arm_k()) / arms_global.at(arm_index).num_pulls());
+                if (ucb < best_ucb_value) {
+                        best_ucb_value = ucb;
+                        return_index = arm_index;
+                }
+                if (arms_global.at(arm_index).num_pulls() == max_number_pulls) {
+                        break;
+                }
         }
 
         // no noise
         // TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
         // RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
         double true_value =
-            arms_global.at(return_index2).function_value();
+            arms_global.at(return_index).function_value();
 
-        // falls nach max anzahl an simulation observations abgebrochen wird
-        // (wird sim_counter an erster stelle angezeigt)
-        best_solutions.emplace_back(sum_arm_k(), arms_global.at(return_index2).get_action_vector(), arms_global.at(return_index2).num_pulls(), arms_global.at(return_index2).reward() / arms_global.at(return_index2).num_pulls(), true_value);
+        best_solutions.emplace_back(sum_arm_k(), arms_global.at(return_index).get_action_vector(), arms_global.at(return_index).num_pulls(), arms_global.at(return_index).reward() / arms_global.at(return_index).num_pulls(), true_value);
 }
 
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
