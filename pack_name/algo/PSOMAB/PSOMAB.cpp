@@ -1,6 +1,6 @@
 #include "PSOMAB.h"
-#include "Arm.h"
-#include "RandomNumber.h"
+#include "../../Arm.h"
+#include "../../RandomNumber.h"
 #include <algorithm>// std::sort
 #include <boost/multiprecision/cpp_int.hpp>
 #include <chrono>

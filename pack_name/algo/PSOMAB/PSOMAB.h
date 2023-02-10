@@ -1,7 +1,7 @@
 #ifndef _PSOMAB_H_
 #define _PSOMAB_H_
-#include "Arm.h"
-#include "LUT.h"//
+#include "../../Arm.h"
+#include "../../LUT.h"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cmath>
 #include <queue>
@@ -11,8 +11,8 @@
 #include <vector>
 #include "Eigen/Core"
 #include <unordered_set>
-#include "Solution.h"
-#include "PSO.h"
+#include "../../Solution.h"
+#include "../PSO/PSO.h"
 
 struct MS_element {
         int arm_index;
