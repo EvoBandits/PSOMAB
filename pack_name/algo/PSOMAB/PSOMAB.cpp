@@ -66,10 +66,9 @@ void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test)
 }
 
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
-        // current_particles.size() == m
-        for (int i = 0; i < current_particles.size(); i++) {
+        for (int i = 0; i < pso.num_particle(); i++) {
                 // berechne "unique integer" aka search index
-                int128_t search_index = calc_solution_code(current_particles[i].get_action_vector());
+                int128_t search_index = calc_solution_code(pso.particles()[i].get_action_vector());
                 // Suche im lokalen LUT des i-ten partikel nach arm_index
                 const int arm_index = lookuptree_vec[i].search(search_index);
                 // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden
@@ -110,7 +109,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                 } else {
                         // existiert noch nicht
                         // 0 = cost info, eigentlich nicht notwendig
-                        Arm new_arm(pso.opti_func(), current_particles[i].get_action_vector(), 0);
+                        Arm new_arm(pso.opti_func(), pso.particles()[i].get_action_vector(), 0);
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
                         arms_vec[i].push_back(new_arm);
@@ -197,13 +196,13 @@ void PSOMAB::run() {
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec);
 
                 MAB(best_individual_arm_indices);
 
                 // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
                 // Sample Means zu erhalten. Das passiert in der folgenden For loop
-                for (int i = 0; i < current_particles.size(); i++) {
+                for (int i = 0; i < pso.num_particle(); i++) {
                         auto it = MS_vec[i].find(MS_element(best_individual_arm_indices[i], arms_vec[i].at(best_individual_arm_indices[i]).reward() / arms_vec[i].at(best_individual_arm_indices[i]).num_pulls()));
                         int var = (*it).arm_index;
 
@@ -317,20 +316,7 @@ void PSOMAB::save_solution() {
         best_solutions.emplace_back(sum_arm_k(), arms_global.at(return_index).get_action_vector(), arms_global.at(return_index).num_pulls(), arms_global.at(return_index).reward() / arms_global.at(return_index).num_pulls(), true_value);
 }
 
-Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
-        Eigen::VectorXi v(dimension);
-        // generate random solutions as long as they are not unique
-        while (true) {
-                for (int j = 0; j < dimension; j++) {
-                        std::uniform_int_distribution<int> uniform_dist(x_lb(j), x_ub(j));
-                        v(j) = uniform_dist(generator);
-                }
-                if (std::find(solutions.begin(), solutions.end(), v) == solutions.end()) {
-                        break;
-                }
-        }
-        return v;
-}
+
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& x_lb, const Eigen::VectorXi& x_ub, int D) : max_sim{max_gen} {
 
@@ -339,26 +325,17 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pso.num_particle(); i++) {
 
-                // initialize vector of solutions
-                Eigen::VectorXi v(pso.dimension());
-                // generate random solutions as long as they are not unique
-                v = generate_unique_solution(init_solutions, x_lb, x_ub, pso.dimension());
-                init_solutions.push_back(v);//required to check wheather all elements are unique
-                // add arm to "arms", i.e. where all arms are stored
-                Arm new_arm(pso.opti_func(), v, 0);// 0 = cost info, last element (0) is actually not necessary
-
                 // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
                 LUT lookuptree_temp;
                 lookuptree_vec.push_back(lookuptree_temp);
 
                 // insert into Lookuptree (LUT)
                 // Berechne "unique integer" bzw. search key/index
-                int128_t search_index = calc_solution_code(new_arm.get_action_vector());
+                int128_t search_index = calc_solution_code(pso.particles()[i].get_action_vector());
                 // Füge einen neuen Knoten mit (search index, 0) dem lokalen LUT hinzu. "0" deshalb, da es der erste Knoten ist.
                 lookuptree_vec.at(i).insert(0, search_index);
 
                 // x_i
-                current_particles.push_back(new_arm);
 
                 // Vektor an Armen
                 std::vector<Arm> arms_temp;
@@ -366,7 +343,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
                 arms_vec.push_back(arms_temp);
                 // (Arm-Vektor) des i-ten Partikels
                 // Füge Arm "arms.at(i)" dem Gedächtnis des i-ten Partikels hinzu
-                arms_vec[i].push_back(new_arm);
+                arms_vec[i].push_back(pso.particles()[i]);
 
                 // Ziehe entsprechenden arm 0: Es gibt arms.size() speicher_listen, in jeder liste wird hier nur das 1. Element befüllt.
                 arms_vec[i].at(0).pull();

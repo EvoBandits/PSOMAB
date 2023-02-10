@@ -29,37 +29,27 @@ struct MS_element {
 class PSOMAB {
        private:
         unsigned long max_sim;// max number of simulations
-
-        std::vector<Eigen::VectorXi>
-            init_solutions;// Matrix of initial solutions (pop_s * D)
-
         std::vector<solution> best_solutions;
 
-        ////// PSO
         std::vector<std::multiset<MS_element, std::less<>>> MS_vec;
         std::vector<std::vector<Arm>> arms_vec;// Arm-Speicher eines jeden Paricles
-        std::vector<Arm> current_particles;    // Arme der current iteration
         std::vector<LUT> lookuptree_vec;
-
 
         std::vector<Arm> arms_global;
         LUT lookuptree_global;
         std::multiset<MS_element, std::less<>> MS_global;
 
-        int128_t calc_solution_code(Eigen::VectorXi x);
-
-        void MAB(std::vector<int> best_individual_arm_indices);
-
-        void save_solution();
-        int sum_arm_k();
-
         PSO pso;
 
+        int128_t calc_solution_code(Eigen::VectorXi x);
+        void MAB(std::vector<int> best_individual_arm_indices);
+        void save_solution();
+        int sum_arm_k();
         void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
+
        public:
         void run();
-
         std::vector<solution> getBest_solutions();
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& s_ll, const Eigen::VectorXi& s_ul, int D);
 };
