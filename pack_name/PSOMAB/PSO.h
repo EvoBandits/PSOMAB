@@ -9,7 +9,7 @@ class PSO {
         PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max);
         PSO() = default;
 
-        void step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles, std::vector<Eigen::VectorXi> &velocity);
+        void step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles);
 
         int num_particle() const;
         int dimension() const;
@@ -24,6 +24,8 @@ class PSO {
         Eigen::VectorXi x_max_;// D-Dimensional Vector of the largest possible
                                   // values a solution can have --> upper bounds
         int dimension_;// D
+
+        std::vector<Eigen::VectorXi> velocity_;// velocity
 
         double c1 = 2.5;
         double c2 = 1;

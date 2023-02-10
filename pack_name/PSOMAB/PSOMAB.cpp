@@ -197,7 +197,7 @@ void PSOMAB::run() {
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles);
 
                 MAB(best_individual_arm_indices);
 
@@ -346,11 +346,6 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
                 init_solutions.push_back(v);//required to check wheather all elements are unique
                 // add arm to "arms", i.e. where all arms are stored
                 Arm new_arm(opti_func, v, 0);// 0 = cost info, last element (0) is actually not necessary
-
-                // initialize velocity vector
-                Eigen::VectorXi init_velocity;
-                init_velocity.setZero(pso.dimension());
-                velocity.push_back(init_velocity);
 
                 // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
                 LUT lookuptree_temp;
