@@ -6,15 +6,24 @@
 #include "Arm.h"
 class PSO {
        public:
-        PSO(int num_particle);
+        PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max);
         PSO() = default;
 
-        void step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles, std::vector<Eigen::VectorXi> &velocity, int dimension, Eigen::VectorXi vec_x_min, Eigen::VectorXi vec_x_max);
+        void step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles, std::vector<Eigen::VectorXi> &velocity);
 
         int num_particle() const;
+        int dimension() const;
+        Eigen::VectorXi x_min() const;
+        Eigen::VectorXi x_max() const;
 
        private:
         int num_particle_{};
+
+        Eigen::VectorXi x_min_;// D-dimensional Vector of the smallest possible
+                                  // values a solution can have --> lower bounds
+        Eigen::VectorXi x_max_;// D-Dimensional Vector of the largest possible
+                                  // values a solution can have --> upper bounds
+        int dimension_;// D
 
         double c1 = 2.5;
         double c2 = 1;

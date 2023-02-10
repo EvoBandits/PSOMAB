@@ -18,9 +18,9 @@
 // calculates the solution code, i.e. unique integer
 int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
         int128_t search_index = 0;
-        for (int i = 0; i < dimension; i++) {
-                int exp = ceil(log10((vec_x_max[i] - vec_x_min[i]) + 1));
-                search_index = search_index + (int128_t) (pow((pow(10, exp)), (dimension - 1) - i) * (x[i] - vec_x_min[i]));
+        for (int i = 0; i < pso.dimension(); i++) {
+                int exp = ceil(log10((pso.x_max()[i] - pso.x_min()[i]) + 1));
+                search_index = search_index + (int128_t) (pow((pow(10, exp)), (pso.dimension() - 1) - i) * (x[i] - pso.x_min()[i]));
         }
         return search_index;
 }
@@ -197,7 +197,7 @@ void PSOMAB::run() {
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity, dimension, vec_x_min, vec_x_max);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity);
 
                 MAB(best_individual_arm_indices);
 
@@ -332,24 +332,24 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& x_lb, const Eigen::VectorXi& x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen} {
 
-        pso = PSO(pop_s);
+        pso = PSO(pop_s, D, x_lb, x_ub);
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pso.num_particle(); i++) {
 
                 // initialize vector of solutions
-                Eigen::VectorXi v(dimension);
+                Eigen::VectorXi v(pso.dimension());
                 // generate random solutions as long as they are not unique
-                v = generate_unique_solution(init_solutions, x_lb, x_ub, dimension);
+                v = generate_unique_solution(init_solutions, x_lb, x_ub, pso.dimension());
                 init_solutions.push_back(v);//required to check wheather all elements are unique
                 // add arm to "arms", i.e. where all arms are stored
                 Arm new_arm(opti_func, v, 0);// 0 = cost info, last element (0) is actually not necessary
 
                 // initialize velocity vector
                 Eigen::VectorXi init_velocity;
-                init_velocity.setZero(dimension);
+                init_velocity.setZero(pso.dimension());
                 velocity.push_back(init_velocity);
 
                 // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
