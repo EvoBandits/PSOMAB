@@ -2,8 +2,8 @@
 #include "RandomNumber.h"
 #include <iostream>
 
-void PSO::step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles, std::vector<Eigen::VectorXi> &velocity, int population_size, int dimension, Eigen::VectorXi vec_x_min, Eigen::VectorXi vec_x_max) {
-        for (int k = 0; k < population_size; k++) {
+void PSO::step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec, std::vector<Arm> &current_particles, std::vector<Eigen::VectorXi> &velocity, int dimension, Eigen::VectorXi vec_x_min, Eigen::VectorXi vec_x_max) {
+        for (int k = 0; k < num_particle_; k++) {
 
                 // with eigen for loop can bis discarded
                 for (int g = 0; g < dimension; g++) {
@@ -26,4 +26,7 @@ void PSO::step(int best_global_particle_index, int best_global_index, std::vecto
                 }
         }
 }
-PSO::PSO() = default;
+PSO::PSO(int num_particle) : num_particle_{num_particle} {}
+int PSO::num_particle() const {
+        return num_particle_;
+}

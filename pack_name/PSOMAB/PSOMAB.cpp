@@ -180,7 +180,7 @@ void PSOMAB::run() {
                 int best_global_particle_index;// Welches der insgesamt m Partel den global
                                                // best arm enthält
 
-                for (int k = 0; k < m; k++) {
+                for (int k = 0; k < pso.num_particle(); k++) {
 
                         auto it_PSO = MS_vec[k].begin();
 
@@ -197,7 +197,7 @@ void PSOMAB::run() {
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity, m, dimension, vec_x_min, vec_x_max);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec, current_particles, velocity, dimension, vec_x_min, vec_x_max);
 
                 MAB(best_individual_arm_indices);
 
@@ -332,10 +332,12 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, m{pop_s}, vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen}, vec_x_min{x_lb}, vec_x_max{x_ub}, dimension{D} {
+
+        pso = PSO(pop_s);
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
-        for (int i = 0; i < pop_s; i++) {
+        for (int i = 0; i < pso.num_particle(); i++) {
 
                 // initialize vector of solutions
                 Eigen::VectorXi v(dimension);
