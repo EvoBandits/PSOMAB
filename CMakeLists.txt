@@ -9,13 +9,17 @@ include_directories(third_party/eigen)
 
 
 add_executable(PSOMAB
-        pack_name/PSOMAB/Arm.cpp
-        pack_name/PSOMAB/Arm.h
-        pack_name/PSOMAB/LUT.cpp
-        pack_name/PSOMAB/LUT.h
-        pack_name/PSOMAB/PSOMAB.cpp
-        pack_name/PSOMAB/PSOMAB.h
-        pack_name/PSOMAB/RandomNumber.cpp
-        pack_name/PSOMAB/RandomNumber.h
+        pack_name/Arm.cpp
+        pack_name/Arm.h
+        pack_name/LUT.cpp
+        pack_name/LUT.h
+        pack_name/algo/PSOMAB/PSOMAB.cpp
+        pack_name/algo/PSOMAB/PSOMAB.h
+        pack_name/RandomNumber.cpp
+        pack_name/RandomNumber.h
         tests/main.cpp
-        tests/problems/inventory.h pack_name/PSOMAB/PSO.cpp pack_name/PSOMAB/PSO.h pack_name/PSOMAB/Solution.cpp pack_name/PSOMAB/Solution.h)
+        tests/problems/inventory.h
+        pack_name/algo/PSO/PSO.cpp
+        pack_name/algo/PSO/PSO.h
+        pack_name/Solution.cpp
+        pack_name/Solution.h)
