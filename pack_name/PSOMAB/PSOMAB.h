@@ -29,7 +29,6 @@ struct MS_element {
 class PSOMAB {
        private:
         unsigned long max_sim;// max number of simulations
-        int m; // number of particles, population size
 
         Eigen::VectorXi vec_x_min;// D-dimensional Vector of the smallest possible
                                    // values a solution can have --> lower bounds
