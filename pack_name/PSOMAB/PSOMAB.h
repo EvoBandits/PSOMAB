@@ -41,7 +41,6 @@ class PSOMAB {
         std::vector<Arm> current_particles;    // Arme der current iteration
         std::vector<LUT> lookuptree_vec;
 
-        std::function<double(Eigen::VectorXi)> opti_func;
 
         std::vector<Arm> arms_global;
         LUT lookuptree_global;

@@ -110,7 +110,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                 } else {
                         // existiert noch nicht
                         // 0 = cost info, eigentlich nicht notwendig
-                        Arm new_arm(opti_func, current_particles[i].get_action_vector(), 0);
+                        Arm new_arm(pso.opti_func(), current_particles[i].get_action_vector(), 0);
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
                         arms_vec[i].push_back(new_arm);
@@ -332,9 +332,9 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& x_lb, const Eigen::VectorXi& x_ub, int D) : opti_func{std::move(func)}, max_sim{max_gen} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& x_lb, const Eigen::VectorXi& x_ub, int D) : max_sim{max_gen} {
 
-        pso = PSO(pop_s, D, x_lb, x_ub);
+        pso = PSO(pop_s, D, x_lb, x_ub, std::move(func));
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int i = 0; i < pso.num_particle(); i++) {
@@ -345,7 +345,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
                 v = generate_unique_solution(init_solutions, x_lb, x_ub, pso.dimension());
                 init_solutions.push_back(v);//required to check wheather all elements are unique
                 // add arm to "arms", i.e. where all arms are stored
-                Arm new_arm(opti_func, v, 0);// 0 = cost info, last element (0) is actually not necessary
+                Arm new_arm(pso.opti_func(), v, 0);// 0 = cost info, last element (0) is actually not necessary
 
                 // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
                 LUT lookuptree_temp;

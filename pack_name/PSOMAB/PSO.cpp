@@ -27,7 +27,7 @@ void PSO::step(int best_global_particle_index, int best_global_index, std::vecto
                 }
         }
 }
-PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)} {
+PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi)> opti_func) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)} {
         for(int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXi::Zero(dimension_));
         }
@@ -43,4 +43,7 @@ Eigen::VectorXi PSO::x_min() const {
 }
 Eigen::VectorXi PSO::x_max() const {
         return x_max_;
+}
+std::function<double(Eigen::VectorXi)> PSO::opti_func() const {
+        return opti_func_;
 }
