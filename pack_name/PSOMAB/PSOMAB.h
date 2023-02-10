@@ -30,13 +30,6 @@ class PSOMAB {
        private:
         unsigned long max_sim;// max number of simulations
 
-        Eigen::VectorXi vec_x_min;// D-dimensional Vector of the smallest possible
-                                   // values a solution can have --> lower bounds
-        Eigen::VectorXi vec_x_max;// D-Dimensional Vector of the largest possible
-                                   // values a solution can have --> upper bounds
-
-        int dimension;// D
-
         std::vector<Eigen::VectorXi>
             init_solutions;// Matrix of initial solutions (pop_s * D)
 
@@ -68,7 +61,7 @@ class PSOMAB {
         void run();
         std::vector<solution> getBest_solutions();
 
-        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, Eigen::VectorXi s_ll, Eigen::VectorXi s_ul, int D);
+        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& s_ll, const Eigen::VectorXi& s_ul, int D);
         void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
 };
