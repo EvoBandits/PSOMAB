@@ -4,8 +4,8 @@
 #include "Eigen/Core"
 #include <algorithm>
 class solution {
-        public:
-        int obs_number;    // the "obs-number"-th observation over the course of time
+       public:
+        int obs_number;   // the "obs-number"-th observation over the course of time
         Eigen::VectorXi x;// x
         int N;
         double mean_func_val = 0.0;// meanfunction value
