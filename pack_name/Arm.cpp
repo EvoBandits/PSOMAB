@@ -35,6 +35,8 @@ void Arm::set_action_vector(Eigen::VectorXi action_vector) {
 
 Eigen::VectorXi Arm::get_action_vector() const { return action_vector_; }
 
+double Arm::mean_reward() const { return reward_ / num_pulls_; }
+
 Arm::Arm(std::function<double(Eigen::VectorXi)> func, Eigen::VectorXi permutation, double init_r,
          double init_k, double init_Q)
     : arm_func_{std::move(func)}, action_vector_{std::move(permutation)}, reward_{init_r}, num_pulls_{init_k}, Q_{init_Q} {}
