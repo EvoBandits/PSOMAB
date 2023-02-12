@@ -1,5 +1,5 @@
 #include "PSO.h"
-#include "../../RandomNumber.h"
+#include "../../util/RandomNumber.h"
 #include <iostream>
 #include <utility>
 
