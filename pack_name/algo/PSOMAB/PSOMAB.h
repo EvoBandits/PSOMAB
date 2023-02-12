@@ -49,7 +49,7 @@ class PSOMAB {
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
 
        public:
-        void run();
+        void optimize();
         std::vector<solution> getBest_solutions();
         PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& s_ll, const Eigen::VectorXi& s_ul, int D);
 };
