@@ -18,6 +18,7 @@ class Arm {
         void update_num_pulls(int k_var);
         void update_reward(double r_var);
         void set_action_vector_element(int index, int value);
+        void set_action_vector(Eigen::VectorXi action_vector);
 
        private:
         Eigen::VectorXi action_vector_;
