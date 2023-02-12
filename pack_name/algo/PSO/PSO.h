@@ -18,6 +18,8 @@ class PSO {
         std::function<double(Eigen::VectorXi)> opti_func() const;
         std::vector<Arm> particles() const;
 
+        void optimize();
+
        private:
         int num_particle_{};
         Eigen::VectorXi x_min_;// D-dimensional Vector of the smallest possible
@@ -25,14 +27,17 @@ class PSO {
         Eigen::VectorXi x_max_;// D-Dimensional Vector of the largest possible
                                   // values a solution can have --> upper bounds
         int dimension_;// D
-        std::vector<Eigen::VectorXi> velocity_;// velocity
+        std::vector<Eigen::VectorXd> velocity_;// velocity
         std::function<double(Eigen::VectorXi)> opti_func_;
         std::vector<Arm> particles_;
+        std::vector<Arm> best_individual_arms_;
+        int best_global_arm_index_ = 0;
 
         double c1 = 2.5;
         double c2 = 1;
         double w = 0.2;
 
+        void step();
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_

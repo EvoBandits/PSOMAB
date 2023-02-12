@@ -28,6 +28,56 @@ void PSO::step(int best_global_particle_index, int best_global_index, std::vecto
         }
 }
 
+void PSO::step() {
+        for (int i = 0; i < num_particle_; i++) {
+                // Update velocity
+                Eigen::VectorXd vec1 = (best_individual_arms_[i].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
+                Eigen::VectorXd vec2 = (best_individual_arms_[best_global_arm_index_].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
+                std::uniform_real_distribution<double> distribution_0_1(0, 1);
+                Eigen::VectorXd new_velocity = w * velocity_[i].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
+                //cap_velocity(new_velocity);
+                velocity_[i] = new_velocity;
+
+                // Update location
+                Eigen::VectorXi new_vector = particles_[i].get_action_vector() + velocity_[i].cast<int>();
+
+                // check if new location is in range
+                for (int j = 0; j < dimension_; j++) {
+                        if (new_vector[j] > x_max_[j]) {
+                                new_vector[j] = x_max_[j];
+                        } else if (new_vector[j] < x_min_[j]) {
+                                new_vector[j] = x_min_[j];
+                        }
+                }
+
+                Arm new_arm = Arm(opti_func_, new_vector);
+                particles_[i] = new_arm;
+                particles_[i].pull();
+
+                // fix problem when best_individual_arm has never been pulled
+                if (best_individual_arms_[i].reward() == 0) {
+                        best_individual_arms_[i] = particles_[i];
+                }
+
+                // Check if new personal best
+                if(particles_[i].reward() < best_individual_arms_[i].reward()) {
+                        best_individual_arms_[i] = particles_[i];
+                }
+                // check if new global best
+                if(best_individual_arms_[i].reward() < best_individual_arms_[best_global_arm_index_].reward()) {
+                        best_global_arm_index_ = i;
+                }
+        }
+}
+
+void PSO::optimize() {
+        for (int i = 0; i < 1000; i++) {
+                step();
+        }
+        std::cout << "Best global arm: " << best_individual_arms_[best_global_arm_index_].get_action_vector().transpose() << std::endl;
+        std::cout << "Best global reward: " << best_individual_arms_[best_global_arm_index_].reward() << std::endl;
+}
+
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
         Eigen::VectorXi v(dimension);
         // generate random solutions as long as they are not unique
@@ -46,7 +96,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
 PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi)> opti_func) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)} {
         std::vector<Eigen::VectorXi> init_solutions;
         for(int i = 0; i < num_particle_; i++) {
-                velocity_.emplace_back(Eigen::VectorXi::Zero(dimension_));
+                velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
                 // initialize vector of solutions
                 Eigen::VectorXi v(dimension_);
                 // generate random solutions as long as they are not unique
@@ -56,6 +106,9 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
                 Arm new_arm(opti_func_, v);// 0 = cost info, last element (0) is actually not necessary
                 particles_.push_back(new_arm);
         }
+        // initialize best individual arms
+        // ToDo: in eigenes init
+        best_individual_arms_ = particles_;
 }
 int PSO::num_particle() const {
         return num_particle_;
