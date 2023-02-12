@@ -1,4 +1,5 @@
 #include "../pack_name/algo/PSOMAB/PSOMAB.h"
+#include "../pack_name/algo/PSO/PSO.h"
 #include <iostream>
 
 #include "problems/inventory.h"
@@ -12,8 +13,11 @@ int main() {
 
         int m = 10;
 
+        /*PSO instance = PSO(10, 2, x_lb, x_ub, inventory);
+        instance.optimize();*/
+
         PSOMAB instance = PSOMAB(inventory, 10000, m, 1, x_lb, x_ub, 2);
-        instance.run();
+        instance.optimize();
 
         for (auto &best_solution : instance.getBest_solutions()) {
                 std::cout << "budget:" << best_solution.obs_number << " | true:" << best_solution.true_func_val << "  mean:" << best_solution.mean_func_val << "  ";
