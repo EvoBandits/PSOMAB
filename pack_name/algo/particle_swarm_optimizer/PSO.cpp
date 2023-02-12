@@ -60,11 +60,11 @@ void PSO::step() {
                 }
 
                 // Check if new personal best
-                if(particles_[i].mean_reward() < best_individual_arms_[i].mean_reward()) {
+                if (particles_[i].mean_reward() < best_individual_arms_[i].mean_reward()) {
                         best_individual_arms_[i] = particles_[i];
                 }
                 // check if new global best
-                if(best_individual_arms_[i].mean_reward() < best_individual_arms_[best_global_arm_index_].mean_reward()) {
+                if (best_individual_arms_[i].mean_reward() < best_individual_arms_[best_global_arm_index_].mean_reward()) {
                         best_global_arm_index_ = i;
                 }
         }
@@ -75,7 +75,7 @@ void PSO::optimize() {
                 step();
         }
         std::cout << "Best global arm: " << best_individual_arms_[best_global_arm_index_].get_action_vector().transpose() << std::endl;
-        std::cout << "Best global reward: " << best_individual_arms_[best_global_arm_index_].mean_reward() << std::endl;
+        std::cout << "Best global reward: " << best_individual_arms_[best_global_arm_index_].mean_reward() << "\ttrue value: " << best_individual_arms_[best_global_arm_index_].true_value() << std::endl;
 }
 
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
@@ -93,9 +93,9 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi)> opti_func) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)} {
+PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)} {
         std::vector<Eigen::VectorXi> init_solutions;
-        for(int i = 0; i < num_particle_; i++) {
+        for (int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
                 // initialize vector of solutions
                 Eigen::VectorXi v(dimension_);
@@ -122,7 +122,7 @@ Eigen::VectorXi PSO::x_min() const {
 Eigen::VectorXi PSO::x_max() const {
         return x_max_;
 }
-std::function<double(Eigen::VectorXi)> PSO::opti_func() const {
+std::function<double(Eigen::VectorXi, int)> PSO::opti_func() const {
         return opti_func_;
 }
 std::vector<Arm> PSO::particles() const {
