@@ -311,12 +311,12 @@ void PSOMAB::save_solution() {
         // TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
         // RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
         double true_value =
-            global_arms.at(return_index).function_value();
+            global_arms.at(best_arm_index).true_value();
 
         best_solutions.emplace_back(sum_arm_k(), global_arms.at(return_index).get_action_vector(), global_arms.at(return_index).num_pulls(), global_arms.at(return_index).mean_reward(), true_value);
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : max_sim{max_gen} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : max_simulation{max_gen} {
 
         pso = PSO(pop_s, D, x_lb, x_ub, std::move(func));
 

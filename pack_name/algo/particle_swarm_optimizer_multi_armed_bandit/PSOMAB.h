@@ -49,7 +49,7 @@ class PSOMAB {
        public:
         void optimize();
         std::vector<solution> getBest_solutions();
-        PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D);
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D);
 };
 
 #endif// _PSOMAB_H_
