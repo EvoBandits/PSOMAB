@@ -161,7 +161,7 @@ int PSOMAB::sum_arm_k() {
         return sum;
 }
 
-void PSOMAB::run() {
+void PSOMAB::optimize() {
         for (int z = 1; z <= max_sim; z++) {
 
                 // After first iteration
