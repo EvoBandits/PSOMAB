@@ -26,7 +26,7 @@ int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
 }
 
 void PSOMAB::update_global_state(int arm_index_global, double r_before_update, double r_after_update) {
-        auto it_global = MS_global.find(MS_element(arm_index_global, arms_global.at(arm_index_global).mean_reward()));
+        auto it_global = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
         int var_global = (*it_global).arm_index;
 
         // Falls zwei Lösungen den selben Mean Value haben, kann prinzipiell var!=arm_index auftreten. Dann muss im Baum
@@ -39,124 +39,124 @@ void PSOMAB::update_global_state(int arm_index_global, double r_before_update, d
         // lösche knoten zugehörig zu arm_index_global in MS_global (er wird
         // gezogen und verändert sich. für das update muss man ihn deshalb
         // löschen)
-        MS_global.erase(it_global);
+        global_sats.erase(it_global);
 
         // erhöhe um 1
         // erhöhe bei arms_global[arm_index_global] k um eins, da der arm (wenige zeilen weiter oben) gezogen worden ist.
-        arms_global[arm_index_global].update_num_pulls(1);
+        global_arms[arm_index_global].update_num_pulls(1);
 
         // update bei arms_global[index_global] r um den aktuellen reward
         // (lässt sich als diff berechnen)
-        arms_global[arm_index_global].update_reward(r_after_update - r_before_update);
+        global_arms[arm_index_global].update_reward(r_after_update - r_before_update);
 
         // füge neu zu MS_global hinzu
-        MS_global.insert(MS_element(var_global, arms_global.at(var_global).mean_reward()));
+        global_sats.insert(MS_element(var_global, global_arms.at(var_global).mean_reward()));
 }
 
 void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test) {
         // füge den arm zu global arms hinzu
-        arms_global.push_back(test);
+        global_arms.push_back(test);
 
         // füge neuen knoten in lookuptree ein
-        int new_index_global = (int) arms_global.size() - 1;
-        lookuptree_global.insert(new_index_global, std::move(search_index_global));
+        int new_index_global = (int) global_arms.size() - 1;
+        global_lookup_tree.insert(new_index_global, std::move(search_index_global));
 
         // füge neuen knoten in MS_GLOBAL ein
-        MS_global.insert(MS_element(new_index_global, arms_global.at(new_index_global).mean_reward()));
+        global_sats.insert(MS_element(new_index_global, global_arms.at(new_index_global).mean_reward()));
 }
 
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
-        for (int i = 0; i < pso.num_particle(); i++) {
+        for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 // berechne "unique integer" aka search index
-                int128_t search_index = calc_solution_code(pso.particles()[i].get_action_vector());
+                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
                 // Suche im lokalen LUT des i-ten partikel nach arm_index
-                const int arm_index = lookuptree_vec[i].search(search_index);
+                const int arm_index = local_lookup_trees[particle_index].search(search_index);
                 // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden
                 // existiert bereits
                 if (arm_index >= 0) {
-                        if (arm_index != best_individual_arm_indices[i]) {
+                        if (arm_index != best_individual_arm_indices[particle_index]) {
                                 // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
-                                auto it = MS_vec[i].find(MS_element(arm_index, arms_vec[i].at(arm_index).mean_reward()));
+                                auto sat_node = local_sats[particle_index].find(MS_element(arm_index, local_arms[particle_index].at(arm_index).mean_reward()));
 
-                                int var = (*it).arm_index;
+                                int note_index = (*sat_node).arm_index;
                                 // If two nodes have the same mean value, the case var!=arm_index max occur
                                 // In this case, the tree must be iterated further until var==arm_index in order to actually find the correct (SAT) node
-                                while (var != arm_index) {
-                                        it++;
-                                        var = (*it).arm_index;
+                                while (note_index != arm_index) {
+                                        sat_node++;
+                                        note_index = (*sat_node).arm_index;
                                 }
                                 // Delete Node from Local SAT
-                                MS_vec[i].erase(it);
+                                local_sats[particle_index].erase(sat_node);
 
                                 // Store current mean in cache (before update)
-                                double r_before_update = arms_vec[i].at(var).reward();
+                                double old_mean_reward = local_arms[particle_index].at(note_index).reward();
 
                                 // pull_arm
-                                arms_vec[i].at(var).pull();
+                                local_arms[particle_index].at(note_index).pull();
 
                                 // global
                                 // Store current mean in cache (after update)
-                                double r_after_update = arms_vec[i].at(var).reward();
+                                double new_mean_reward = local_arms[particle_index].at(note_index).reward();
                                 // Suche entsprechenden Arm im global LUT arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_global
-                                const int arm_index_global = lookuptree_global.search(search_index);
+                                const int arm_index_global = global_lookup_tree.search(search_index);
 
                                 // Update global SAT
-                                update_global_state(arm_index_global, r_before_update, r_after_update);
+                                update_global_state(arm_index_global, old_mean_reward, new_mean_reward);
 
                                 // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
-                                MS_vec[i].insert(MS_element(var, arms_vec[i].at(var).mean_reward()));
+                                local_sats[particle_index].insert(MS_element(note_index, local_arms[particle_index].at(note_index).mean_reward()));
                         }
                 } else {
                         // existiert noch nicht
                         // 0 = cost info, eigentlich nicht notwendig
-                        Arm new_arm(pso.opti_func(), pso.particles()[i].get_action_vector(), 0);
+                        Arm new_arm(pso.opti_func(), pso.particles()[particle_index].get_action_vector(), 0);
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
-                        arms_vec[i].push_back(new_arm);
+                        local_arms[particle_index].push_back(new_arm);
 
                         // for global
-                        double r_before_update = arms_vec[i].back().reward();
+                        double old_mean_reward = local_arms[particle_index].back().reward();
 
                         // neuen Arm ziehen
-                        arms_vec[i].back().pull();
+                        local_arms[particle_index].back().pull();
 
                         // global
-                        double r_after_update = arms_vec[i].back().reward();
+                        double new_mean_reward = local_arms[particle_index].back().reward();
                         // berechne "unique integer" aka search
-                        int128_t search_index_global = calc_solution_code(arms_vec[i].back().get_action_vector());
+                        int128_t search_index_global = calc_solution_code(local_arms[particle_index].back().get_action_vector());
 
                         // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
-                        const int arm_index_global = lookuptree_global.search(search_index_global);
+                        const int arm_index_global = global_lookup_tree.search(search_index_global);
 
                         if (arm_index_global >= 0) {
                                 // falls knoten bereits im GLOBAL LUT existiert
 
                                 // Update global SAT
-                                update_global_state(arm_index_global, r_before_update, r_after_update);
+                                update_global_state(arm_index_global, old_mean_reward, new_mean_reward);
 
                         } else {
                                 // falls knoten noch nicht im GLOBAL LUT existiert
 
                                 // füge neuen knoten in lookuptree ein
-                                add_to_global_memory(search_index, arms_vec[i].back());
+                                add_to_global_memory(search_index, local_arms[particle_index].back());
                         }
 
                         // In lokalen LUT einfügen
-                        int new_index = (int) arms_vec[i].size() - 1;
+                        int new_index = (int) local_arms[particle_index].size() - 1;
                         // root = (*root).InsertIntoTree(root, search_index, new_index); // fill
                         // search tree ,  (arms.size()-1) ist index des letzten Elements
-                        lookuptree_vec[i].insert(new_index, search_index);
+                        local_lookup_trees[particle_index].insert(new_index, search_index);
 
                         // In lokalen SAT einfügen
-                        MS_vec[i].insert(MS_element(new_index, arms_vec[i].at(new_index).mean_reward()));
+                        local_sats[particle_index].insert(MS_element(new_index, local_arms[particle_index].at(new_index).mean_reward()));
                 }
         }
 }
 
 int PSOMAB::sum_arm_k() {
         int sum = 0;
-        for (int i = 0; i < arms_global.size(); i++) {
-                sum += arms_global.at(i).num_pulls();
+        for (int i = 0; i < global_arms.size(); i++) {
+                sum += global_arms.at(i).num_pulls();
         }
         return sum;
 }
@@ -181,11 +181,11 @@ void PSOMAB::optimize() {
 
                 for (int k = 0; k < pso.num_particle(); k++) {
 
-                        auto it_PSO = MS_vec[k].begin();
+                        auto it_PSO = local_sats[k].begin();
 
                         int arm_index = (*it_PSO).arm_index;// index des besten arms der aktuellen Iteration
 
-                        best_individual_arms.push_back(arms_vec[k].at(arm_index));// weise es den Armen der aktuellen Iteration zu
+                        best_individual_arms.push_back(local_arms[k].at(arm_index));// weise es den Armen der aktuellen Iteration zu
                         best_individual_arm_indices.push_back(arm_index);
 
                         // update global best
@@ -196,14 +196,14 @@ void PSOMAB::optimize() {
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, arms_vec);
+                pso.step(best_global_particle_index, best_global_index, best_individual_arms, local_arms);
 
                 MAB(best_individual_arm_indices);
 
                 // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
                 // Sample Means zu erhalten. Das passiert in der folgenden For loop
                 for (int i = 0; i < pso.num_particle(); i++) {
-                        auto it = MS_vec[i].find(MS_element(best_individual_arm_indices[i], arms_vec[i].at(best_individual_arm_indices[i]).mean_reward()));
+                        auto it = local_sats[i].find(MS_element(best_individual_arm_indices[i], local_arms[i].at(best_individual_arm_indices[i]).mean_reward()));
                         int var = (*it).arm_index;
 
                         // Falls zwei Lösungen den selben
@@ -216,19 +216,19 @@ void PSOMAB::optimize() {
                                 var = (*it).arm_index;
                         }
 
-                        MS_vec[i].erase(it);
+                        local_sats[i].erase(it);
 
-                        double r_before_update = arms_vec[i].at(best_individual_arm_indices[i]).reward();// für global
+                        double r_before_update = local_arms[i].at(best_individual_arm_indices[i]).reward();// für global
 
-                        arms_vec[i].at(best_individual_arm_indices[i]).pull();
+                        local_arms[i].at(best_individual_arm_indices[i]).pull();
 
                         // global
 
-                        double r_after_update = arms_vec[i].at(best_individual_arm_indices[i]).reward();
-                        int128_t search_index_global = calc_solution_code(arms_vec[i].at(best_individual_arm_indices[i]).get_action_vector());
-                        const int arm_index_global = lookuptree_global.search(search_index_global);
+                        double r_after_update = local_arms[i].at(best_individual_arm_indices[i]).reward();
+                        int128_t search_index_global = calc_solution_code(local_arms[i].at(best_individual_arm_indices[i]).get_action_vector());
+                        const int arm_index_global = global_lookup_tree.search(search_index_global);
 
-                        auto it_global = MS_global.find(MS_element(arm_index_global, arms_global.at(arm_index_global).mean_reward()));
+                        auto it_global = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
                         int var_global = (*it_global).arm_index;
 
                         // Falls zwei Lösungen den selben Mean Value haben, kann prinzipiell var!=arm_index auftreten.
@@ -239,18 +239,18 @@ void PSOMAB::optimize() {
                         }
 
                         // lösche knoten zugehörig zu arm_index_global in MS_global
-                        MS_global.erase(it_global);
+                        global_sats.erase(it_global);
 
                         // erhöhe um 1
                         // erhöhe bei arms_global[arm_index_global] k um eins
-                        arms_global[arm_index_global].update_num_pulls(1);
+                        global_arms[arm_index_global].update_num_pulls(1);
 
                         // update bei arms_global[index_global] r um den aktuellen reward (lässt
                         // sich als diff berechnen)
-                        arms_global[arm_index_global].update_reward(r_after_update - r_before_update);
+                        global_arms[arm_index_global].update_reward(r_after_update - r_before_update);
 
                         // füge neu zu MS_global hinzu
-                        MS_global.insert(MS_element(var_global, arms_global.at(var_global).mean_reward()));
+                        global_sats.insert(MS_element(var_global, global_arms.at(var_global).mean_reward()));
 
                         // global ende
 
@@ -263,7 +263,7 @@ void PSOMAB::optimize() {
                         }
                         //////////////
 
-                        MS_vec[i].insert(MS_element(best_individual_arm_indices[i], arms_vec[i].at(best_individual_arm_indices[i]).mean_reward()));
+                        local_sats[i].insert(MS_element(best_individual_arm_indices[i], local_arms[i].at(best_individual_arm_indices[i]).mean_reward()));
                 }
         }
 }
@@ -272,7 +272,7 @@ void PSOMAB::save_solution() {
         int max_number_pulls = std::numeric_limits<int>::min();
 
         // nochmal überprüfen mit ursprungscode
-        for (const auto &arm : arms_global) {
+        for (const auto &arm : global_arms) {
                 if (arm.num_pulls() > max_number_pulls) {
                         max_number_pulls = arm.num_pulls();
                 }
@@ -281,28 +281,28 @@ void PSOMAB::save_solution() {
         double ucb_norm_min = std::numeric_limits<int>::max();
         double ucb_norm_max = std::numeric_limits<int>::min();
 
-        for (auto it : MS_global) {
+        for (auto it : global_sats) {
                 int arm_index = it.arm_index;
-                ucb_norm_min = std::min(ucb_norm_min, arms_global.at(arm_index).mean_reward());
-                ucb_norm_max = std::max(ucb_norm_max, arms_global.at(arm_index).mean_reward());
-                if (arms_global.at(arm_index).num_pulls() == max_number_pulls) {
+                ucb_norm_min = std::min(ucb_norm_min, global_arms.at(arm_index).mean_reward());
+                ucb_norm_max = std::max(ucb_norm_max, global_arms.at(arm_index).mean_reward());
+                if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
         }
 
         int return_index = 0;
         double best_ucb_value = std::numeric_limits<int>::max();
-        for (auto it : MS_global) {
+        for (auto it : global_sats) {
                 int arm_index = it.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
                         return_index = arm_index;
                 }
-                double ucb = 1 - (ucb_norm_max - arms_global.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_arm_k()) / arms_global.at(arm_index).num_pulls());
+                double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_arm_k()) / global_arms.at(arm_index).num_pulls());
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
                         return_index = arm_index;
                 }
-                if (arms_global.at(arm_index).num_pulls() == max_number_pulls) {
+                if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
         }
@@ -311,14 +311,12 @@ void PSOMAB::save_solution() {
         // TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
         // RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
         double true_value =
-            arms_global.at(return_index).function_value();
+            global_arms.at(return_index).function_value();
 
-        best_solutions.emplace_back(sum_arm_k(), arms_global.at(return_index).get_action_vector(), arms_global.at(return_index).num_pulls(), arms_global.at(return_index).mean_reward(), true_value);
+        best_solutions.emplace_back(sum_arm_k(), global_arms.at(return_index).get_action_vector(), global_arms.at(return_index).num_pulls(), global_arms.at(return_index).mean_reward(), true_value);
 }
 
-
-
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi& x_lb, const Eigen::VectorXi& x_ub, int D) : max_sim{max_gen} {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : max_sim{max_gen} {
 
         pso = PSO(pop_s, D, x_lb, x_ub, std::move(func));
 
@@ -327,46 +325,46 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi)> func, unsigned long max_ge
 
                 // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
                 LUT lookuptree_temp;
-                lookuptree_vec.push_back(lookuptree_temp);
+                local_lookup_trees.push_back(lookuptree_temp);
 
                 // insert into Lookuptree (LUT)
                 // Berechne "unique integer" bzw. search key/index
                 int128_t search_index = calc_solution_code(pso.particles()[i].get_action_vector());
                 // Füge einen neuen Knoten mit (search index, 0) dem lokalen LUT hinzu. "0" deshalb, da es der erste Knoten ist.
-                lookuptree_vec.at(i).insert(0, search_index);
+                local_lookup_trees.at(i).insert(0, search_index);
 
                 // x_i
 
                 // Vektor an Armen
                 std::vector<Arm> arms_temp;
                 // arms_vec[i]: Arm-Gedächtnis
-                arms_vec.push_back(arms_temp);
+                local_arms.push_back(arms_temp);
                 // (Arm-Vektor) des i-ten Partikels
                 // Füge Arm "arms.at(i)" dem Gedächtnis des i-ten Partikels hinzu
-                arms_vec[i].push_back(pso.particles()[i]);
+                local_arms[i].push_back(pso.particles()[i]);
 
                 // Ziehe entsprechenden arm 0: Es gibt arms.size() speicher_listen, in jeder liste wird hier nur das 1. Element befüllt.
-                arms_vec[i].at(0).pull();
+                local_arms[i].at(0).pull();
 
                 // current sample mean
-                double Q_PSO = arms_vec[i].at(0).mean_reward();
+                double Q_PSO = local_arms[i].at(0).mean_reward();
 
                 // erzeuge für jeden Partikel einen (lokalen) SAT
                 std::multiset<MS_element, std::less<>> MS_temp;
                 // Füge (lokalen) SAT dem Vektor aller lokalen SATs hinzu
-                MS_vec.emplace_back(MS_temp);
+                local_sats.emplace_back(MS_temp);
                 // Füge einen neuen Knoten mit (Q:PSO:sample mean, 0) dem lokalen SAT hinzu. 0: Index des ersten Arms (in jeder der arms.size() Listen = diese sind partikelspezifisch)
-                MS_vec[i].insert(MS_element(0, Q_PSO));
+                local_sats[i].insert(MS_element(0, Q_PSO));
 
                 /// global
                 // berechne "unique integer" aka search index
-                int128_t search_index_global = calc_solution_code(arms_vec[i].at(0).get_action_vector());
+                int128_t search_index_global = calc_solution_code(local_arms[i].at(0).get_action_vector());
                 // füge entsprechenden knoten in den GLOBALEN LUT
-                lookuptree_global.insert(i, search_index);
+                global_lookup_tree.insert(i, search_index);
                 // füge den arm (zugehörig zum Knoten) in das globale Arm Gedächtnis
-                arms_global.push_back(arms_vec[i].at(0));
+                global_arms.push_back(local_arms[i].at(0));
                 // füge einen entsprechenden Knoten in den GLOBALEN SAT ein (i: Index im globalen Arm Gedächtnis, Q_PSO: Sample Mean) hier i oben 0, da hier ->globaler <- Baum aufgebaut wird
-                MS_global.insert(MS_element(i, Q_PSO));
+                global_sats.insert(MS_element(i, Q_PSO));
         }
 }
 std::vector<solution> PSOMAB::getBest_solutions() {
