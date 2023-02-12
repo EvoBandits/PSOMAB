@@ -60,11 +60,11 @@ void PSO::step() {
                 }
 
                 // Check if new personal best
-                if(particles_[i].reward() < best_individual_arms_[i].reward()) {
+                if(particles_[i].mean_reward() < best_individual_arms_[i].mean_reward()) {
                         best_individual_arms_[i] = particles_[i];
                 }
                 // check if new global best
-                if(best_individual_arms_[i].reward() < best_individual_arms_[best_global_arm_index_].reward()) {
+                if(best_individual_arms_[i].mean_reward() < best_individual_arms_[best_global_arm_index_].mean_reward()) {
                         best_global_arm_index_ = i;
                 }
         }
@@ -75,7 +75,7 @@ void PSO::optimize() {
                 step();
         }
         std::cout << "Best global arm: " << best_individual_arms_[best_global_arm_index_].get_action_vector().transpose() << std::endl;
-        std::cout << "Best global reward: " << best_individual_arms_[best_global_arm_index_].reward() << std::endl;
+        std::cout << "Best global reward: " << best_individual_arms_[best_global_arm_index_].mean_reward() << std::endl;
 }
 
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
