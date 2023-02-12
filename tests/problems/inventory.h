@@ -12,41 +12,7 @@ double poisson_random_number(double a) {
         return random_integer(re);
 };
 
-double inventory(Eigen::VectorXi action_vector) {
-        int s = action_vector[0];
-        int S = action_vector[1] + s;
-        int inventory_before_ordering = S;
-        int inventory_after_ordering = 0;
-        int order = 0;
-        double costs = 0.0;
-
-        int t = 30;
-
-        for (int i = 1; i <= t; i++) {
-
-                if (inventory_before_ordering <= s) {         // falls inventory on hand vor bestellung ->(kleiner gleich)<- s
-                                                              // ist
-                        order = S - inventory_before_ordering;// das was bestellt wird
-                        costs = costs + (32 + 3 * order);
-                        inventory_after_ordering = S;
-                } else {// keine order
-                        inventory_after_ordering = inventory_before_ordering;
-                }
-
-                inventory_after_ordering =
-                    inventory_after_ordering - poisson_random_number(25);
-
-                if (inventory_after_ordering >= 0) {
-                        costs = costs + 1 * inventory_after_ordering;
-                } else {// shortage
-                        costs = costs + 5 * (-inventory_after_ordering);
-                }
-
-                inventory_before_ordering = inventory_after_ordering;// für nächste Periode
-                order = 0;
-        }
-        costs = costs / 30;
-
+double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
             218.435, 213.435, 208.435, 203.435, 198.435, 193.435, 188.435, 183.436,
             178.437, 173.443, 168.457, 163.494, 158.577, 153.751, 149.088, 144.692,
@@ -1298,19 +1264,45 @@ double inventory(Eigen::VectorXi action_vector) {
             198.295, 198.476, 198.626, 198.791, 199.038, 199.398, 199.901, 200.532,
             201.254, 202.012, 202.75, 203.412, 203.96, 204.375, 204.663, 204.837,
             204.949, 205.048, 205.193, 205.41, 205.739, 206.199, 206.767, 207.425};
+        return Results[(action_vector.coeffRef(0) - 1) * 100 + (action_vector.coeffRef(1) - 1)];
+}
 
-        bool noise = false;
+double inventory(Eigen::VectorXi action_vector, int noise_level) {
+        int s = action_vector[0];
+        int S = action_vector[1] + s;
+        int inventory_before_ordering = S;
+        int inventory_after_ordering = 0;
+        int order = 0;
+        double costs = 0.0;
 
-        if (noise == false) {
-                costs = Results[(action_vector[0] - 1) * 100 + (action_vector[1] - 1)];
+        int t = 30;
+
+        for (int i = 1; i <= t; i++) {
+
+                if (inventory_before_ordering <= s) {         // falls inventory on hand vor bestellung ->(kleiner gleich)<- s
+                                                              // ist
+                        order = S - inventory_before_ordering;// das was bestellt wird
+                        costs = costs + (32 + 3 * order);
+                        inventory_after_ordering = S;
+                } else {// keine order
+                        inventory_after_ordering = inventory_before_ordering;
+                }
+
+                inventory_after_ordering =
+                    inventory_after_ordering - poisson_random_number(25);
+
+                if (inventory_after_ordering >= 0) {
+                        costs = costs + 1 * inventory_after_ordering;
+                } else {// shortage
+                        costs = costs + 5 * (-inventory_after_ordering);
+                }
+
+                inventory_before_ordering = inventory_after_ordering;// für nächste Periode
+                order = 0;
         }
+        costs = costs / 30;
 
-        // Noise verstärker
-        double noise_level = 1;
-        costs = costs + noise_level * (costs - Results[(action_vector[0] - 1) * 100 + (action_vector[1] - 1)]);
-        //////////////////////////////////////////////////////////////////////////////////////////
-
-        return costs;
+        return get_true_objective_value(action_vector) + noise_level * (costs - get_true_objective_value(action_vector));
 }
 
 #endif// PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
