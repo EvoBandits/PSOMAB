@@ -29,6 +29,10 @@ void Arm::set_action_vector_element(int index, int value) {
         action_vector_[index] = value;
 }
 
+void Arm::set_action_vector(Eigen::VectorXi action_vector) {
+        action_vector_ = std::move(action_vector);
+}
+
 Eigen::VectorXi Arm::get_action_vector() const { return action_vector_; }
 
 Arm::Arm(std::function<double(Eigen::VectorXi)> func, Eigen::VectorXi permutation, double init_r,
