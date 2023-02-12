@@ -18,12 +18,7 @@ int main() {
         psomab_instance.optimize();
 
         for (auto &best_solution : psomab_instance.getBest_solutions()) {
-                std::cout << "budget:" << best_solution.obs_number << " | true:" << best_solution.true_func_val << "  mean:" << best_solution.mean_func_val << "  ";
-                std::cout << "N: " << best_solution.N << "   ";
-                for (int q : best_solution.x) {
-                        std::cout << q << " ";
-                }
-                std::cout << std::endl;
+                std::cout << "budget:" << best_solution.obs_number << "\t| true:" << best_solution.true_func_val << "\tmean:" << best_solution.mean_func_val << "\tN: " << best_solution.N << "\t" << best_solution.x.transpose() << std::endl;
         }
 
         return 0;
