@@ -1,9 +1,9 @@
 #ifndef PSOMAB_PACK_NAME_PSOMAB_PSO_H_
 #define PSOMAB_PACK_NAME_PSOMAB_PSO_H_
 
+#include "../../objects/arm/Arm.h"
 #include "Eigen/Core"
 #include <vector>
-#include "../../Arm.h"
 class PSO {
        public:
         PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi)> opti_func);

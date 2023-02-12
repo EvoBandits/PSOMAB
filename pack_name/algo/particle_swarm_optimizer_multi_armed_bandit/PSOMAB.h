@@ -1,18 +1,18 @@
 #ifndef _PSOMAB_H_
 #define _PSOMAB_H_
-#include "../../Arm.h"
-#include "../../LUT.h"
+#include "../../objects/arm/Arm.h"
+#include "../../objects/look_up_tree/LUT.h"
+#include "../../objects/solution/Solution.h"
+#include "../particle_swarm_optimizer/PSO.h"
+#include "Eigen/Core"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cmath>
 #include <queue>
 #include <random>
 #include <set>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include "Eigen/Core"
-#include <unordered_set>
-#include "../../Solution.h"
-#include "../PSO/PSO.h"
 
 struct MS_element {
         int arm_index;

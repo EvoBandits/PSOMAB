@@ -9,17 +9,17 @@ include_directories(third_party/eigen)
 
 
 add_executable(PSOMAB
-        pack_name/Arm.cpp
-        pack_name/Arm.h
-        pack_name/LUT.cpp
-        pack_name/LUT.h
-        pack_name/algo/PSOMAB/PSOMAB.cpp
-        pack_name/algo/PSOMAB/PSOMAB.h
-        pack_name/RandomNumber.cpp
-        pack_name/RandomNumber.h
+        pack_name/objects/arm/Arm.cpp
+        pack_name/objects/arm/Arm.h
+        pack_name/objects/look_up_tree/LUT.cpp
+        pack_name/objects/look_up_tree/LUT.h
+        pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.cpp
+        pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h
+        pack_name/util/RandomNumber.cpp
+        pack_name/util/RandomNumber.h
         tests/main.cpp
         tests/problems/inventory.h
-        pack_name/algo/PSO/PSO.cpp
-        pack_name/algo/PSO/PSO.h
-        pack_name/Solution.cpp
-        pack_name/Solution.h)
+        pack_name/algo/particle_swarm_optimizer/PSO.cpp
+        pack_name/algo/particle_swarm_optimizer/PSO.h
+        pack_name/objects/solution/Solution.cpp
+        pack_name/objects/solution/Solution.h)

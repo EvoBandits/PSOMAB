@@ -1,6 +1,6 @@
 #ifndef _LUT_H_
 #define _LUT_H_
-#include <boost/multiprecision/cpp_int.hpp>
+#include "boost/multiprecision/cpp_int.hpp"
 #include <iostream>
 using namespace boost::multiprecision;
 
