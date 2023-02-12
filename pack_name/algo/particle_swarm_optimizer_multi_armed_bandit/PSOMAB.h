@@ -26,7 +26,7 @@ struct MS_element {
 
 class PSOMAB {
        private:
-        unsigned long max_sim;// max number of simulations
+        unsigned long max_simulation;// max number of simulations
         std::vector<solution> best_solutions;
 
         std::vector<std::multiset<MS_element, std::less<>>> local_sats;
@@ -41,9 +41,9 @@ class PSOMAB {
 
         int128_t calc_solution_code(Eigen::VectorXi x);
         void MAB(std::vector<int> best_individual_arm_indices);
-        void save_solution();
-        int sum_arm_k();
-        void update_global_state(int arm_index_global, double r_before_update, double r_after_update);
+        void save_current_best_solution();
+        int sum_global_arms_num_pulls();
+        void update_global_state(int arm_index_global, double old_mean_reward, double new_mean_reward);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
 
        public:
