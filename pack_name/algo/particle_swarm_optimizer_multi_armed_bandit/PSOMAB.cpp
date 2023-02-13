@@ -162,14 +162,10 @@ void PSOMAB::optimize() {
                         save_current_best_solution();
                 }
 
-                std::vector<Arm> best_individual_arms;
                 std::vector<int> best_individual_arm_indices;
 
                 double best_global_Q;
                 best_global_Q = 1000000000;
-                int best_global_index;         // index des glabal best arm
-                int best_global_particle_index;// Welches der insgesamt m Partel den global
-                                               // best arm enthält
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
 
@@ -177,18 +173,17 @@ void PSOMAB::optimize() {
 
                         int arm_index = (*it_PSO).arm_index;// index des besten arms der aktuellen Iteration
 
-                        best_individual_arms.push_back(local_arms[particle_index].at(arm_index));// weise es den Armen der aktuellen Iteration zu
+                        pso.best_individual_arms()[particle_index] = local_arms[particle_index].at(arm_index);
                         best_individual_arm_indices.push_back(arm_index);
 
                         // update global best
                         if ((*it_PSO).Q < best_global_Q) {
                                 best_global_Q = (*it_PSO).Q;
-                                best_global_particle_index = particle_index;
-                                best_global_index = (*it_PSO).arm_index;
+                                pso.best_particle_index() = particle_index;
                         }
                 }
 
-                pso.step(best_global_particle_index, best_global_index, best_individual_arms, local_arms);
+                pso.step(0);
 
                 MAB(best_individual_arm_indices);
 

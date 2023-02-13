@@ -10,7 +10,7 @@ class PSO {
         PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation);
         PSO() = default;
 
-        void step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec);
+        void step(int get_right_function);
 
         int num_particle() const;
         int dimension() const;
@@ -24,7 +24,10 @@ class PSO {
         void step();
         int sum_num_pulls(std::vector<Arm> &arms) const;
         virtual std::vector<solution> &best_solutions();
+        std::vector<Arm> &best_individual_arms();
         int max_simulation() const;
+        int &best_particle_index();
+
        private:
         int num_particle_{};
         Eigen::VectorXi x_min_;                // D-dimensional Vector of the smallest possible
@@ -36,7 +39,7 @@ class PSO {
         std::function<double(Eigen::VectorXi, int)> opti_func_;
         std::vector<Arm> particles_;
         std::vector<Arm> best_individual_arms_;
-        int best_global_arm_index_ = 0;
+        int best_particle_index_ = 0;
         void save_current_best_solution();
         std::vector<solution> best_solutions_;
         int max_simulation_;// max number of simulations

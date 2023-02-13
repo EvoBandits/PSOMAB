@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-void PSO::step(int best_global_particle_index, int best_global_index, std::vector<Arm> best_individual_arms, std::vector<std::vector<Arm>> arms_vec) {
+void PSO::step(int get_right_function) {
         for (int k = 0; k < num_particle_; k++) {
 
                 // with eigen for loop can bis discarded
@@ -11,8 +11,8 @@ void PSO::step(int best_global_particle_index, int best_global_index, std::vecto
                         // ToDo: ist runden hier richtig?
                         std::uniform_real_distribution<double> uniform_real_distribution_c1(0, c1);
                         std::uniform_real_distribution<double> uniform_real_distribution_c2(0, c2);
-                        int b1 = round(uniform_real_distribution_c1(generator) * 1.0 * (best_individual_arms[k].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
-                        int b2 = round(uniform_real_distribution_c2(generator) * 1.0 * (arms_vec[best_global_particle_index][best_global_index].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
+                        int b1 = round(uniform_real_distribution_c1(generator) * 1.0 * (best_individual_arms_[k].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
+                        int b2 = round(uniform_real_distribution_c2(generator) * 1.0 * (best_individual_arms_[best_particle_index_].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
 
                         velocity_[k][g] = round(w * velocity_[k][g] + b1 + b2);
 
@@ -32,7 +32,7 @@ void PSO::step() {
         for (int i = 0; i < num_particle_; i++) {
                 // Update velocity
                 Eigen::VectorXd vec1 = (best_individual_arms_[i].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
-                Eigen::VectorXd vec2 = (best_individual_arms_[best_global_arm_index_].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
+                Eigen::VectorXd vec2 = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
                 std::uniform_real_distribution<double> distribution_0_1(0, 1);
                 Eigen::VectorXd new_velocity = w * velocity_[i].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
                 //cap_velocity(new_velocity);
@@ -65,8 +65,8 @@ void PSO::step() {
                         best_individual_arms_[i] = particles_[i];
                 }
                 // check if new global best
-                if (best_individual_arms_[i].mean_reward() < best_individual_arms_[best_global_arm_index_].mean_reward()) {
-                        best_global_arm_index_ = i;
+                if (best_individual_arms_[i].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward()) {
+                        best_particle_index_ = i;
                 }
         }
 }
@@ -142,11 +142,17 @@ int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
         return sum;
 }
 void PSO::save_current_best_solution() {
-        best_solutions_.emplace_back(sum_num_pulls(particles_history_), best_individual_arms_[best_global_arm_index_].get_action_vector(), best_individual_arms_[best_global_arm_index_].num_pulls(), best_individual_arms_[best_global_arm_index_].mean_reward(), best_individual_arms_[best_global_arm_index_].true_value());
+        best_solutions_.emplace_back(sum_num_pulls(particles_history_), best_individual_arms_[best_particle_index_].get_action_vector(), best_individual_arms_[best_particle_index_].num_pulls(), best_individual_arms_[best_particle_index_].mean_reward(), best_individual_arms_[best_particle_index_].true_value());
 }
 std::vector<solution> &PSO::best_solutions() {
         return best_solutions_;
 }
 int PSO::max_simulation() const {
         return max_simulation_;
+}
+std::vector<Arm> &PSO::best_individual_arms() {
+        return best_individual_arms_;
+}
+int &PSO::best_particle_index() {
+        return best_particle_index_;
 }
