@@ -15,6 +15,7 @@ class solution {
                  double true_func_val)
             : obs_number(obs_number), x(std::move(x)), N(N), mean_func_val(mean_func_val),
               true_func_val(true_func_val) {}
+        void print() const;
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_SOLUTION_H_

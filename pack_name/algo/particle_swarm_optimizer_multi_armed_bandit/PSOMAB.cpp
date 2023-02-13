@@ -153,16 +153,8 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
         }
 }
 
-int PSOMAB::sum_global_arms_num_pulls() {
-        int sum_num_pulls = 0;
-        for (const auto &arm : global_arms) {
-                sum_num_pulls += arm.num_pulls();
-        }
-        return sum_num_pulls;
-}
-
 void PSOMAB::optimize() {
-        for (int iteration = 1; iteration <= max_simulation; iteration++) {
+        for (int iteration = 1; iteration <= pso.max_simulation(); iteration++) {
 
                 // After first iteration
                 if (iteration == 1) {
@@ -255,10 +247,10 @@ void PSOMAB::optimize() {
                         // global ende
 
                         //////////////
-                        if (sum_global_arms_num_pulls() % 100 == 0) {
+                        if (pso.sum_num_pulls(global_arms) % 100 == 0) {
                                 save_current_best_solution();
                         }// save solution
-                        if (sum_global_arms_num_pulls() >= max_simulation) {
+                        if (pso.sum_num_pulls(global_arms) >= pso.max_simulation()) {
                                 return;
                         }
                         //////////////
@@ -297,7 +289,7 @@ void PSOMAB::save_current_best_solution() {
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
                 }
-                double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(sum_global_arms_num_pulls()) / global_arms.at(arm_index).num_pulls());
+                double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
                         best_arm_index = arm_index;
@@ -313,12 +305,10 @@ void PSOMAB::save_current_best_solution() {
         double true_value =
             global_arms.at(best_arm_index).true_value();
 
-        best_solutions.emplace_back(sum_global_arms_num_pulls(), global_arms.at(best_arm_index).get_action_vector(), global_arms.at(best_arm_index).num_pulls(), global_arms.at(best_arm_index).mean_reward(), true_value);
+        pso.best_solutions().emplace_back(pso.sum_num_pulls(global_arms), global_arms.at(best_arm_index).get_action_vector(), global_arms.at(best_arm_index).num_pulls(), global_arms.at(best_arm_index).mean_reward(), true_value);
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, unsigned long max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : max_simulation{max_gen} {
-
-        pso = PSO(pop_s, D, x_lb, x_ub, std::move(func));
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_gen){
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
@@ -367,6 +357,6 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, unsigned long m
                 global_sats.insert(MS_element(particle_index, Q_PSO));
         }
 }
-std::vector<solution> PSOMAB::getBest_solutions() {
-        return best_solutions;
+std::vector<solution> PSOMAB::best_solutions() {
+        return pso.best_solutions();
 }
