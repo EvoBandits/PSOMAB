@@ -3,30 +3,6 @@
 #include <iostream>
 #include <utility>
 
-void PSO::step(int get_right_function) {
-        for (int k = 0; k < num_particle_; k++) {
-
-                // with eigen for loop can bis discarded
-                for (int g = 0; g < dimension_; g++) {
-                        // ToDo: ist runden hier richtig?
-                        std::uniform_real_distribution<double> uniform_real_distribution_c1(0, c1);
-                        std::uniform_real_distribution<double> uniform_real_distribution_c2(0, c2);
-                        int b1 = round(uniform_real_distribution_c1(generator) * 1.0 * (best_individual_arms_[k].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
-                        int b2 = round(uniform_real_distribution_c2(generator) * 1.0 * (best_individual_arms_[best_particle_index_].get_action_vector()[g] - particles_[k].get_action_vector()[g]));
-
-                        velocity_[k][g] = round(w * velocity_[k][g] + b1 + b2);
-
-                        int new_value = particles_[k].get_action_vector()[g] + velocity_[k][g];
-
-                        // ToDo: ist das das richtige vorgehen bei werten außerhalb der range?
-                        if (new_value > x_max_[g] || new_value < x_min_[g]) {
-                                std::uniform_int_distribution<int> uniform_int_distribution(x_min_[g], x_max_[g]);
-                                new_value = uniform_int_distribution(generator);
-                        }
-                        particles_[k].set_action_vector_element(g, new_value);
-                }
-        }
-}
 
 void PSO::step() {
         for (int i = 0; i < num_particle_; i++) {
@@ -43,10 +19,9 @@ void PSO::step() {
 
                 // check if new location is in range
                 for (int j = 0; j < dimension_; j++) {
-                        if (new_vector[j] > x_max_[j]) {
-                                new_vector[j] = x_max_[j];
-                        } else if (new_vector[j] < x_min_[j]) {
-                                new_vector[j] = x_min_[j];
+                        if (new_vector[j] > x_max_[j] || new_vector[j] < x_min_[j]) {
+                                std::uniform_int_distribution<int> uniform_int_distribution(x_min_[j], x_max_[j]);
+                                new_vector[j] = uniform_int_distribution(generator);
                         }
                 }
 

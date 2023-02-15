@@ -165,7 +165,7 @@ void PSOMAB::optimize() {
                 std::vector<int> best_individual_arm_indices;
 
                 double best_global_Q;
-                best_global_Q = 1000000000;
+                best_global_Q = std::numeric_limits<double>::max();
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
 
@@ -183,7 +183,7 @@ void PSOMAB::optimize() {
                         }
                 }
 
-                pso.step(0);
+                pso.step();
 
                 MAB(best_individual_arm_indices);
 

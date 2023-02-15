@@ -10,8 +10,6 @@ class PSO {
         PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation);
         PSO() = default;
 
-        void step(int get_right_function);
-
         int num_particle() const;
         int dimension() const;
         Eigen::VectorXi x_min() const;
