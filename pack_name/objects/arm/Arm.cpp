@@ -29,14 +29,6 @@ void Arm::update_num_pulls(int k_var) { num_pulls_ = num_pulls_ + k_var; }
 
 void Arm::update_reward(double r_var) { reward_ = reward_ + r_var; }
 
-void Arm::set_action_vector_element(int index, int value) {
-        action_vector_[index] = value;
-}
-
-void Arm::set_action_vector(Eigen::VectorXi action_vector) {
-        action_vector_ = std::move(action_vector);
-}
-
 Eigen::VectorXi Arm::get_action_vector() const { return action_vector_; }
 
 double Arm::mean_reward() const { return reward_ / num_pulls_; }
