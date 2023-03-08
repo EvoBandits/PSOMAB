@@ -308,11 +308,13 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, in
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
 
-                // erzeuge für jeden Partikel einen (lokalen) LUT und Füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
+                // erzeuge für jedes Partikel einen (lokalen) LUT und füge (lokalen) LUT dem Vektor aller lokalen LUTs hinzu
+                // ToDo: rename -> LUT not temporary, just variable
                 LUT lookuptree_temp;
-                local_lookup_trees.push_back(lookuptree_temp);
 
                 // insert into Lookuptree (LUT)
+                local_lookup_trees.push_back(lookuptree_temp);
+
                 // Berechne "unique integer" bzw. search key/index
                 int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
                 // Füge einen neuen Knoten mit (search index, 0) dem lokalen LUT hinzu. "0" deshalb, da es der erste Knoten ist.
@@ -321,6 +323,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, in
                 // x_i
 
                 // Vektor an Armen
+                // ToDo: rename -> Arm not temporary, just variable
                 std::vector<Arm> arms_temp;
                 // arms_vec[i]: Arm-Gedächtnis
                 local_arms.push_back(arms_temp);
@@ -332,10 +335,12 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, in
                 local_arms[particle_index].at(0).pull();
 
                 // current sample mean
+                // ToDo: replace Q with mean_reward (everywhere)
                 double Q_PSO = local_arms[particle_index].at(0).mean_reward();
 
                 // erzeuge für jeden Partikel einen (lokalen) SAT
-                std::multiset<MS_element, std::less<>> MS_temp;
+                // ToDo: rename -> SAT not temporary, just variable
+                std::multiset<MS_element, std::less<>> sat_temp;
                 // Füge (lokalen) SAT dem Vektor aller lokalen SATs hinzu
                 local_sats.emplace_back(MS_temp);
                 // Füge einen neuen Knoten mit (Q:PSO:sample mean, 0) dem lokalen SAT hinzu. 0: Index des ersten Arms (in jeder der arms.size() Listen = diese sind partikelspezifisch)

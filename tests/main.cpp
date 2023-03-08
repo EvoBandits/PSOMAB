@@ -14,6 +14,7 @@ int main() {
         //PSO pso_instance = PSO(10, 2, x_lb, x_ub, inventory, 10000);
         //pso_instance.optimize();
 
+        //ToDo: Seed setzen
         PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2);
         psomab_instance.optimize();
 
