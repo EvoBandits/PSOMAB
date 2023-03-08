@@ -4,12 +4,13 @@
 #include <random>
 #include <vector>
 #include "Eigen/Core"
+#include "../../pack_name/util/RandomNumber.h"
 
-std::default_random_engine re(1);
+// 17 36
 
 double poisson_random_number(double a) {
         std::poisson_distribution<int> random_integer(a);
-        return random_integer(re);
+        return random_integer(generator);
 };
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
