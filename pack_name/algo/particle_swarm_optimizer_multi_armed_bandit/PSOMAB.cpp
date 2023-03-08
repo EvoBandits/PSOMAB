@@ -29,15 +29,15 @@ void PSOMAB::update_global_state(int arm_index_global, double old_mean_reward, d
         auto global_sat_node = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
         int global_note_index = (*global_sat_node).arm_index;
 
-        // Falls zwei Lösungen den selben Mean Value haben, kann prinzipiell var!=arm_index auftreten. Dann muss im Baum
-        // weiter iteriert werden bis var==arm_index um wirklich die richtige Lösung zu ziehen.
+        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell global_note_index!=arm_index auftreten. Dann muss im Baum
+        // weiter iteriert werden bis global_note_index==arm_index, um wirklich die richtige Lösung zu ziehen.
         while (global_note_index != arm_index_global) {
                 global_sat_node++;
                 global_note_index = (*global_sat_node).arm_index;
         }
 
         // lösche knoten zugehörig zu arm_index_global in MS_global (er wird
-        // gezogen und verändert sich. für das update muss man ihn deshalb
+        // gezogen und verändert sich. für das Update muss man ihn deshalb
         // löschen)
         global_sats.erase(global_sat_node);
 
@@ -69,18 +69,22 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 // berechne "unique integer" aka search index
                 int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
+
                 // Suche im lokalen LUT des i-ten partikel nach arm_index
                 const int arm_index = local_lookup_trees[particle_index].search(search_index);
+
                 // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden
                 // existiert bereits
                 if (arm_index >= 0) {
+                        // ToDo: why is the following if statement necessary?
                         if (arm_index != best_individual_arm_indices[particle_index]) {
                                 // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
+                                // ToDo: simplify this
                                 auto sat_node = local_sats[particle_index].find(MS_element(arm_index, local_arms[particle_index].at(arm_index).mean_reward()));
 
                                 int note_index = (*sat_node).arm_index;
-                                // If two nodes have the same mean value, the case var!=arm_index max occur
-                                // In this case, the tree must be iterated further until var==arm_index in order to actually find the correct (SAT) node
+                                // If two nodes have the same mean value, the case note_index!=arm_index max occur
+                                // In this case, the tree must be iterated further until note_index==arm_index in order to actually find the correct (SAT) node
                                 while (note_index != arm_index) {
                                         sat_node++;
                                         note_index = (*sat_node).arm_index;
@@ -104,10 +108,12 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 update_global_state(arm_index_global, old_mean_reward, new_mean_reward);
 
                                 // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
+                                // ToDo: simplify this
                                 local_sats[particle_index].insert(MS_element(note_index, local_arms[particle_index].at(note_index).mean_reward()));
                         }
                 } else {
                         // existiert noch nicht
+                        // ToDo: why new arm? why not just add pso.particles()[particle_index] to local arms?
                         Arm new_arm(pso.opti_func(), pso.particles()[particle_index].get_action_vector());
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
@@ -137,7 +143,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         } else {
                                 // falls knoten noch nicht im GLOBAL LUT existiert
 
-                                // füge neuen knoten in lookuptree ein
+                                // füge neuen knoten in LUT und SAT ein
                                 add_to_global_memory(search_index, local_arms[particle_index].back());
                         }
 
@@ -180,6 +186,8 @@ void PSOMAB::optimize() {
                 pso.step();
 
                 MAB(best_individual_arm_indices);
+
+                // HIER
 
                 // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
                 // Sample Means zu erhalten. Das passiert in der folgenden For loop

@@ -7,17 +7,26 @@
 void PSO::step() {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
+                // ToDo: rename vec1 and vec2
                 Eigen::VectorXd vec1 = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
                 Eigen::VectorXd vec2 = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
+
                 std::uniform_real_distribution<double> distribution_0_1(0, 1);
+
+                // ToDo: split calculation of new_velocity into multiple lines (cognitive_component, social_component, old_velocity)
+
                 Eigen::VectorXd new_velocity = w * velocity_[particle_index].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
+
+                // ToDo: check if cap_velocity is necessary/usefully
                 //cap_velocity(new_velocity);
+
                 velocity_[particle_index] = new_velocity;
 
                 // Update location
                 Eigen::VectorXi new_vector = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
 
                 // check if new location is in range
+                // ToDo: check if cap of location is better than random generation
                 for (int j = 0; j < dimension_; j++) {
                         if (new_vector[j] > x_max_[j] || new_vector[j] < x_min_[j]) {
                                 std::uniform_int_distribution<int> uniform_int_distribution(x_min_[j], x_max_[j]);
@@ -27,20 +36,30 @@ void PSO::step() {
 
                 Arm new_arm = Arm(opti_func_, new_vector);
                 particles_[particle_index] = new_arm;
+
+                // in case of PSOMAB: pull arm 0 times, as arm gets pulled in PSOMAB
+                // in case of PSO: pull arm 1 or more times (k times)
+                // ToDo: add parameter to step_function to set number of pulls
                 for (int k = 0; k < 0; k++) {
                         particles_[particle_index].pull();
                 }
+
+                // save history, used for output
+                // ToDo: replace particles_history_ with some kind of counter-variable as it is currently just used to track the number of simulations (<-> PSOMAB)
                 particles_history_.push_back(particles_[particle_index]);
 
                 // fix problem when best_individual_arm has never been pulled
+                // ToDo: was das?
                 if (best_individual_arms_[particle_index].reward() == 0) {
                         best_individual_arms_[particle_index] = particles_[particle_index];
                 }
 
                 // Check if new personal best
+                // ToDo: not useful when using PSOMAB, as we already get the best arm in PSOMAB
                 if (particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward()) {
                         best_individual_arms_[particle_index] = particles_[particle_index];
                 }
+
                 // check if new global best
                 if (best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward()) {
                         best_particle_index_ = particle_index;

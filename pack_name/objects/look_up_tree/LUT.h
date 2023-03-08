@@ -6,6 +6,8 @@ using namespace boost::multiprecision;
 
 // ToDo: schauen ob HashTable besser wäre
 // ToDo: überprüfen ob es möglich ist diesen großen Int loszuwerden
+// ToDo: LUT durch Set ersetzen
+// Optional: Set durch AVL-Struktur ersetzen, evtl. sogar Arm-Vektor und LUT zusammenlegen
 
 struct node {
         int128_t search_index;
