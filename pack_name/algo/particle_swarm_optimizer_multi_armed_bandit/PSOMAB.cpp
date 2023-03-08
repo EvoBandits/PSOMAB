@@ -25,7 +25,7 @@ int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
         return search_index;
 }
 
-void PSOMAB::update_global_state(int arm_index_global, double old_mean_reward, double new_mean_reward) {
+void PSOMAB::update_global_state(int arm_index_global, double old_reward, double new_reward) {
         auto global_sat_node = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
         int global_note_index = (*global_sat_node).arm_index;
 
@@ -47,7 +47,7 @@ void PSOMAB::update_global_state(int arm_index_global, double old_mean_reward, d
 
         // update bei arms_global[index_global] r um den aktuellen reward
         // (lässt sich als diff berechnen)
-        global_arms[arm_index_global].update_reward(new_mean_reward - old_mean_reward);
+        global_arms[arm_index_global].update_reward(new_reward - old_reward);
 
         // füge neu zu MS_global hinzu
         global_sats.insert(MS_element(global_note_index, global_arms.at(global_note_index).mean_reward()));
@@ -93,19 +93,19 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 local_sats[particle_index].erase(sat_node);
 
                                 // Store current mean in cache (before update)
-                                double old_mean_reward = local_arms[particle_index].at(note_index).reward();
+                                double old_reward = local_arms[particle_index].at(note_index).reward();
 
                                 // pull_arm
                                 local_arms[particle_index].at(note_index).pull();
 
                                 // global
                                 // Store current mean in cache (after update)
-                                double new_mean_reward = local_arms[particle_index].at(note_index).reward();
+                                double new_reward = local_arms[particle_index].at(note_index).reward();
                                 // Suche entsprechenden Arm im global LUT arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_global
                                 const int arm_index_global = global_lookup_tree.search(search_index);
 
                                 // Update global SAT
-                                update_global_state(arm_index_global, old_mean_reward, new_mean_reward);
+                                update_global_state(arm_index_global, old_reward, new_reward);
 
                                 // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
                                 // ToDo: simplify this
@@ -120,14 +120,15 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         local_arms[particle_index].push_back(new_arm);
 
                         // for global
-                        double old_mean_reward = local_arms[particle_index].back().reward();
+                        double old_reward = local_arms[particle_index].back().reward();
 
                         // neuen Arm ziehen
                         local_arms[particle_index].back().pull();
 
                         // global
-                        double new_mean_reward = local_arms[particle_index].back().reward();
-                        // berechne "unique integer" aka search
+                        double new_reward = local_arms[particle_index].back().reward();
+
+                        // berechne "unique integer" aka search_index
                         int128_t search_index_global = calc_solution_code(local_arms[particle_index].back().get_action_vector());
 
                         // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
@@ -138,7 +139,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 // falls knoten bereits im GLOBAL LUT existiert
 
                                 // Update global SAT
-                                update_global_state(arm_index_global, old_mean_reward, new_mean_reward);
+                                update_global_state(arm_index_global, old_reward, new_reward);
 
                         } else {
                                 // falls knoten noch nicht im GLOBAL LUT existiert

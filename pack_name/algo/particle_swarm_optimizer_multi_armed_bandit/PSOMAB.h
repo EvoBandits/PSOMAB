@@ -40,7 +40,7 @@ class PSOMAB {
         int128_t calc_solution_code(Eigen::VectorXi x);
         void MAB(std::vector<int> best_individual_arm_indices);
         void save_current_best_solution();
-        void update_global_state(int arm_index_global, double old_mean_reward, double new_mean_reward);
+        void update_global_state(int arm_index_global, double old_reward, double new_reward);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
 
        public:
