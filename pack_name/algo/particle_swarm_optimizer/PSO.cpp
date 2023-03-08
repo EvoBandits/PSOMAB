@@ -27,7 +27,9 @@ void PSO::step() {
 
                 Arm new_arm = Arm(opti_func_, new_vector);
                 particles_[i] = new_arm;
-                particles_[i].pull();
+                for (int k = 0; k < 0; k++) {
+                        particles_[i].pull();
+                }
                 particles_history_.push_back(particles_[i]);
 
                 // fix problem when best_individual_arm has never been pulled
