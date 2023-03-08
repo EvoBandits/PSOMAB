@@ -7,6 +7,7 @@
 
 class Arm {
        public:
+        // ToDo: rename permutation to action_vector, init_r to reward, init_k to num_pulls, init_Q to reward
         Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi permutation, double init_r = 0.0,
             int init_k = 0.0, double init_Q = -1000000000.0);
         double function_value() const;
@@ -25,6 +26,7 @@ class Arm {
         double reward_{};
         int num_pulls_{};
         double Q_{};
+        // ToDo: check if pointer to function is better
         std::function<double(Eigen::VectorXi, int)> arm_func_;
 };
 
