@@ -28,7 +28,7 @@ class PSOMAB {
        private:
 
         std::vector<std::multiset<MS_element, std::less<>>> local_sats;
-        std::vector<std::vector<Arm>> local_arms;// Arm-Speicher eines jeden Paricles
+        std::vector<std::vector<Arm>> local_arms;// Arm-Speicher eines jeden Particles
         std::vector<LUT> local_lookup_trees;
 
         std::vector<Arm> global_arms;
