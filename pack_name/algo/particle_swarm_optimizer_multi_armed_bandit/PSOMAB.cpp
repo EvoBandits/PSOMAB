@@ -341,9 +341,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 // Füge einen neuen Knoten mit (Q:PSO:sample mean, 0) dem lokalen SAT hinzu. 0: Index des ersten Arms (in jeder der arms.size() Listen = diese sind partikelspezifisch)
                 local_sats[particle_index].insert(MS_element(0, Q_PSO));
 
-                /// global
-                // berechne "unique integer" aka search index
-                int128_t search_index_global = calc_solution_code(local_arms[particle_index].at(0).get_action_vector());
+                /// global, no check for duplicates necessary as we start with unique solutions
                 // füge entsprechenden knoten in den GLOBALEN LUT
                 global_lookup_tree.insert(particle_index, search_index);
                 // füge den arm (zugehörig zum Knoten) in das globale Arm Gedächtnis
