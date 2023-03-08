@@ -154,14 +154,9 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
 }
 
 void PSOMAB::optimize() {
-        for (int iteration = 1; iteration <= pso.max_simulation(); iteration++) {
-
-                // After first iteration
-                if (iteration == 1) {
-                        // save the solution that is currently considered to be the best
-                        save_current_best_solution();
-                }
-
+        // loop will be stopped if simulation budget is reached (checked before each new simulation) ToDo: check if true
+        while(true) {
+                // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
                 std::vector<int> best_individual_arm_indices;
 
                 double best_global_Q;
@@ -356,6 +351,8 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 // füge einen entsprechenden Knoten in den GLOBALEN SAT ein (i: Index im globalen Arm Gedächtnis, Q_PSO: Sample Mean) hier i oben 0, da hier ->globaler <- Baum aufgebaut wird
                 global_sats.insert(MS_element(particle_index, Q_PSO));
         }
+        // save the solution that is currently considered to be the best
+        save_current_best_solution();
 }
 std::vector<solution> PSOMAB::best_solutions() {
         return pso.best_solutions();
