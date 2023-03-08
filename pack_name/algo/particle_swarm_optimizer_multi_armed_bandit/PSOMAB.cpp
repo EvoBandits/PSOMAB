@@ -163,17 +163,16 @@ void PSOMAB::optimize() {
                 best_global_Q = std::numeric_limits<double>::max();
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
+                        MS_element best_mean_element = *local_sats[particle_index].begin();
 
-                        auto it_PSO = local_sats[particle_index].begin();
-
-                        int arm_index = (*it_PSO).arm_index;// index des besten arms der aktuellen Iteration
+                        int arm_index = best_mean_element.arm_index;
 
                         pso.best_individual_arms()[particle_index] = local_arms[particle_index].at(arm_index);
                         best_individual_arm_indices.push_back(arm_index);
 
                         // update global best
-                        if ((*it_PSO).Q < best_global_Q) {
-                                best_global_Q = (*it_PSO).Q;
+                        if (best_mean_element.Q < best_global_Q) {
+                                best_global_Q = best_mean_element.Q;
                                 pso.best_particle_index() = particle_index;
                         }
                 }
