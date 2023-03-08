@@ -5,17 +5,17 @@
 
 
 void PSO::step() {
-        for (int i = 0; i < num_particle_; i++) {
+        for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
-                Eigen::VectorXd vec1 = (best_individual_arms_[i].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
-                Eigen::VectorXd vec2 = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[i].get_action_vector()).cast<double>();
+                Eigen::VectorXd vec1 = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
+                Eigen::VectorXd vec2 = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
                 std::uniform_real_distribution<double> distribution_0_1(0, 1);
-                Eigen::VectorXd new_velocity = w * velocity_[i].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
+                Eigen::VectorXd new_velocity = w * velocity_[particle_index].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
                 //cap_velocity(new_velocity);
-                velocity_[i] = new_velocity;
+                velocity_[particle_index] = new_velocity;
 
                 // Update location
-                Eigen::VectorXi new_vector = particles_[i].get_action_vector() + velocity_[i].cast<int>();
+                Eigen::VectorXi new_vector = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
 
                 // check if new location is in range
                 for (int j = 0; j < dimension_; j++) {
@@ -26,24 +26,24 @@ void PSO::step() {
                 }
 
                 Arm new_arm = Arm(opti_func_, new_vector);
-                particles_[i] = new_arm;
+                particles_[particle_index] = new_arm;
                 for (int k = 0; k < 0; k++) {
-                        particles_[i].pull();
+                        particles_[particle_index].pull();
                 }
-                particles_history_.push_back(particles_[i]);
+                particles_history_.push_back(particles_[particle_index]);
 
                 // fix problem when best_individual_arm has never been pulled
-                if (best_individual_arms_[i].reward() == 0) {
-                        best_individual_arms_[i] = particles_[i];
+                if (best_individual_arms_[particle_index].reward() == 0) {
+                        best_individual_arms_[particle_index] = particles_[particle_index];
                 }
 
                 // Check if new personal best
-                if (particles_[i].mean_reward() < best_individual_arms_[i].mean_reward()) {
-                        best_individual_arms_[i] = particles_[i];
+                if (particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward()) {
+                        best_individual_arms_[particle_index] = particles_[particle_index];
                 }
                 // check if new global best
-                if (best_individual_arms_[i].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward()) {
-                        best_particle_index_ = i;
+                if (best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward()) {
+                        best_particle_index_ = particle_index;
                 }
         }
 }
