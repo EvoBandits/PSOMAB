@@ -108,8 +108,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         }
                 } else {
                         // existiert noch nicht
-                        // 0 = cost info, eigentlich nicht notwendig
-                        Arm new_arm(pso.opti_func(), pso.particles()[particle_index].get_action_vector(), 0);
+                        Arm new_arm(pso.opti_func(), pso.particles()[particle_index].get_action_vector());
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
                         local_arms[particle_index].push_back(new_arm);
@@ -127,6 +126,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
 
                         // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
                         const int arm_index_global = global_lookup_tree.search(search_index_global);
+
 
                         if (arm_index_global >= 0) {
                                 // falls knoten bereits im GLOBAL LUT existiert
