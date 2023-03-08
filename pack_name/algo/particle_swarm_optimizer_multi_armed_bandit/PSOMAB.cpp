@@ -303,7 +303,7 @@ void PSOMAB::save_current_best_solution() {
         pso.best_solutions().emplace_back(pso.sum_num_pulls(global_arms), global_arms.at(best_arm_index).get_action_vector(), global_arms.at(best_arm_index).num_pulls(), global_arms.at(best_arm_index).mean_reward(), true_value);
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_gen){
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim){
 
         //The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
@@ -342,7 +342,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_gen, in
                 // ToDo: rename -> SAT not temporary, just variable
                 std::multiset<MS_element, std::less<>> sat_temp;
                 // Füge (lokalen) SAT dem Vektor aller lokalen SATs hinzu
-                local_sats.emplace_back(MS_temp);
+                local_sats.emplace_back(sat_temp);
                 // Füge einen neuen Knoten mit (Q:PSO:sample mean, 0) dem lokalen SAT hinzu. 0: Index des ersten Arms (in jeder der arms.size() Listen = diese sind partikelspezifisch)
                 local_sats[particle_index].insert(MS_element(0, Q_PSO));
 
