@@ -1,7 +1,7 @@
 
 [submodule "third_party/eigen"]
 	path = third_party/eigen
-	url = https://gitlab.com/libeigen/eigen
+	url = https://gitlab.com/libeigen/eigen.git
 	branch = 3.4
 [submodule "third_party/multiprecision"]
 	path = third_party/multiprecision
