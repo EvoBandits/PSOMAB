@@ -271,6 +271,7 @@ void PSOMAB::save_current_best_solution() {
         double ucb_norm_min = std::numeric_limits<int>::max();
         double ucb_norm_max = std::numeric_limits<int>::min();
 
+        // ToDo: ich glaube die Formel ist falsch
         for (auto it : global_sats) {
                 int arm_index = it.arm_index;
                 ucb_norm_min = std::min(ucb_norm_min, global_arms.at(arm_index).mean_reward());
@@ -287,6 +288,7 @@ void PSOMAB::save_current_best_solution() {
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
                 }
+                // ToDo: ich glaube die Formel ist falsch
                 double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
