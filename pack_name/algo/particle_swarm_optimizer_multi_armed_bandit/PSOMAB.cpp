@@ -73,7 +73,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                 // Suche im lokalen LUT des i-ten partikel nach arm_index
                 const int arm_index = local_lookup_trees[particle_index].search(search_index);
 
-                // alle arm_index >= 0 existieren, -1 falls arm noch nicht vorhanden
+                // alle arm_index >= 0 existieren, -1, falls arm noch nicht vorhanden
                 // existiert bereits
                 if (arm_index >= 0) {
                         // ToDo: why is the following if statement necessary?
@@ -162,8 +162,10 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
 
 void PSOMAB::optimize() {
         // loop will be stopped if simulation budget is reached (checked before each new simulation) ToDo: check if true
+
         while(true) {
                 // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
+                // ToDo: abstract into separate function, something like retrieve_best_solution
                 std::vector<int> best_individual_arm_indices;
 
                 double best_global_Q;
@@ -186,12 +188,10 @@ void PSOMAB::optimize() {
 
                 pso.step();
 
+                // split into separate functions: sample solution, update_local_memory, update_global_memory, resample_best, ...
                 MAB(best_individual_arm_indices);
 
-                // HIER
-
-                // Die m besten Arme werden in jeder Iteration erneut gezogen um bessere
-                // Sample Means zu erhalten. Das passiert in der folgenden For loop
+                // Die jeweils besten Arme aller Particles werden erneut gezogen, um bessere Sample Means zu erhalten
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                         auto it = local_sats[particle_index].find(MS_element(best_individual_arm_indices[particle_index], local_arms[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
                         int var = (*it).arm_index;
@@ -221,8 +221,8 @@ void PSOMAB::optimize() {
                         auto it_global = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
                         int var_global = (*it_global).arm_index;
 
-                        // Falls zwei Lösungen den selben Mean Value haben, kann prinzipiell var!=arm_index auftreten.
-                        // Dann muss im Baum weiter iteriert werden bis var==arm_index um wirklich die richtige Lösung zu ziehen.
+                        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten.
+                        // Dann muss im Baum weiter iteriert werden bis node_index==arm_index um wirklich die richtige Lösung zu ziehen.
                         while (var_global != arm_index_global) {
                                 it_global++;
                                 var_global = (*it_global).arm_index;
@@ -253,15 +253,19 @@ void PSOMAB::optimize() {
                         }
                         //////////////
 
+                        // ToDo: vereinfachen
                         local_sats[particle_index].insert(MS_element(best_individual_arm_indices[particle_index], local_arms[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
                 }
         }
 }
 
 void PSOMAB::save_current_best_solution() {
+        // ToDo: split in select_ucb() o.ä. und tatsächliches Speichern (siehe unten -> keine separate Funktion)
         int max_number_pulls = std::numeric_limits<int>::min();
 
-        // nochmal überprüfen mit ursprungscode
+        // ToDo: nochmal überprüfen mit ursprungscode
+
+        // ToDo: std::max verwenden
         for (const auto &arm : global_arms) {
                 if (arm.num_pulls() > max_number_pulls) {
                         max_number_pulls = arm.num_pulls();
@@ -271,11 +275,15 @@ void PSOMAB::save_current_best_solution() {
         double ucb_norm_min = std::numeric_limits<int>::max();
         double ucb_norm_max = std::numeric_limits<int>::min();
 
-        // ToDo: ich glaube die Formel ist falsch
-        for (auto it : global_sats) {
-                int arm_index = it.arm_index;
+        // ToDo: nochmal überprüfen
+        for (auto global_sat_node : global_sats) {
+                int arm_index = global_sat_node.arm_index;
+
+                // ToDo: aus for-Schleife raus, da eh direkt der erste Knoten im Baum?
                 ucb_norm_min = std::min(ucb_norm_min, global_arms.at(arm_index).mean_reward());
                 ucb_norm_max = std::max(ucb_norm_max, global_arms.at(arm_index).mean_reward());
+
+                // checks if we are still in the non dominated-set (mean <= mean_max_pulls)
                 if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
@@ -288,12 +296,16 @@ void PSOMAB::save_current_best_solution() {
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
                 }
-                // ToDo: ich glaube die Formel ist falsch
+
+                // ToDo: Formel verstehen + vereinfachen
                 double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
+
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
                         best_arm_index = arm_index;
                 }
+
+                // checks if we are still in the non dominated-set (mean <= mean_max_pulls)
                 if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
@@ -302,9 +314,9 @@ void PSOMAB::save_current_best_solution() {
         // no noise
         // TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
         // RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
-        double true_value =
-            global_arms.at(best_arm_index).true_value();
+        double true_value = global_arms.at(best_arm_index).true_value();
 
+        // ToDo: vereinfachen
         pso.best_solutions().emplace_back(pso.sum_num_pulls(global_arms), global_arms.at(best_arm_index).get_action_vector(), global_arms.at(best_arm_index).num_pulls(), global_arms.at(best_arm_index).mean_reward(), true_value);
 }
 
