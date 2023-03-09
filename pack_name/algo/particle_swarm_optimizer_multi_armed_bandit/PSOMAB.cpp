@@ -193,20 +193,17 @@ void PSOMAB::optimize() {
 
                 // Die jeweils besten Arme aller Particles werden erneut gezogen, um bessere Sample Means zu erhalten
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                        auto it = local_sats[particle_index].find(MS_element(best_individual_arm_indices[particle_index], local_arms[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
-                        int var = (*it).arm_index;
+                        auto sat_node = local_sats[particle_index].find(MS_element(best_individual_arm_indices[particle_index], local_arms[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
+                        int node_index = (*sat_node).arm_index;
 
-                        // Falls zwei Lösungen den selben
-                        // Mean Value haben,
-                        // kann prinzipiell var!=arm_index auftreten. Dann muss im Baum weiter
-                        // iteriert werden bis var==arm_index um wirklich die richtige Lösung zu
-                        // ziehen.
-                        while (var != best_individual_arm_indices[particle_index]) {
-                                it++;
-                                var = (*it).arm_index;
+                        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten. Dann muss im Baum weiter
+                        // iteriert werden bis node_index==arm_index, um wirklich die richtige Lösung zu ziehen.
+                        while (node_index != best_individual_arm_indices[particle_index]) {
+                                sat_node++;
+                                node_index = (*sat_node).arm_index;
                         }
 
-                        local_sats[particle_index].erase(it);
+                        local_sats[particle_index].erase(sat_node);
 
                         double old_mean_reward = local_arms[particle_index].at(best_individual_arm_indices[particle_index]).reward();// für global
 
