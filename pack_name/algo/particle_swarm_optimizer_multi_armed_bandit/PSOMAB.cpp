@@ -256,17 +256,23 @@ void PSOMAB::optimize() {
         }
 }
 
-int PSOMAB::select_ucb() {
+int PSOMAB::max_num_pulls() const {
         int max_number_pulls = std::numeric_limits<int>::min();
-
-        // ToDo: nochmal überprüfen mit ursprungscode
-
         for (const auto &arm : global_arms) {
                 max_number_pulls = std::max(max_number_pulls, arm.num_pulls());
         }
+        return max_number_pulls;
+}
 
-        double ucb_norm_min = std::numeric_limits<int>::max();
-        double ucb_norm_max = std::numeric_limits<int>::min();
+int PSOMAB::select_ucb() {
+        double ucb_norm_min = std::numeric_limits<double>::max();
+        double ucb_norm_max = std::numeric_limits<double>::min();
+        int best_arm_index = 0;
+        double best_ucb_value = std::numeric_limits<double>::max();
+
+        // ToDo: nochmal überprüfen mit ursprungscode
+
+        int max_number_pulls = max_num_pulls();
 
         // ToDo: nochmal überprüfen
         for (auto global_sat_node : global_sats) {
@@ -282,8 +288,6 @@ int PSOMAB::select_ucb() {
                 }
         }
 
-        int best_arm_index = 0;
-        double best_ucb_value = std::numeric_limits<int>::max();
         for (auto it : global_sats) {
                 int arm_index = it.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
