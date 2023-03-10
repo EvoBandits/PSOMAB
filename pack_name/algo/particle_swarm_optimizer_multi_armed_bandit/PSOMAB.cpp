@@ -261,11 +261,8 @@ int PSOMAB::select_ucb() {
 
         // ToDo: nochmal überprüfen mit ursprungscode
 
-        // ToDo: std::max verwenden
         for (const auto &arm : global_arms) {
-                if (arm.num_pulls() > max_number_pulls) {
-                        max_number_pulls = arm.num_pulls();
-                }
+                max_number_pulls = std::max(max_number_pulls, arm.num_pulls());
         }
 
         double ucb_norm_min = std::numeric_limits<int>::max();
