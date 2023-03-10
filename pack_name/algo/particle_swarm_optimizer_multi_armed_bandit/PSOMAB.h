@@ -15,8 +15,8 @@
 #include <vector>
 
 struct MS_element {
+        double Q; // key
         int arm_index;
-        double Q;
 
         bool operator<(const MS_element &rhs) const { return Q < rhs.Q; }
         bool operator>(const MS_element &rhs) const { return Q > rhs.Q; }
