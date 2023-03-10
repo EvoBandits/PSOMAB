@@ -256,8 +256,7 @@ void PSOMAB::optimize() {
         }
 }
 
-void PSOMAB::save_current_best_solution() {
-        // ToDo: split in select_ucb() o.ä. und tatsächliches Speichern (siehe unten -> keine separate Funktion)
+int PSOMAB::select_ucb() {
         int max_number_pulls = std::numeric_limits<int>::min();
 
         // ToDo: nochmal überprüfen mit ursprungscode
@@ -307,14 +306,19 @@ void PSOMAB::save_current_best_solution() {
                         break;
                 }
         }
+        return best_arm_index;
+}
 
-        // no noise
-        // TRUE VALUE EINFACH AUF EINEN BELIEBIGEN WERT SETZEN; FALLS SIMULATION ZU
-        // RECHENINTENSIV IST UND EXAKTER WERT OHNEHIN NICHT BEKANNT/BESTIMMBAR
+void PSOMAB::save_current_best_solution() {
+        int best_arm_index = select_ucb();
+
         double true_value = global_arms.at(best_arm_index).true_value();
+        double num_pulls_all = pso.sum_num_pulls(global_arms);
+        Eigen::VectorXi best_solution = global_arms.at(best_arm_index).get_action_vector();
+        double num_pulls_best = global_arms.at(best_arm_index).num_pulls();
+        double mean_value = global_arms.at(best_arm_index).mean_reward();
 
-        // ToDo: vereinfachen
-        pso.best_solutions().emplace_back(pso.sum_num_pulls(global_arms), global_arms.at(best_arm_index).get_action_vector(), global_arms.at(best_arm_index).num_pulls(), global_arms.at(best_arm_index).mean_reward(), true_value);
+        pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim){
