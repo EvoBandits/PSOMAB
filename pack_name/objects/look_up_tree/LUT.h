@@ -10,7 +10,7 @@ using namespace boost::multiprecision;
 // Optional: Set durch AVL-Struktur ersetzen, evtl. sogar Arm-Vektor und LUT zusammenlegen
 
 struct node {
-        int128_t search_index;
+        int128_t search_index; // key
         int arm_index;
         node *left;
         node *right;
