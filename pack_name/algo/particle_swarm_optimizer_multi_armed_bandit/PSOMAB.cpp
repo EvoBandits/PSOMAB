@@ -326,17 +326,13 @@ void PSOMAB::save_current_best_solution() {
 }
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim){
-
-        //The following procedure ensures that only unique solutions are generated in the first iteration.
+        // The following procedure ensures that only unique solutions are generated in the first iteration.
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 // create local lookup tree for particle and add to the global vector of all local lookup trees
                 LUT local_lookuptree;
                 local_lookup_trees.push_back(local_lookuptree);
 
-                // insert into Lookuptree (LUT)
-                local_lookup_trees.push_back(lookuptree_temp);
-
-                // Berechne "unique integer" bzw. search key/index
+                // calculate unique search index based on action vector of particle and add with (search index, 0) to the local LUT. "0" because it is the first node.
                 int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
                 local_lookup_trees.at(particle_index).insert(0, search_index);
 
@@ -360,7 +356,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 // Füge einen neuen Knoten mit (Q:PSO:sample mean, 0) dem lokalen SAT hinzu. 0: Index des ersten Arms (in jeder der arms.size() Listen = diese sind partikelspezifisch)
                 local_sats[particle_index].insert(MS_element(0, Q_PSO));
 
-                /// global, no check for duplicates necessary as we start with unique solutions
+                // global, no check for duplicates necessary as we start with unique solutions
                 // füge entsprechenden knoten in den GLOBALEN LUT
                 global_lookup_tree.insert(particle_index, search_index);
                 // füge den arm (zugehörig zum Knoten) in das globale Arm Gedächtnis
