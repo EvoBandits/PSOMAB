@@ -283,6 +283,10 @@ int PSOMAB::select_ucb() {
                 }
         }
 
+        // find the solution of non-dominated set with the lowest associated UCB value
+        int best_arm_index = 0;
+        double best_ucb_value = std::numeric_limits<double>::max();
+
         for (auto global_sat_node : global_sats) {
                 int arm_index = global_sat_node.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
@@ -294,12 +298,13 @@ int PSOMAB::select_ucb() {
                 double penalty_term = sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
                 double ucb = transformed_sample_mean + penalty_term;
 
+                // new best solution is found
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
                         best_arm_index = arm_index;
                 }
 
-                // checks if we are still in the non dominated-set (mean <= mean_max_pulls)
+                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
                 if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
