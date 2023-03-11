@@ -33,7 +33,7 @@ class PSOMAB {
 
         std::vector<Arm> global_arms;
         LUT global_lookup_tree;
-        std::multiset<MS_element, std::less<>> global_sats;
+        std::multiset<MS_element, std::less<>> global_sat;
 
         PSO pso;
 
@@ -42,7 +42,7 @@ class PSOMAB {
         void save_current_best_solution();
         void update_global_state(int arm_index_global, double old_reward, double new_reward);
         void add_to_global_memory(int128_t search_index_global, const Arm &test);
-        int select_ucb();
+        int find_best_ucb();
 
        public:
         void optimize();
