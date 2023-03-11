@@ -81,7 +81,7 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         if (arm_index != best_individual_arm_indices[particle_index]) {
                                 // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
                                 // ToDo: simplify this
-                                auto sat_node = local_sats[particle_index].find(MS_element(arm_index, local_arms[particle_index].at(arm_index).mean_reward()));
+                                auto sat_node = local_sats[particle_index].find(MS_element(arm_index, local_vectors_of_arms[particle_index].at(arm_index).mean_reward()));
 
                                 int note_index = (*sat_node).arm_index;
                                 // If two nodes have the same mean value, the case note_index!=arm_index max occur
