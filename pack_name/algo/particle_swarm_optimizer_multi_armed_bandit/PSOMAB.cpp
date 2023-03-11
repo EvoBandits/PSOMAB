@@ -288,14 +288,16 @@ int PSOMAB::select_ucb() {
                 }
         }
 
-        for (auto it : global_sats) {
-                int arm_index = it.arm_index;
+        for (auto global_sat_node : global_sats) {
+                int arm_index = global_sat_node.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
                 }
 
-                // ToDo: Formel verstehen + vereinfachen
-                double ucb = 1 - (ucb_norm_max - global_arms.at(arm_index).mean_reward()) / (ucb_norm_max - ucb_norm_min) + sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
+                // transform sample mean to interval [0,1]
+                double transformed_sample_mean = (global_arms.at(arm_index).mean_reward() - ucb_norm_min) / (ucb_norm_max - ucb_norm_min);
+                double penalty_term = sqrt(2 * log(pso.sum_num_pulls(global_arms)) / global_arms.at(arm_index).num_pulls());
+                double ucb = transformed_sample_mean + penalty_term;
 
                 if (ucb < best_ucb_value) {
                         best_ucb_value = ucb;
