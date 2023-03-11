@@ -26,7 +26,7 @@ int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
 }
 
 void PSOMAB::update_global_state(int arm_index_global, double old_reward, double new_reward) {
-        auto global_sat_node = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
+        auto global_sat_node = global_sat.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
         int global_note_index = (*global_sat_node).arm_index;
 
         // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell global_note_index!=arm_index auftreten. Dann muss im Baum
@@ -39,7 +39,7 @@ void PSOMAB::update_global_state(int arm_index_global, double old_reward, double
         // lösche knoten zugehörig zu arm_index_global in MS_global (er wird
         // gezogen und verändert sich. für das Update muss man ihn deshalb
         // löschen)
-        global_sats.erase(global_sat_node);
+        global_sat.erase(global_sat_node);
 
         // erhöhe um 1
         // erhöhe bei arms_global[arm_index_global] k um eins, da der arm (wenige zeilen weiter oben) gezogen worden ist.
@@ -50,7 +50,7 @@ void PSOMAB::update_global_state(int arm_index_global, double old_reward, double
         global_arms[arm_index_global].update_reward(new_reward - old_reward);
 
         // füge neu zu MS_global hinzu
-        global_sats.insert(MS_element(global_note_index, global_arms.at(global_note_index).mean_reward()));
+        global_sat.insert(MS_element(global_note_index, global_arms.at(global_note_index).mean_reward()));
 }
 
 void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test) {
@@ -62,7 +62,7 @@ void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test)
         global_lookup_tree.insert(new_index_global, std::move(search_index_global));
 
         // füge neuen knoten in MS_GLOBAL ein
-        global_sats.insert(MS_element(new_index_global, global_arms.at(new_index_global).mean_reward()));
+        global_sat.insert(MS_element(new_index_global, global_arms.at(new_index_global).mean_reward()));
 }
 
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
@@ -215,7 +215,7 @@ void PSOMAB::optimize() {
                         int128_t search_index_global = calc_solution_code(local_arms[particle_index].at(best_individual_arm_indices[particle_index]).get_action_vector());
                         const int arm_index_global = global_lookup_tree.search(search_index_global);
 
-                        auto it_global = global_sats.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
+                        auto it_global = global_sat.find(MS_element(arm_index_global, global_arms.at(arm_index_global).mean_reward()));
                         int var_global = (*it_global).arm_index;
 
                         // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten.
@@ -226,7 +226,7 @@ void PSOMAB::optimize() {
                         }
 
                         // lösche knoten zugehörig zu arm_index_global in MS_global
-                        global_sats.erase(it_global);
+                        global_sat.erase(it_global);
 
                         // erhöhe um 1
                         // erhöhe bei arms_global[arm_index_global] k um eins
@@ -237,7 +237,7 @@ void PSOMAB::optimize() {
                         global_arms[arm_index_global].update_reward(new_mean_reward - old_mean_reward);
 
                         // füge neu zu MS_global hinzu
-                        global_sats.insert(MS_element(var_global, global_arms.at(var_global).mean_reward()));
+                        global_sat.insert(MS_element(var_global, global_arms.at(var_global).mean_reward()));
 
                         // global ende
 
@@ -264,16 +264,16 @@ int PSOMAB::max_num_pulls() const {
         return max_number_pulls;
 }
 
-int PSOMAB::select_ucb() {
+int PSOMAB::find_best_ucb() {
         // find min mean of non-dominated set
-        int arm_index_ucb_norm_min = (*global_sats.begin()).arm_index;
+        int arm_index_ucb_norm_min = (*global_sat.begin()).arm_index;
         double ucb_norm_min = global_arms.at(arm_index_ucb_norm_min).mean_reward();
 
         // find max mean of non-dominated set
         int max_number_pulls = max_num_pulls();
         double ucb_norm_max = std::numeric_limits<double>::min();
 
-        for (auto global_sat_node : global_sats) {
+        for (auto global_sat_node : global_sat) {
                 int arm_index = global_sat_node.arm_index;
                 ucb_norm_max = std::max(ucb_norm_max, global_arms.at(arm_index).mean_reward());
 
@@ -287,7 +287,7 @@ int PSOMAB::select_ucb() {
         int best_arm_index = 0;
         double best_ucb_value = std::numeric_limits<double>::max();
 
-        for (auto global_sat_node : global_sats) {
+        for (auto global_sat_node : global_sat) {
                 int arm_index = global_sat_node.arm_index;
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
@@ -313,7 +313,7 @@ int PSOMAB::select_ucb() {
 }
 
 void PSOMAB::save_current_best_solution() {
-        int best_arm_index = select_ucb();
+        int best_arm_index = find_best_ucb();
 
         double true_value = global_arms.at(best_arm_index).true_value();
         double num_pulls_all = pso.sum_num_pulls(global_arms);
@@ -373,7 +373,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 // füge den arm (zugehörig zum Knoten) in das globale Arm Gedächtnis
                 global_arms.push_back(local_arms[particle_index].at(0));
                 // füge einen entsprechenden Knoten in den GLOBALEN SAT ein (i: Index im globalen Arm Gedächtnis, Q_PSO: Sample Mean) hier i oben 0, da hier ->globaler <- Baum aufgebaut wird
-                global_sats.insert(MS_element(particle_index, Q_PSO));
+                global_sat.insert(MS_element(particle_index, Q_PSO));
         }
         // save the solution that is currently considered to be the best
         save_current_best_solution();
