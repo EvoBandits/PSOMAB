@@ -265,24 +265,19 @@ int PSOMAB::max_num_pulls() const {
 }
 
 int PSOMAB::select_ucb() {
-        double ucb_norm_min = std::numeric_limits<double>::max();
-        double ucb_norm_max = std::numeric_limits<double>::min();
-        int best_arm_index = 0;
-        double best_ucb_value = std::numeric_limits<double>::max();
+        // find min mean of non-dominated set
+        int arm_index_ucb_norm_min = (*global_sats.begin()).arm_index;
+        double ucb_norm_min = global_arms.at(arm_index_ucb_norm_min).mean_reward();
 
-        // ToDo: nochmal überprüfen mit ursprungscode
-
+        // find max mean of non-dominated set
         int max_number_pulls = max_num_pulls();
+        double ucb_norm_max = std::numeric_limits<double>::min();
 
-        // ToDo: nochmal überprüfen
         for (auto global_sat_node : global_sats) {
                 int arm_index = global_sat_node.arm_index;
-
-                // ToDo: aus for-Schleife raus, da eh direkt der erste Knoten im Baum?
-                ucb_norm_min = std::min(ucb_norm_min, global_arms.at(arm_index).mean_reward());
                 ucb_norm_max = std::max(ucb_norm_max, global_arms.at(arm_index).mean_reward());
 
-                // checks if we are still in the non dominated-set (mean <= mean_max_pulls)
+                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
                 if (global_arms.at(arm_index).num_pulls() == max_number_pulls) {
                         break;
                 }
