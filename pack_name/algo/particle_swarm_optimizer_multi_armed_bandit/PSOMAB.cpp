@@ -79,8 +79,9 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         // ToDo: why is the following if statement necessary?
                         if (arm_index != best_individual_arm_indices[particle_index]) {
                                 // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
-                                // ToDo: simplify this
-                                auto sat_node = local_sats[particle_index].find(MS_element(arm_index, local_arm_memories[particle_index].at(arm_index).mean_reward()));
+                                double existing_arm_mean_reward = local_arm_memories[particle_index].at(arm_index).mean_reward();
+                                MS_element existing_arm = MS_element(arm_index, existing_arm_mean_reward);
+                                auto sat_node = local_sats[particle_index].find(existing_arm);
 
                                 int note_index = (*sat_node).arm_index;
                                 // If two nodes have the same mean value, the case note_index!=arm_index max occur
@@ -107,17 +108,16 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                                 // Update global SAT
                                 update_global_state(arm_index_global, old_reward, new_reward);
 
-                                // Füge gezogenen Arm dem Lokal SAT hinzu (er wurde zuvor aus dem lok. SAT entfernt).
-                                // ToDo: simplify this
-                                local_sats[particle_index].insert(MS_element(note_index, local_arm_memories[particle_index].at(note_index).mean_reward()));
+                                // Add pulled arm to the local SAT (it was previously removed from the local SAT).
+                                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(note_index).mean_reward();
+                                MS_element pulled_arm = MS_element(note_index, pulled_arm_mean_reward);
+                                local_sats[particle_index].insert(pulled_arm);
                         }
                 } else {
                         // existiert noch nicht
-                        // ToDo: why new arm? why not just add pso.particles()[particle_index] to local arms?
-                        Arm new_arm(pso.opti_func(), pso.particles()[particle_index].get_action_vector());
 
                         // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
-                        local_arm_memories[particle_index].push_back(new_arm);
+                        local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
 
                         // for global
                         double old_reward = local_arm_memories[particle_index].back().reward();
@@ -154,8 +154,10 @@ void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
                         // search tree ,  (arms.size()-1) ist index des letzten Elements
                         local_lookup_trees[particle_index].insert(new_index, search_index);
 
-                        // In lokalen SAT einfügen
-                        local_sats[particle_index].insert(MS_element(new_index, local_arm_memories[particle_index].at(new_index).mean_reward()));
+                        // Add pulled arm to the local SAT (it was previously removed from the local SAT).
+                        double pulled_arm_mean_reward = local_arm_memories[particle_index].at(new_index).mean_reward();
+                        MS_element pulled_arm = MS_element(new_index, pulled_arm_mean_reward);
+                        local_sats[particle_index].insert(pulled_arm);
                 }
         }
 }
@@ -250,8 +252,9 @@ void PSOMAB::optimize() {
                         }
                         //////////////
 
-                        // ToDo: vereinfachen
-                        local_sats[particle_index].insert(MS_element(best_individual_arm_indices[particle_index], local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
+                        double best_individual_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward();
+                        MS_element best_individual_arm = MS_element(best_individual_arm_indices[particle_index], best_individual_mean_reward);
+                        local_sats[particle_index].insert(best_individual_arm);
                 }
         }
 }
