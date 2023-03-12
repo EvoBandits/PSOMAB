@@ -47,6 +47,8 @@ class PSO {
         double c2 = 1;
 
         double w = 0.2;
+        Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
+        Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_
