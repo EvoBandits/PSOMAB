@@ -7,15 +7,16 @@
 void PSO::step() {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
-                // ToDo: rename vec1 and vec2
-                Eigen::VectorXd vec1 = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
-                Eigen::VectorXd vec2 = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
+                Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
+                Eigen::VectorXd social_direction = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
 
                 std::uniform_real_distribution<double> distribution_0_1(0, 1);
 
-                // ToDo: split calculation of new_velocity into multiple lines (cognitive_component, social_component, old_velocity)
+                Eigen::VectorXd old_velocity = w * velocity_[particle_index].cast<double>();
+                Eigen::VectorXd social_component = (distribution_0_1(generator) * c2) * social_direction;
+                Eigen::VectorXd cognitive_component = (distribution_0_1(generator) * c1) * cognitive_direction;
 
-                Eigen::VectorXd new_velocity = w * velocity_[particle_index].cast<double>() + (distribution_0_1(generator) * c1) * vec1 + (distribution_0_1(generator) * c2) * vec2;
+                Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
 
                 // ToDo: check if cap_velocity is necessary/usefully
                 //cap_velocity(new_velocity);
