@@ -19,8 +19,6 @@ double Arm::pull() {
         return G;
 }
 
-double Arm::get_Q() const { return Q_; }
-
 int Arm::num_pulls() const { return num_pulls_; }
 
 double Arm::reward() const { return reward_; }
@@ -33,6 +31,5 @@ Eigen::VectorXi Arm::get_action_vector() const { return action_vector_; }
 
 double Arm::mean_reward() const { return reward_ / num_pulls_; }
 
-Arm::Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi permutation, double init_r,
-         int init_k, double init_Q)
-    : arm_func_{std::move(func)}, action_vector_{std::move(permutation)}, reward_{init_r}, num_pulls_{init_k}, Q_{init_Q} {}
+Arm::Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi permutation, double init_r, int init_k)
+    : arm_func_{std::move(func)}, action_vector_{std::move(permutation)}, reward_{init_r}, num_pulls_{init_k} {}
