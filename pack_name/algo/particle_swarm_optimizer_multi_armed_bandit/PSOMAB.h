@@ -15,13 +15,13 @@
 #include <vector>
 
 struct MS_element {
-        double Q; // key
+        double mean_reward; // key
         int arm_index;
 
-        bool operator<(const MS_element &rhs) const { return Q < rhs.Q; }
-        bool operator>(const MS_element &rhs) const { return Q > rhs.Q; }
+        bool operator<(const MS_element &rhs) const { return mean_reward < rhs.mean_reward; }
+        bool operator>(const MS_element &rhs) const { return mean_reward > rhs.mean_reward; }
 
-        MS_element(int arm_index, double Q) : arm_index(arm_index), Q(Q) {}
+        MS_element(int arm_index, double mean_reward) : arm_index(arm_index), mean_reward(mean_reward) {}
 };
 
 class PSOMAB {

@@ -169,8 +169,8 @@ void PSOMAB::optimize() {
                 // ToDo: abstract into separate function, something like retrieve_best_solution
                 std::vector<int> best_individual_arm_indices;
 
-                double best_global_Q;
-                best_global_Q = std::numeric_limits<double>::max();
+                double best_global_mean_reward;
+                best_global_mean_reward = std::numeric_limits<double>::max();
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                         MS_element best_mean_element = *local_sats[particle_index].begin();
@@ -181,8 +181,8 @@ void PSOMAB::optimize() {
                         best_individual_arm_indices.push_back(arm_index);
 
                         // update global best
-                        if (best_mean_element.Q < best_global_Q) {
-                                best_global_Q = best_mean_element.Q;
+                        if (best_mean_element.mean_reward < best_global_mean_reward) {
+                                best_global_mean_reward = best_mean_element.mean_reward;
                                 pso.best_particle_index() = particle_index;
                         }
                 }
@@ -341,18 +341,17 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
 
                 // pull the current particle
                 local_arm_memories[particle_index].at(0).pull();
-                // ToDo: replace Q with mean_reward (everywhere)
-                double Q_PSO = local_arm_memories[particle_index].at(0).mean_reward();
+                double mean_reward = local_arm_memories[particle_index].at(0).mean_reward();
 
                 // create local SAT
                 std::multiset<MS_element, std::less<>> local_sat;
                 local_sats.push_back(local_sat);
-                local_sats[particle_index].insert(MS_element(0, Q_PSO));
+                local_sats[particle_index].insert(MS_element(0, mean_reward));
 
                 //add particle to global lookup tree, global arm memory and global SAT (index of particle in arm memory = particle index)
                 global_lookup_tree.insert(particle_index, search_index);
                 global_arm_memory.push_back(local_arm_memories[particle_index].at(0));
-                global_sat.insert(MS_element(particle_index, Q_PSO));
+                global_sat.insert(MS_element(particle_index, mean_reward));
         }
         save_current_best_solution();
 }
