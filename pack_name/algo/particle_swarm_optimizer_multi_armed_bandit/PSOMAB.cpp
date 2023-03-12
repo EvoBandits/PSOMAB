@@ -181,14 +181,7 @@ void PSOMAB::optimize() {
                         pso.best_individual_arms()[particle_index] = local_arm_memories[particle_index].at(arm_index);
                         best_individual_arm_indices.push_back(arm_index);
 
-                        // update global best
-                        if (best_mean_element.mean_reward < best_global_mean_reward) {
-                                best_global_mean_reward = best_mean_element.mean_reward;
-                                pso.best_particle_index() = particle_index;
-                        }
-                }
-
-                pso.step();
+                pso.step(0);
 
                 // split into separate functions: sample solution, update_local_memory, update_global_memory, resample_best, ...
                 MAB(best_individual_arm_indices);
