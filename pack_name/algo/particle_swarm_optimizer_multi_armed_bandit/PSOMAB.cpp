@@ -15,13 +15,12 @@
 // std::uniform_int_distribution<int> uniform_int_distribution(a, b);
 // std::uniform_real_distribution<double> uniform_real_distribution(a, b);
 
-// ToDo: rename input parameter
 // calculates the solution code, i.e. unique integer
-int128_t PSOMAB::calc_solution_code(Eigen::VectorXi x) {
+int128_t PSOMAB::calc_solution_code(Eigen::VectorXi action_vector) {
         int128_t search_index = 0;
         for (int i = 0; i < pso.dimension(); i++) {
                 int exp = ceil(log10((pso.x_max()[i] - pso.x_min()[i]) + 1));
-                search_index = search_index + (int128_t) (pow((pow(10, exp)), (pso.dimension() - 1) - i) * (x[i] - pso.x_min()[i]));
+                search_index = search_index + (int128_t) (pow((pow(10, exp)), (pso.dimension() - 1) - i) * (action_vector[i] - pso.x_min()[i]));
         }
         return search_index;
 }
