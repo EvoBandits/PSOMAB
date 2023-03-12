@@ -26,14 +26,15 @@ struct MS_element {
 
 class PSOMAB {
        private:
-
+        // local SATs, arm_memory, LUTs
         std::vector<std::multiset<MS_element, std::less<>>> local_sats;
-        std::vector<std::vector<Arm>> local_vectors_of_arms; // Arm-Speicher eines jeden Particles
+        std::vector<std::vector<Arm>> local_arm_memories;
         std::vector<LUT> local_lookup_trees;
 
-        std::vector<Arm> global_arms;
-        LUT global_lookup_tree;
+        // global SAT, arm_memory, LUT
         std::multiset<MS_element, std::less<>> global_sat;
+        std::vector<Arm> global_arm_memory;
+        LUT global_lookup_tree;
 
         PSO pso;
 
