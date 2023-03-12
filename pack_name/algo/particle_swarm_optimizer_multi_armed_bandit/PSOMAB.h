@@ -38,7 +38,7 @@ class PSOMAB {
 
         PSO pso;
 
-        int128_t calc_solution_code(Eigen::VectorXi x);
+        int128_t calc_solution_code(Eigen::VectorXi action_vector);
         void MAB(std::vector<int> best_individual_arm_indices);
         void save_current_best_solution();
         void update_global_state(int arm_index_global, double old_reward, double new_reward);
