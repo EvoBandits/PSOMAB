@@ -53,16 +53,18 @@ void PSOMAB::update_global_state(int arm_index_global, double old_reward, double
         global_sat.insert(MS_element(global_note_index, global_arm_memory.at(global_note_index).mean_reward()));
 }
 
-void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &test) {
-        // füge den arm zu global arms hinzu
-        global_arm_memory.push_back(test);
+void PSOMAB::add_to_global_memory(int128_t search_index_global, const Arm &arm) {
+        // insert arm into global arm memory
+        global_arm_memory.push_back(arm);
 
-        // füge neuen knoten in lookuptree ein
+        // insert arm into global lookup tree
         int new_index_global = (int) global_arm_memory.size() - 1;
         global_lookup_tree.insert(new_index_global, std::move(search_index_global));
 
-        // füge neuen knoten in MS_GLOBAL ein
-        global_sat.insert(MS_element(new_index_global, global_arm_memory.at(new_index_global).mean_reward()));
+        // insert new element into SAT
+        double mean_reward = global_arm_memory.at(new_index_global).mean_reward();
+        MS_element new_element_global(new_index_global, mean_reward);
+        global_sat.insert(new_element_global);
 }
 
 void PSOMAB::MAB(std::vector<int> best_individual_arm_indices) {
