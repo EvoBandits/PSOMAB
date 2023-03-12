@@ -42,14 +42,16 @@ class PSOMAB {
         void MAB(std::vector<int> best_individual_arm_indices);
         void save_current_best_solution();
         void update_global_state(int arm_index_global, double old_reward, double new_reward);
-        void add_to_global_memory(int128_t search_index_global, const Arm &test);
         int find_best_ucb();
+        int max_num_pulls() const;
+        std::vector<int> retrieve_best_solution();
+        int check_local(const Arm& particle, LUT &local_lookup_tree);
+        void add_to_global_memory(const Arm &particle);
 
        public:
         void optimize();
         PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D);
         std::vector<solution> best_solutions();
-        int max_num_pulls() const;
 };
 
 #endif// _PSOMAB_H_
