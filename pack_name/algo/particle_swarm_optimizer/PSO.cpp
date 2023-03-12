@@ -4,6 +4,24 @@
 #include <utility>
 
 
+Eigen::VectorXi PSO::update_location_random(Eigen::VectorXi proposed_solution){
+        for (int j = 0; j < dimension_; j++) {
+                if (proposed_solution[j] > x_max_[j] || proposed_solution[j] < x_min_[j]) {
+                        std::uniform_int_distribution<int> uniform_int_distribution(x_min_[j], x_max_[j]);
+                        proposed_solution[j] = uniform_int_distribution(generator);
+                }
+        }
+        return proposed_solution;
+}
+
+Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
+        for (int j = 0; j < dimension_; j++) {
+                if (proposed_solution[j] < x_min_[j]) proposed_solution[j] = x_min_[j];
+                else if (proposed_solution[j] > x_max_[j]) proposed_solution[j] =  x_max_[j];
+        }
+        return proposed_solution;
+}
+
 void PSO::step() {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
@@ -23,19 +41,12 @@ void PSO::step() {
 
                 velocity_[particle_index] = new_velocity;
 
-                // Update location
-                Eigen::VectorXi new_vector = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
+                // update position
+                Eigen::VectorXi proposed_position = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
+                //Eigen::VectorXi new_position = update_location_random(proposed_position);
+                Eigen::VectorXi new_position = update_location_cap(proposed_position);
 
-                // check if new location is in range
-                // ToDo: check if cap of location is better than random generation
-                for (int j = 0; j < dimension_; j++) {
-                        if (new_vector[j] > x_max_[j] || new_vector[j] < x_min_[j]) {
-                                std::uniform_int_distribution<int> uniform_int_distribution(x_min_[j], x_max_[j]);
-                                new_vector[j] = uniform_int_distribution(generator);
-                        }
-                }
-
-                Arm new_arm = Arm(opti_func_, new_vector);
+                Arm new_arm = Arm(opti_func_, new_position);
                 particles_[particle_index] = new_arm;
 
                 // in case of PSOMAB: pull arm 0 times, as arm gets pulled in PSOMAB
