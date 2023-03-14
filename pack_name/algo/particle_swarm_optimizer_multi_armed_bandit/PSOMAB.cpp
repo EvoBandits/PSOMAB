@@ -68,7 +68,7 @@ void PSOMAB::add_to_global_memory(const Arm &particle) {
         global_sat.insert(new_element_global);
 }
 
-std::vector<int> PSOMAB::retrieve_best_solution() {
+std::vector<int> PSOMAB::retrieve_best_solutions() {
         // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
         std::vector<int> best_individual_arm_indices;
 
@@ -104,9 +104,10 @@ void PSOMAB::optimize() {
         // loop will be stopped if simulation budget is reached (checked before each new simulation) ToDo: check if true
 
         while(true) {
+                // find local bast solutions
+                std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
 
-                std::vector<int> best_individual_arm_indices = retrieve_best_solution();
-
+                // update particle positions
                 pso.step(0);
 
                 // split into separate functions: sample solution, update_local_memory, update_global_memory, resample_best, ...
