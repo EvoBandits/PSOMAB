@@ -44,7 +44,7 @@ class PSOMAB {
         void update_global_state(int arm_index_global, double old_reward, double new_reward);
         int find_best_ucb();
         int max_num_pulls() const;
-        std::vector<int> retrieve_best_solution();
+        std::vector<int> retrieve_best_solutions();
         int check_local(const Arm& particle, LUT &local_lookup_tree);
         void add_to_global_memory(const Arm &particle);
 
