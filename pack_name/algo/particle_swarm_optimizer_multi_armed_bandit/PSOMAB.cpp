@@ -157,6 +157,7 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
                 // global
                 double new_reward = local_arm_memories[particle_index].back().reward();
 
+                // ToDo: check_local zu check_lookup_tree ändern und so die nächsten zwei Code zeilen sparen
                 // berechne "unique integer" aka search_index
                 int128_t search_index_global = calc_solution_code(local_arm_memories[particle_index].back().get_action_vector());
 
