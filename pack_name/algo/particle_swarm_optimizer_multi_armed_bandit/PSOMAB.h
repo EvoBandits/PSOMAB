@@ -47,6 +47,10 @@ class PSOMAB {
         std::vector<int> retrieve_best_solutions();
         int check_local(const Arm& particle, LUT &local_lookup_tree);
         void add_to_global_memory(const Arm &particle);
+        void sample_and_update(int particle_index,  int best_individual_arm_index);
+        void resample_and_update(int particle_index, int best_individual_arm_index);
+        bool budget_reached();
+        void save_history();
 
        public:
         void optimize();

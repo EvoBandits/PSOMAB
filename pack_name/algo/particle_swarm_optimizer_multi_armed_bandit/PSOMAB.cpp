@@ -99,10 +99,163 @@ int PSOMAB::check_local(const Arm& particle, LUT &local_lookup_tree) {
 
         return arm_index;
 }
+Sim
+void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index) {
+        int arm_index_local = check_local(pso.particles()[particle_index], local_lookup_trees[particle_index]);
+
+        if (arm_index_local >= 0) {
+                // ToDo: why is the following if statement necessary?
+                if (arm_index_local != best_individual_arm_index) {
+                        // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
+                        double existing_arm_mean_reward = local_arm_memories[particle_index].at(arm_index_local).mean_reward();
+                        MS_element existing_arm = MS_element(arm_index_local, existing_arm_mean_reward);
+                        auto sat_node = local_sats[particle_index].find(existing_arm);
+
+                        int note_index = (*sat_node).arm_index;
+                        // If two nodes have the same mean value, the case note_index!=arm_index_local max occur
+                        // In this case, the tree must be iterated further until note_index==arm_index_local in order to actually find the correct (SAT) node
+                        while (note_index != arm_index_local) {
+                                sat_node++;
+                                note_index = (*sat_node).arm_index;
+                        }
+                        // Delete Node from Local SAT
+                        local_sats[particle_index].erase(sat_node);
+
+                        // Store current mean in cache (before update)
+                        double old_reward = local_arm_memories[particle_index].at(note_index).reward();
+
+                        // pull_arm
+                        local_arm_memories[particle_index].at(note_index).pull();
+
+                        // global
+                        // Store current mean in cache (after update)
+                        double new_reward = local_arm_memories[particle_index].at(note_index).reward();
+                        // Suche entsprechenden Arm im global LUT arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_global
+                        int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
+                        const int arm_index_global = global_lookup_tree.search(search_index);
+
+                        // Update global SAT
+                        update_global_state(arm_index_global, old_reward, new_reward);
+
+                        // Add pulled arm to the local SAT (it was previously removed from the local SAT).
+                        double pulled_arm_mean_reward = local_arm_memories[particle_index].at(note_index).mean_reward();
+                        MS_element pulled_arm = MS_element(note_index, pulled_arm_mean_reward);
+                        local_sats[particle_index].insert(pulled_arm);
+                }
+        } else {
+                // existiert noch nicht
+
+                // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
+                local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
+
+                // for global
+                double old_reward = local_arm_memories[particle_index].back().reward();
+
+                // neuen Arm ziehen
+                local_arm_memories[particle_index].back().pull();
+
+                // global
+                double new_reward = local_arm_memories[particle_index].back().reward();
+
+                // berechne "unique integer" aka search_index
+                int128_t search_index_global = calc_solution_code(local_arm_memories[particle_index].back().get_action_vector());
+
+                // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
+                const int arm_index_global = global_lookup_tree.search(search_index_global);
+
+
+                if (arm_index_global >= 0) {
+                        // falls knoten bereits im GLOBAL LUT existiert
+
+                        // Update global SAT
+                        update_global_state(arm_index_global, old_reward, new_reward);
+
+                } else {
+                        // falls knoten noch nicht im GLOBAL LUT existiert
+
+                        // füge neuen knoten in LUT und SAT ein
+                        add_to_global_memory(local_arm_memories[particle_index].back());
+                }
+
+                // In lokalen LUT einfügen
+                int new_index = (int) local_arm_memories[particle_index].size() - 1;
+                // root = (*root).InsertIntoTree(root, search_index, new_index); // fill
+                // search tree ,  (arms.size()-1) ist index des letzten Elements
+                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
+                local_lookup_trees[particle_index].insert(new_index, search_index);
+
+                // Add pulled arm to the local SAT (it was previously removed from the local SAT).
+                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(new_index).mean_reward();
+                MS_element pulled_arm = MS_element(new_index, pulled_arm_mean_reward);
+                local_sats[particle_index].insert(pulled_arm);
+        }
+}
+
+void PSOMAB::resample_and_update(int particle_index, int best_individual_arm_index){
+        auto sat_node = local_sats[particle_index].find(MS_element(best_individual_arm_index, local_arm_memories[particle_index].at(best_individual_arm_index).mean_reward()));
+        int node_index = (*sat_node).arm_index;
+
+        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten. Dann muss im Baum weiter
+        // iteriert werden bis node_index==arm_index, um wirklich die richtige Lösung zu ziehen.
+        while (node_index != best_individual_arm_index) {
+                sat_node++;
+                node_index = (*sat_node).arm_index;
+        }
+
+        local_sats[particle_index].erase(sat_node);
+
+        double old_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();// für global
+
+        local_arm_memories[particle_index].at(best_individual_arm_index).pull();
+
+        // global
+
+        double new_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
+        int128_t search_index_global = calc_solution_code(local_arm_memories[particle_index].at(best_individual_arm_index).get_action_vector());
+        const int arm_index_global = global_lookup_tree.search(search_index_global);
+
+        auto it_global = global_sat.find(MS_element(arm_index_global, global_arm_memory.at(arm_index_global).mean_reward()));
+        int var_global = (*it_global).arm_index;
+
+        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten.
+        // Dann muss im Baum weiter iteriert werden bis node_index==arm_index um wirklich die richtige Lösung zu ziehen.
+        while (var_global != arm_index_global) {
+                it_global++;
+                var_global = (*it_global).arm_index;
+        }
+
+        // lösche knoten zugehörig zu arm_index_global in MS_global
+        global_sat.erase(it_global);
+
+        // erhöhe um 1
+        // erhöhe bei arms_global[arm_index_global] k um eins
+        global_arm_memory[arm_index_global].update_num_pulls(1);
+
+        // update bei arms_global[index_global] r um den aktuellen reward (lässt
+        // sich als diff berechnen)
+        global_arm_memory[arm_index_global].update_reward(new_mean_reward - old_mean_reward);
+
+        // füge neu zu MS_global hinzu
+        global_sat.insert(MS_element(var_global, global_arm_memory.at(var_global).mean_reward()));
+
+        // global ende
+
+        double best_individual_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).mean_reward();
+        MS_element best_individual_arm = MS_element(best_individual_arm_index, best_individual_mean_reward);
+        local_sats[particle_index].insert(best_individual_arm);
+}
+
+bool PSOMAB::budget_reached(){
+        return (pso.sum_num_pulls(global_arm_memory) >= pso.max_simulation());
+}
+
+void PSOMAB::save_history(){
+        if (pso.sum_num_pulls(global_arm_memory) % 100 == 0) {
+                save_current_best_solution();
+        }
+}
 
 void PSOMAB::optimize() {
-        // loop will be stopped if simulation budget is reached (checked before each new simulation) ToDo: check if true
-
         while(true) {
                 // find local bast solutions
                 std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
@@ -110,162 +263,16 @@ void PSOMAB::optimize() {
                 // update particle positions
                 pso.step(0);
 
-                // split into separate functions: sample solution, update_local_memory, update_global_memory, resample_best, ...
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                        int arm_index = check_local(pso.particles()[particle_index], local_lookup_trees[particle_index]);
+                        // sample for updated particle and update local and global memory
+                        sample_and_update(particle_index, best_individual_arm_indices[particle_index]);
+                        save_history();
+                        if(budget_reached()) return ;
 
-                        // alle arm_index >= 0 existieren, -1, falls arm noch nicht vorhanden
-                        // existiert bereits
-                        if (arm_index >= 0) {
-                                // ToDo: why is the following if statement necessary?
-                                if (arm_index != best_individual_arm_indices[particle_index]) {
-                                        // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
-                                        double existing_arm_mean_reward = local_arm_memories[particle_index].at(arm_index).mean_reward();
-                                        MS_element existing_arm = MS_element(arm_index, existing_arm_mean_reward);
-                                        auto sat_node = local_sats[particle_index].find(existing_arm);
-
-                                        int note_index = (*sat_node).arm_index;
-                                        // If two nodes have the same mean value, the case note_index!=arm_index max occur
-                                        // In this case, the tree must be iterated further until note_index==arm_index in order to actually find the correct (SAT) node
-                                        while (note_index != arm_index) {
-                                                sat_node++;
-                                                note_index = (*sat_node).arm_index;
-                                        }
-                                        // Delete Node from Local SAT
-                                        local_sats[particle_index].erase(sat_node);
-
-                                        // Store current mean in cache (before update)
-                                        double old_reward = local_arm_memories[particle_index].at(note_index).reward();
-
-                                        // pull_arm
-                                        local_arm_memories[particle_index].at(note_index).pull();
-
-                                        // global
-                                        // Store current mean in cache (after update)
-                                        double new_reward = local_arm_memories[particle_index].at(note_index).reward();
-                                        // Suche entsprechenden Arm im global LUT arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_global
-                                        int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
-                                        const int arm_index_global = global_lookup_tree.search(search_index);
-
-                                        // Update global SAT
-                                        update_global_state(arm_index_global, old_reward, new_reward);
-
-                                        // Add pulled arm to the local SAT (it was previously removed from the local SAT).
-                                        double pulled_arm_mean_reward = local_arm_memories[particle_index].at(note_index).mean_reward();
-                                        MS_element pulled_arm = MS_element(note_index, pulled_arm_mean_reward);
-                                        local_sats[particle_index].insert(pulled_arm);
-                                }
-                        } else {
-                                // existiert noch nicht
-
-                                // füge Arm dem lokalen Arm Gedächtnis des i-ten Partikel zu
-                                local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
-
-                                // for global
-                                double old_reward = local_arm_memories[particle_index].back().reward();
-
-                                // neuen Arm ziehen
-                                local_arm_memories[particle_index].back().pull();
-
-                                // global
-                                double new_reward = local_arm_memories[particle_index].back().reward();
-
-                                // berechne "unique integer" aka search_index
-                                int128_t search_index_global = calc_solution_code(local_arm_memories[particle_index].back().get_action_vector());
-
-                                // arm_index_global=suche von arms_vec[i].at(var) den index im lookuptree_GLOBAL
-                                const int arm_index_global = global_lookup_tree.search(search_index_global);
-
-
-                                if (arm_index_global >= 0) {
-                                        // falls knoten bereits im GLOBAL LUT existiert
-
-                                        // Update global SAT
-                                        update_global_state(arm_index_global, old_reward, new_reward);
-
-                                } else {
-                                        // falls knoten noch nicht im GLOBAL LUT existiert
-
-                                        // füge neuen knoten in LUT und SAT ein
-                                        add_to_global_memory(local_arm_memories[particle_index].back());
-                                }
-
-                                // In lokalen LUT einfügen
-                                int new_index = (int) local_arm_memories[particle_index].size() - 1;
-                                // root = (*root).InsertIntoTree(root, search_index, new_index); // fill
-                                // search tree ,  (arms.size()-1) ist index des letzten Elements
-                                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
-                                local_lookup_trees[particle_index].insert(new_index, search_index);
-
-                                // Add pulled arm to the local SAT (it was previously removed from the local SAT).
-                                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(new_index).mean_reward();
-                                MS_element pulled_arm = MS_element(new_index, pulled_arm_mean_reward);
-                                local_sats[particle_index].insert(pulled_arm);
-                        }
-                }
-
-                // Die jeweils besten Arme aller Particles werden erneut gezogen, um bessere Sample Means zu erhalten
-                for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                        auto sat_node = local_sats[particle_index].find(MS_element(best_individual_arm_indices[particle_index], local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward()));
-                        int node_index = (*sat_node).arm_index;
-
-                        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten. Dann muss im Baum weiter
-                        // iteriert werden bis node_index==arm_index, um wirklich die richtige Lösung zu ziehen.
-                        while (node_index != best_individual_arm_indices[particle_index]) {
-                                sat_node++;
-                                node_index = (*sat_node).arm_index;
-                        }
-
-                        local_sats[particle_index].erase(sat_node);
-
-                        double old_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).reward();// für global
-
-                        local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).pull();
-
-                        // global
-
-                        double new_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).reward();
-                        int128_t search_index_global = calc_solution_code(local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).get_action_vector());
-                        const int arm_index_global = global_lookup_tree.search(search_index_global);
-
-                        auto it_global = global_sat.find(MS_element(arm_index_global, global_arm_memory.at(arm_index_global).mean_reward()));
-                        int var_global = (*it_global).arm_index;
-
-                        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell node_index!=arm_index auftreten.
-                        // Dann muss im Baum weiter iteriert werden bis node_index==arm_index um wirklich die richtige Lösung zu ziehen.
-                        while (var_global != arm_index_global) {
-                                it_global++;
-                                var_global = (*it_global).arm_index;
-                        }
-
-                        // lösche knoten zugehörig zu arm_index_global in MS_global
-                        global_sat.erase(it_global);
-
-                        // erhöhe um 1
-                        // erhöhe bei arms_global[arm_index_global] k um eins
-                        global_arm_memory[arm_index_global].update_num_pulls(1);
-
-                        // update bei arms_global[index_global] r um den aktuellen reward (lässt
-                        // sich als diff berechnen)
-                        global_arm_memory[arm_index_global].update_reward(new_mean_reward - old_mean_reward);
-
-                        // füge neu zu MS_global hinzu
-                        global_sat.insert(MS_element(var_global, global_arm_memory.at(var_global).mean_reward()));
-
-                        // global ende
-
-                        //////////////
-                        if (pso.sum_num_pulls(global_arm_memory) % 100 == 0) {
-                                save_current_best_solution();
-                        }// save solution
-                        if (pso.sum_num_pulls(global_arm_memory) >= pso.max_simulation()) {
-                                return;
-                        }
-                        //////////////
-
-                        double best_individual_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_indices[particle_index]).mean_reward();
-                        MS_element best_individual_arm = MS_element(best_individual_arm_indices[particle_index], best_individual_mean_reward);
-                        local_sats[particle_index].insert(best_individual_arm);
+                        // resample best solution and update local and global memory
+                        resample_and_update(particle_index, best_individual_arm_indices[particle_index]);
+                        save_history();
+                        if(budget_reached()) return ;
                 }
         }
 }
