@@ -101,6 +101,7 @@ int PSOMAB::check_local(const Arm& particle, LUT &local_lookup_tree) {
         return arm_index;
 }
 
+// ToDo: sample und resample haben viele gleiche code zeilen, kann man vllt noch weiter abstrahieren
 void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index) {
         int arm_index_local = check_local(pso.particles()[particle_index], local_lookup_trees[particle_index]);
 
