@@ -15,6 +15,7 @@
 // std::uniform_int_distribution<int> uniform_int_distribution(a, b);
 // std::uniform_real_distribution<double> uniform_real_distribution(a, b);
 
+// ToDo: auslagern der funktion da sie nichts mit PSOMAB explizit zu tun hat
 // calculates the solution code, i.e. unique integer
 int128_t PSOMAB::calc_solution_code(Eigen::VectorXi action_vector) {
         int128_t search_index = 0;
