@@ -106,24 +106,26 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
         if (arm_index_local >= 0) {
                 bool skip_sample = (arm_index_local == best_individual_arm_index) && prevent_from_sampling_twice_;
 
-                if (!skip_sample) {
-                        // search local SAT for corresponding node and erase node
-                        delete_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
+                if(skip_sample)
+                        return;
 
-                        // save old reward, pull, save new reward
-                        double old_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
-                        local_arm_memories[particle_index].at(arm_index_local).pull();
-                        double new_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
+                // search local SAT for corresponding node and erase node
+                delete_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
 
-                        // global update:
-                        const int arm_index_global = get_arm_index(pso.particles()[particle_index], global_lookup_tree);
-                        update_global_state(arm_index_global, old_reward, new_reward);
+                // save old reward, pull, save new reward
+                double old_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
+                local_arm_memories[particle_index].at(arm_index_local).pull();
+                double new_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
 
-                        // Update local SAT
-                        double pulled_arm_mean_reward = local_arm_memories[particle_index].at(arm_index_local).mean_reward();
-                        MS_element pulled_arm = MS_element(arm_index_local, pulled_arm_mean_reward);
-                        local_sats[particle_index].insert(pulled_arm);
-                }
+                // global update:
+                const int arm_index_global = get_arm_index(pso.particles()[particle_index], global_lookup_tree);
+                update_global_state(arm_index_global, old_reward, new_reward);
+
+                // Update local SAT
+                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(arm_index_local).mean_reward();
+                MS_element pulled_arm = MS_element(arm_index_local, pulled_arm_mean_reward);
+                local_sats[particle_index].insert(pulled_arm);
+
         } else {
                 // add new arm to local memory of particle
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
