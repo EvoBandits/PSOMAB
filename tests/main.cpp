@@ -15,7 +15,7 @@ int main() {
         //pso_instance.optimize();
 
         //ToDo: Seed setzen
-        PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2, false, true);
+        PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2, false, false);
         psomab_instance.optimize();
 
 

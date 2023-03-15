@@ -48,13 +48,14 @@ class PSOMAB {
         int find_best_ucb();
         int max_num_pulls() const;
         std::vector<int> retrieve_best_solutions();
-        int check_local(const Arm& particle, LUT &local_lookup_tree);
+        int get_arm_index(const Arm& particle, LUT &local_lookup_tree);
+        void delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
         void add_to_global_memory(const Arm &particle);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
         void resample_and_update(int particle_index, int best_individual_arm_index);
         bool budget_reached();
-        void save_history();
 
+        void save_history();
        public:
         void optimize();
         PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool prevent_from_sampling_twice = false);
