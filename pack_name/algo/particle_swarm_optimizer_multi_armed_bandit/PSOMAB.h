@@ -36,6 +36,9 @@ class PSOMAB {
         std::vector<Arm> global_arm_memory;
         LUT global_lookup_tree;
 
+        // hyperparameters
+        bool prevent_from_sampling_twice_;
+
         PSO pso;
 
         int128_t calc_solution_code(Eigen::VectorXi action_vector);
@@ -54,7 +57,7 @@ class PSOMAB {
 
        public:
         void optimize();
-        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D);
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool prevent_from_sampling_twice = false);
         std::vector<solution> best_solutions();
 };
 

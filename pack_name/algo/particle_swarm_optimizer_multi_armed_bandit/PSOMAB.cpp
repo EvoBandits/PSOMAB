@@ -106,8 +106,8 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
         int arm_index_local = check_local(pso.particles()[particle_index], local_lookup_trees[particle_index]);
 
         if (arm_index_local >= 0) {
-                // ToDo: why is the following if statement necessary?
-                if (arm_index_local != best_individual_arm_index) {
+                bool skip_sample = arm_index_local == best_individual_arm_index && prevent_from_sampling_twice_;
+                if (!skip_sample) {
                         // Suche im lokalen SAT des i-ten Partikel nach entsprechendem Knoten
                         double existing_arm_mean_reward = local_arm_memories[particle_index].at(arm_index_local).mean_reward();
                         MS_element existing_arm = MS_element(arm_index_local, existing_arm_mean_reward);
@@ -348,7 +348,8 @@ void PSOMAB::save_current_best_solution() {
         pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim){
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool prevent_from_sampling_twice) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, prevent_from_sampling_twice){
+        prevent_from_sampling_twice_ = prevent_from_sampling_twice;
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 // create local lookup tree
                 LUT local_lookup_tree;

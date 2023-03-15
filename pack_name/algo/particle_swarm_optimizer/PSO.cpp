@@ -43,8 +43,12 @@ void PSO::step(int num_pulls) {
 
                 // update position
                 Eigen::VectorXi proposed_position = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
-                //Eigen::VectorXi new_position = update_location_random(proposed_position);
-                Eigen::VectorXi new_position = update_location_cap(proposed_position);
+
+                Eigen::VectorXi new_position;
+                if(use_random_location_update_)
+                        new_position = update_location_random(proposed_position);
+                else
+                        new_position = update_location_cap(proposed_position);
 
                 Arm new_arm = Arm(opti_func_, new_position);
                 particles_[particle_index] = new_arm;
@@ -105,7 +109,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulation_{max_simulation} {
+PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulation_{max_simulation}, use_random_location_update_{use_random_location_update}{
         std::vector<Eigen::VectorXi> init_solutions;
         for (int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
@@ -113,7 +117,7 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
                 Eigen::VectorXi v(dimension_);
                 // generate random solutions as long as they are not unique
                 v = generate_unique_solution(init_solutions, x_min_, x_max_, dimension_);
-                init_solutions.push_back(v);//required to check wheather all elements are unique
+                init_solutions.push_back(v);//required to check whether all elements are unique
                 // add arm to "arms", i.e. where all arms are stored
                 Arm new_arm(opti_func_, v);// 0 = cost info, last element (0) is actually not necessary
                 particles_.push_back(new_arm);
