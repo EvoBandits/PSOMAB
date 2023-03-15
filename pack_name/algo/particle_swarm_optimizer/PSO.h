@@ -7,7 +7,7 @@
 #include "../../objects/solution/Solution.h"
 class PSO {
        public:
-        PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation);
+        PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
         PSO() = default;
 
         int num_particle() const;
@@ -40,6 +40,7 @@ class PSO {
         int best_particle_index_ = 0;
         void save_current_best_solution();
         std::vector<solution> best_solutions_;
+
         int max_simulation_;// max number of simulations
 
         std::vector<Arm> particles_history_;
@@ -47,6 +48,8 @@ class PSO {
         double c2 = 1;
 
         double w = 0.2;
+
+        bool use_random_location_update_;
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
 };
