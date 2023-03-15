@@ -115,7 +115,7 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
                         local_arm_memories[particle_index].at(arm_index_local).pull();
                         double new_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
 
-                        // Update global SAT
+                        // global update:
                         const int arm_index_global = get_arm_index(pso.particles()[particle_index], global_lookup_tree);
                         update_global_state(arm_index_global, old_reward, new_reward);
 
@@ -160,35 +160,12 @@ void PSOMAB::resample_and_update(int particle_index, int best_individual_arm_ind
         // save old reward, pull, save new reward
         double old_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
         local_arm_memories[particle_index].at(best_individual_arm_index).pull();
-        double new_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
+        double new_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
 
 
         // global update:
         const int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(best_individual_arm_index), global_lookup_tree);
-
-        auto it_global = global_sat.find(MS_element(arm_index_global, global_arm_memory.at(arm_index_global).mean_reward()));
-        int var_global = (*it_global).arm_index;
-
-        // Falls zwei Lösungen denselben Mean Value haben, kann prinzipiell sat_node_index!=arm_index auftreten.
-        // Dann muss im Baum weiter iteriert werden bis sat_node_index==arm_index um wirklich die richtige Lösung zu ziehen.
-        while (var_global != arm_index_global) {
-                it_global++;
-                var_global = (*it_global).arm_index;
-        }
-
-        // lösche knoten zugehörig zu arm_index_global in MS_global
-        global_sat.erase(it_global);
-
-        // erhöhe um 1
-        // erhöhe bei arms_global[arm_index_global] k um eins
-        global_arm_memory[arm_index_global].update_num_pulls(1);
-
-        // update bei arms_global[index_global] r um den aktuellen reward (lässt
-        // sich als diff berechnen)
-        global_arm_memory[arm_index_global].update_reward(new_mean_reward - old_reward);
-
-        // füge neu zu MS_global hinzu
-        global_sat.insert(MS_element(var_global, global_arm_memory.at(var_global).mean_reward()));
+        update_global_state(arm_index_global, old_reward, new_reward);
 
         // Update local SAT
         double best_individual_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).mean_reward();
