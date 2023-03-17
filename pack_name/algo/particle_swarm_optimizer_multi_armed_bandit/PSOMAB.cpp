@@ -18,18 +18,16 @@ void PSOMAB::update_global_state(int arm_index_global, double old_reward, double
         global_sat.insert(MS_element(arm_index_global, global_arm_memory.at(arm_index_global).mean_reward()));
 }
 
-void PSOMAB::add_to_global_memory(const Arm &particle) {
-        int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-        global_arm_memory.push_back(particle);
+void PSOMAB::add_to_global_memory(Arm &arm) {
+        int128_t search_index = calc_solution_code(arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+        global_arm_memory.push_back(arm);
 
         // insert arm into global lookup tree
         int new_index_global = (int) global_arm_memory.size() - 1;
         global_lookup_tree.insert(new_index_global, search_index);
 
         // insert new element into SAT
-        double mean_reward = global_arm_memory.at(new_index_global).mean_reward();
-        MS_element new_element_global(new_index_global, mean_reward);
-        global_sat.insert(new_element_global);
+        insert_sat_node(new_index_global, arm, global_sat);
 }
 
 std::vector<int> PSOMAB::retrieve_best_solutions() {
@@ -64,6 +62,12 @@ int PSOMAB::get_arm_index(const Arm &particle, LUT &local_lookup_tree) {
         return arm_index;
 }
 
+void PSOMAB::insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat){
+        double pulled_arm_mean_reward = arm.mean_reward();
+        MS_element pulled_arm = MS_element(arm_index, pulled_arm_mean_reward);
+        sat.insert(pulled_arm);
+}
+
 void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat) {
         double existing_arm_mean_reward = arm.mean_reward();
 
@@ -84,9 +88,7 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
 
 // ToDo: sample und resample haben viele gleiche code zeilen, kann man vlt noch weiter abstrahieren
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
-
         if (arm_index_local >= 0) {
-
                 // search local SAT for corresponding node and erase node
                 delete_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
 
@@ -100,35 +102,25 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 update_global_state(arm_index_global, old_reward, new_reward);
 
                 // Update local SAT
-                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(arm_index_local).mean_reward();
-                MS_element pulled_arm = MS_element(arm_index_local, pulled_arm_mean_reward);
-                local_sats[particle_index].insert(pulled_arm);
+                insert_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
 
         } else {
                 // add new arm to local memory of particle
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
+                arm_index_local =  (int) local_arm_memories[particle_index].size() - 1;
 
-                // save old reward (here always 0), pull, save new reward
-                double old_reward = local_arm_memories[particle_index].back().reward();
+                // pull
                 local_arm_memories[particle_index].back().pull();
-                double new_reward = local_arm_memories[particle_index].back().reward();
 
                 // Update global SAT
-                const int arm_index_global = get_arm_index(pso.particles()[particle_index], local_lookup_trees[particle_index]);
-                if (arm_index_global >= 0)
-                        update_global_state(arm_index_global, old_reward, new_reward);
-                else
-                        add_to_global_memory(local_arm_memories[particle_index].back());
+                add_to_global_memory(local_arm_memories[particle_index].back());
 
                 // Insert into local lookup tree
-                int new_index = (int) local_arm_memories[particle_index].size() - 1;
                 int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-                local_lookup_trees[particle_index].insert(new_index, search_index);
+                local_lookup_trees[particle_index].insert(arm_index_local, search_index);
 
                 // Update local SAT
-                double pulled_arm_mean_reward = local_arm_memories[particle_index].at(new_index).mean_reward();
-                MS_element pulled_arm = MS_element(new_index, pulled_arm_mean_reward);
-                local_sats[particle_index].insert(pulled_arm);
+                insert_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
         }
 }
 
@@ -158,7 +150,8 @@ void PSOMAB::optimize() {
                         if (budget_reached()) return;
 
                         // resample best solution and update local and global memory
-                        sample_and_update(particle_index, best_individual_arm_indices[particle_index]);
+                        arm_index_local = best_individual_arm_indices[particle_index];
+                        sample_and_update(particle_index, arm_index_local);
                         save_history();
                         if (budget_reached()) return;
                 }
