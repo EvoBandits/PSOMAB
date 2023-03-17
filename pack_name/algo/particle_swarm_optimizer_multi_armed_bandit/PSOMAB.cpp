@@ -63,7 +63,6 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
         sat.erase(sat_node);
 }
 
-// ToDo: sample und resample haben viele gleiche code zeilen, kann man vlt noch weiter abstrahieren
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
                 int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(arm_index_local), global_lookup_tree);
