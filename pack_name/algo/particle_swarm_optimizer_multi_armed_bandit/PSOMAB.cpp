@@ -9,6 +9,7 @@
 #include <set>
 #include <utility>
 
+// ToDo: bring functions into reasonable order
 
 std::vector<int> PSOMAB::retrieve_best_solutions() {
         // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
@@ -65,8 +66,9 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
 
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
-                int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(arm_index_local), global_lookup_tree);
+                // ToDo: .at() vs. [] -> unify
                 Arm &local_arm = local_arm_memories[particle_index].at(arm_index_local);
+                int arm_index_global = get_arm_index(local_arm, global_lookup_tree);
                 Arm &global_arm = global_arm_memory.at(arm_index_global);
 
                 delete_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
