@@ -47,8 +47,9 @@ class PSOMAB {
         int max_num_pulls() const;
         std::vector<int> retrieve_best_solutions();
         int get_arm_index(const Arm& particle, LUT &local_lookup_tree);
+        void insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
         void delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
-        void add_to_global_memory(const Arm &particle);
+        void add_to_global_memory(Arm &arm);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
         void resample_and_update(int particle_index, int best_individual_arm_index);
         bool budget_reached();
