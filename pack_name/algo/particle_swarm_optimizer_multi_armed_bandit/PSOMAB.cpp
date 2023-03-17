@@ -66,35 +66,38 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
                 int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(arm_index_local), global_lookup_tree);
+                Arm &local_arm = local_arm_memories[particle_index].at(arm_index_local);
+                Arm &global_arm = global_arm_memory.at(arm_index_global);
 
-                delete_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
-                delete_sat_node(arm_index_global, global_arm_memory.at(arm_index_global), global_sat);
+                delete_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
+                delete_sat_node(arm_index_global, global_arm, global_sat);
 
-                double old_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
-                local_arm_memories[particle_index].at(arm_index_local).pull();
-                double new_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
+                double old_reward = local_arm.reward();
+                local_arm.pull();
+                double new_reward = local_arm.reward();
 
-                global_arm_memory[arm_index_global].update_num_pulls(1);
-                global_arm_memory[arm_index_global].update_reward(new_reward - old_reward);
+                global_arm.update_num_pulls(1);
+                global_arm.update_reward(new_reward - old_reward);
 
-                insert_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
-                insert_sat_node(arm_index_global, global_arm_memory[arm_index_global], global_sat);
+                insert_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
+                insert_sat_node(arm_index_global, global_arm, global_sat);
         } else {
-                // add new arm to local memory of particle
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
-                local_arm_memories[particle_index].back().pull();
-                global_arm_memory.push_back(local_arm_memories[particle_index].back());
-
+                Arm &local_arm = local_arm_memories[particle_index].back();
                 arm_index_local =  (int) local_arm_memories[particle_index].size() - 1;
+
+                local_arm.pull();
+
+                global_arm_memory.push_back(local_arm_memories[particle_index].back());
+                Arm &global_arm = global_arm_memory.back();
                 int arm_index_global = (int) global_arm_memory.size() - 1;
 
-                // Insert into lookup trees
-                int128_t search_index = calc_solution_code(local_arm_memories[particle_index].back().get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+                int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
                 global_lookup_tree.insert(arm_index_global, search_index);
                 local_lookup_trees[particle_index].insert(arm_index_local, search_index);
 
-                insert_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
-                insert_sat_node(arm_index_global, local_arm_memories[particle_index].back(), global_sat);
+                insert_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
+                insert_sat_node(arm_index_global, global_arm, global_sat);
         }
 }
 
