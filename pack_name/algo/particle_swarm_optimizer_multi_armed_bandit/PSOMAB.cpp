@@ -1,4 +1,5 @@
 #include "PSOMAB.h"
+#include "../../util/SolutionCodeCalculation.h"
 #include <algorithm>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <chrono>
@@ -7,8 +8,6 @@
 #include <queue>
 #include <set>
 #include <utility>
-#include "../../util/SolutionCodeCalculation.h"
-
 
 void PSOMAB::update_global_state(int arm_index_global, double old_reward, double new_reward) {
         delete_sat_node(arm_index_global, global_arm_memory.at(arm_index_global), global_sat);
@@ -65,7 +64,7 @@ int PSOMAB::get_arm_index(const Arm &particle, LUT &local_lookup_tree) {
         return arm_index;
 }
 
-void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat){
+void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat) {
         double existing_arm_mean_reward = arm.mean_reward();
 
         MS_element existing_arm = MS_element(arm_index, existing_arm_mean_reward);
@@ -84,14 +83,9 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
 }
 
 // ToDo: sample und resample haben viele gleiche code zeilen, kann man vlt noch weiter abstrahieren
-void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index) {
-        int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_trees[particle_index]);
+void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
 
         if (arm_index_local >= 0) {
-                bool skip_sample = (arm_index_local == best_individual_arm_index) && prevent_from_sampling_twice_;
-
-                if(skip_sample)
-                        return;
 
                 // search local SAT for corresponding node and erase node
                 delete_sat_node(arm_index_local, local_arm_memories[particle_index].at(arm_index_local), local_sats[particle_index]);
@@ -102,7 +96,7 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
                 double new_reward = local_arm_memories[particle_index].at(arm_index_local).reward();
 
                 // global update:
-                const int arm_index_global = get_arm_index(pso.particles()[particle_index], global_lookup_tree);
+                const int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(arm_index_local), global_lookup_tree);
                 update_global_state(arm_index_global, old_reward, new_reward);
 
                 // Update local SAT
@@ -118,7 +112,6 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
                 double old_reward = local_arm_memories[particle_index].back().reward();
                 local_arm_memories[particle_index].back().pull();
                 double new_reward = local_arm_memories[particle_index].back().reward();
-
 
                 // Update global SAT
                 const int arm_index_global = get_arm_index(pso.particles()[particle_index], local_lookup_trees[particle_index]);
@@ -139,38 +132,18 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
         }
 }
 
-void PSOMAB::resample_and_update(int particle_index, int best_individual_arm_index){
-        // search local SAT for corresponding node and erase node
-        delete_sat_node(best_individual_arm_index, local_arm_memories[particle_index].at(best_individual_arm_index), local_sats[particle_index]);
-
-        // save old reward, pull, save new reward
-        double old_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
-        local_arm_memories[particle_index].at(best_individual_arm_index).pull();
-        double new_reward = local_arm_memories[particle_index].at(best_individual_arm_index).reward();
-
-
-        // global update:
-        const int arm_index_global = get_arm_index(local_arm_memories[particle_index].at(best_individual_arm_index), global_lookup_tree);
-        update_global_state(arm_index_global, old_reward, new_reward);
-
-        // Update local SAT
-        double best_individual_mean_reward = local_arm_memories[particle_index].at(best_individual_arm_index).mean_reward();
-        MS_element best_individual_arm = MS_element(best_individual_arm_index, best_individual_mean_reward);
-        local_sats[particle_index].insert(best_individual_arm);
-}
-
-bool PSOMAB::budget_reached(){
+bool PSOMAB::budget_reached() {
         return (pso.sum_num_pulls(global_arm_memory) >= pso.max_simulation());
 }
 
-void PSOMAB::save_history(){
+void PSOMAB::save_history() {
         if (pso.sum_num_pulls(global_arm_memory) % 100 == 0) {
                 save_current_best_solution();
         }
 }
 
 void PSOMAB::optimize() {
-        while(true) {
+        while (true) {
                 // find local bast solutions
                 std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
 
@@ -179,14 +152,15 @@ void PSOMAB::optimize() {
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                         // sample for updated particle and update local and global memory
-                        sample_and_update(particle_index, best_individual_arm_indices[particle_index]);
+                        int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_trees[particle_index]);
+                        sample_and_update(particle_index, arm_index_local);
                         save_history();
-                        if(budget_reached()) return ;
+                        if (budget_reached()) return;
 
                         // resample best solution and update local and global memory
-                        resample_and_update(particle_index, best_individual_arm_indices[particle_index]);
+                        sample_and_update(particle_index, best_individual_arm_indices[particle_index]);
                         save_history();
-                        if(budget_reached()) return ;
+                        if (budget_reached()) return;
                 }
         }
 }
@@ -259,7 +233,7 @@ void PSOMAB::save_current_best_solution() {
         pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool prevent_from_sampling_twice) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, prevent_from_sampling_twice){
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool prevent_from_sampling_twice) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, prevent_from_sampling_twice) {
         prevent_from_sampling_twice_ = prevent_from_sampling_twice;
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 // create local lookup tree
