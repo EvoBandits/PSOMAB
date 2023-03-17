@@ -1,30 +1,14 @@
 #include "PSOMAB.h"
-#include "../../objects/arm/Arm.h"
-#include "../../util/RandomNumber.h"
-#include <algorithm>// std::sort
+#include <algorithm>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <chrono>
 #include <cmath>
-#include <iomanip>
 #include <iostream>
 #include <queue>
-#include <random>
 #include <set>
 #include <utility>
+#include "../../util/SolutionCodeCalculation.h"
 
-// std::uniform_int_distribution<int> uniform_int_distribution(a, b);
-// std::uniform_real_distribution<double> uniform_real_distribution(a, b);
-
-// ToDo: auslagern der funktion da sie nichts mit PSOMAB explizit zu tun hat
-// calculates the solution code, i.e. unique integer
-int128_t PSOMAB::calc_solution_code(Eigen::VectorXi action_vector) {
-        int128_t search_index = 0;
-        for (int i = 0; i < pso.dimension(); i++) {
-                int exp = ceil(log10((pso.x_max()[i] - pso.x_min()[i]) + 1));
-                search_index = search_index + (int128_t) (pow((pow(10, exp)), (pso.dimension() - 1) - i) * (action_vector[i] - pso.x_min()[i]));
-        }
-        return search_index;
-}
 
 void PSOMAB::update_global_state(int arm_index_global, double old_reward, double new_reward) {
         delete_sat_node(arm_index_global, global_arm_memory.at(arm_index_global), global_sat);
@@ -36,7 +20,7 @@ void PSOMAB::update_global_state(int arm_index_global, double old_reward, double
 }
 
 void PSOMAB::add_to_global_memory(const Arm &particle) {
-        int128_t search_index = calc_solution_code(particle.get_action_vector());
+        int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
         global_arm_memory.push_back(particle);
 
         // insert arm into global lookup tree
@@ -74,7 +58,7 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
 }
 
 int PSOMAB::get_arm_index(const Arm &particle, LUT &local_lookup_tree) {
-        int128_t search_index = calc_solution_code(particle.get_action_vector());
+        int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
 
         const int arm_index = local_lookup_tree.search(search_index);
 
@@ -145,7 +129,7 @@ void PSOMAB::sample_and_update(int particle_index, int best_individual_arm_index
 
                 // Insert into local lookup tree
                 int new_index = (int) local_arm_memories[particle_index].size() - 1;
-                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
+                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
                 local_lookup_trees[particle_index].insert(new_index, search_index);
 
                 // Update local SAT
@@ -282,7 +266,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 LUT local_lookup_tree;
                 local_lookup_trees.push_back(local_lookup_tree);
 
-                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector());
+                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
                 local_lookup_trees.at(particle_index).insert(0, search_index);
 
                 // create local arm memory
