@@ -10,6 +10,7 @@
 #include <utility>
 
 // ToDo: bring functions into reasonable order
+// ToDo: when to use static functions?
 
 std::vector<int> PSOMAB::retrieve_best_solutions() {
         // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
