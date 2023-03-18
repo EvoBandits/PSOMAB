@@ -88,7 +88,7 @@ void PSO::optimize() {
                 if (sum_num_pulls(particles_history_) % 100 == 0) {
                         save_current_best_solution();
                 }
-                if (sum_num_pulls(particles_history_) > max_simulation_) {
+                if (sum_num_pulls(particles_history_) > max_simulations_) {
                         break;
                 }
         }
@@ -109,7 +109,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulation_{max_simulation}, use_random_location_update_{use_random_location_update}{
+PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulations_{max_simulation}, use_random_location_update_{use_random_location_update}{
         std::vector<Eigen::VectorXi> init_solutions;
         for (int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
@@ -159,7 +159,7 @@ std::vector<solution> &PSO::best_solutions() {
         return best_solutions_;
 }
 int PSO::max_simulation() const {
-        return max_simulation_;
+        return max_simulations_;
 }
 std::vector<Arm> &PSO::best_individual_arms() {
         return best_individual_arms_;
