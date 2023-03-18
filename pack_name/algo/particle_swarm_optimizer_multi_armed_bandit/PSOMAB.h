@@ -36,25 +36,22 @@ class PSOMAB {
         std::vector<Arm> global_arm_memory;
         LUT global_lookup_tree;
 
-        // hyperparameters
-        bool prevent_from_sampling_twice_;
-
         PSO pso;
 
-        void save_current_best_solution();
-        int find_best_ucb();
-        int max_num_pulls() const;
         std::vector<int> retrieve_best_solutions();
         int get_arm_index(const Arm& particle, LUT &lookup_tree);
-        void insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
-        void delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
+        static void insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
+        static void delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
         bool budget_reached();
-
+        int max_num_pulls();
+        int find_best_ucb();
+        void save_current_best_solution();
         void save_history();
+
        public:
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false);
         void optimize();
-        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool prevent_from_sampling_twice = false);
         std::vector<solution> best_solutions();
 };
 

@@ -9,9 +9,6 @@
 #include <set>
 #include <utility>
 
-// ToDo: bring functions into reasonable order
-// ToDo: when to use static functions?
-
 std::vector<int> PSOMAB::retrieve_best_solutions() {
         // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
         std::vector<int> best_individual_arm_indices;
@@ -24,7 +21,7 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
 
                 int arm_index = best_mean_element.arm_index;
 
-                pso.best_individual_arms()[particle_index] = local_arm_memories[particle_index].at(arm_index);
+                pso.best_individual_arms()[particle_index] = local_arm_memories[particle_index][arm_index];
                 best_individual_arm_indices.push_back(arm_index);
 
                 // update global best
@@ -67,10 +64,9 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, 
 
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
-                // ToDo: .at() vs. [] -> unify
-                Arm &local_arm = local_arm_memories[particle_index].at(arm_index_local);
+                Arm &local_arm = local_arm_memories[particle_index][arm_index_local];
                 int arm_index_global = get_arm_index(local_arm, global_lookup_tree);
-                Arm &global_arm = global_arm_memory.at(arm_index_global);
+                Arm &global_arm = global_arm_memory[arm_index_global];
 
                 delete_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
                 delete_sat_node(arm_index_global, global_arm, global_sat);
@@ -108,10 +104,104 @@ bool PSOMAB::budget_reached() {
         return (pso.sum_num_pulls(global_arm_memory) >= pso.max_simulation());
 }
 
+int PSOMAB::max_num_pulls() {
+        int max_number_pulls = std::numeric_limits<int>::min();
+        for (const auto &arm : global_arm_memory) {
+                max_number_pulls = std::max(max_number_pulls, arm.num_pulls());
+        }
+        return max_number_pulls;
+}
+
+int PSOMAB::find_best_ucb() {
+        // find min mean of non-dominated set
+        int arm_index_ucb_norm_min = (*global_sat.begin()).arm_index;
+        double ucb_norm_min = global_arm_memory[arm_index_ucb_norm_min].mean_reward();
+
+        // find max mean of non-dominated set
+        int max_number_pulls = max_num_pulls();
+        double ucb_norm_max = std::numeric_limits<double>::min();
+
+        for (auto global_sat_node : global_sat) {
+                int arm_index = global_sat_node.arm_index;
+                ucb_norm_max = std::max(ucb_norm_max, global_arm_memory[arm_index].mean_reward());
+
+                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
+                if (global_arm_memory[arm_index].num_pulls() == max_number_pulls) {
+                        break;
+                }
+        }
+
+        // find the solution of non-dominated set with the lowest associated UCB value
+        int best_arm_index = 0;
+        double best_ucb_value = std::numeric_limits<double>::max();
+
+        for (auto global_sat_node : global_sat) {
+                int arm_index = global_sat_node.arm_index;
+                if (ucb_norm_max == ucb_norm_min) {
+                        best_arm_index = arm_index;
+                }
+
+                // transform sample mean to interval [0,1]
+                double transformed_sample_mean = (global_arm_memory[arm_index].mean_reward() - ucb_norm_min) / (ucb_norm_max - ucb_norm_min);
+                double penalty_term = sqrt(2 * log(pso.sum_num_pulls(global_arm_memory)) / global_arm_memory[arm_index].num_pulls());
+                double ucb = transformed_sample_mean + penalty_term;
+
+                // new best solution is found
+                if (ucb < best_ucb_value) {
+                        best_ucb_value = ucb;
+                        best_arm_index = arm_index;
+                }
+
+                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
+                if (global_arm_memory[arm_index].num_pulls() == max_number_pulls) {
+                        break;
+                }
+        }
+        return best_arm_index;
+}
+
+void PSOMAB::save_current_best_solution() {
+        int best_arm_index = find_best_ucb();
+        Arm &best_arm = global_arm_memory[best_arm_index];
+
+        double true_value = best_arm.true_value();
+        double num_pulls_all = pso.sum_num_pulls(global_arm_memory);
+        Eigen::VectorXi best_solution = best_arm.get_action_vector();
+        double num_pulls_best = best_arm.num_pulls();
+        double mean_value = best_arm.mean_reward();
+
+        pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
+}
+
 void PSOMAB::save_history() {
         if (pso.sum_num_pulls(global_arm_memory) % 100 == 0) {
                 save_current_best_solution();
         }
+}
+
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
+        for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
+                LUT local_lookup_tree;
+                local_lookup_trees.push_back(local_lookup_tree);
+                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+                local_lookup_trees[particle_index].insert(0, search_index);
+                global_lookup_tree.insert(particle_index, search_index);
+
+                std::vector<Arm> local_arm_memory;
+                local_arm_memories.push_back(local_arm_memory);
+                local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
+                Arm &local_arm = local_arm_memories[particle_index].back();
+
+                local_arm.pull();
+
+                global_arm_memory.push_back(local_arm);
+
+                std::multiset<MS_element, std::less<>> local_sat;
+                local_sats.push_back(local_sat);
+                insert_sat_node(0, local_arm, local_sats[particle_index]);
+                insert_sat_node(particle_index, local_arm, global_sat);
+        }
+        save_current_best_solution();
 }
 
 void PSOMAB::optimize() {
@@ -138,105 +228,6 @@ void PSOMAB::optimize() {
         }
 }
 
-int PSOMAB::max_num_pulls() const {
-        int max_number_pulls = std::numeric_limits<int>::min();
-        for (const auto &arm : global_arm_memory) {
-                max_number_pulls = std::max(max_number_pulls, arm.num_pulls());
-        }
-        return max_number_pulls;
-}
-
-int PSOMAB::find_best_ucb() {
-        // find min mean of non-dominated set
-        int arm_index_ucb_norm_min = (*global_sat.begin()).arm_index;
-        double ucb_norm_min = global_arm_memory.at(arm_index_ucb_norm_min).mean_reward();
-
-        // find max mean of non-dominated set
-        int max_number_pulls = max_num_pulls();
-        double ucb_norm_max = std::numeric_limits<double>::min();
-
-        for (auto global_sat_node : global_sat) {
-                int arm_index = global_sat_node.arm_index;
-                ucb_norm_max = std::max(ucb_norm_max, global_arm_memory.at(arm_index).mean_reward());
-
-                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-                if (global_arm_memory.at(arm_index).num_pulls() == max_number_pulls) {
-                        break;
-                }
-        }
-
-        // find the solution of non-dominated set with the lowest associated UCB value
-        int best_arm_index = 0;
-        double best_ucb_value = std::numeric_limits<double>::max();
-
-        for (auto global_sat_node : global_sat) {
-                int arm_index = global_sat_node.arm_index;
-                if (ucb_norm_max == ucb_norm_min) {
-                        best_arm_index = arm_index;
-                }
-
-                // transform sample mean to interval [0,1]
-                double transformed_sample_mean = (global_arm_memory.at(arm_index).mean_reward() - ucb_norm_min) / (ucb_norm_max - ucb_norm_min);
-                double penalty_term = sqrt(2 * log(pso.sum_num_pulls(global_arm_memory)) / global_arm_memory.at(arm_index).num_pulls());
-                double ucb = transformed_sample_mean + penalty_term;
-
-                // new best solution is found
-                if (ucb < best_ucb_value) {
-                        best_ucb_value = ucb;
-                        best_arm_index = arm_index;
-                }
-
-                // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-                if (global_arm_memory.at(arm_index).num_pulls() == max_number_pulls) {
-                        break;
-                }
-        }
-        return best_arm_index;
-}
-
-void PSOMAB::save_current_best_solution() {
-        int best_arm_index = find_best_ucb();
-
-        double true_value = global_arm_memory.at(best_arm_index).true_value();
-        double num_pulls_all = pso.sum_num_pulls(global_arm_memory);
-        Eigen::VectorXi best_solution = global_arm_memory.at(best_arm_index).get_action_vector();
-        double num_pulls_best = global_arm_memory.at(best_arm_index).num_pulls();
-        double mean_value = global_arm_memory.at(best_arm_index).mean_reward();
-
-        pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
-}
-
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool prevent_from_sampling_twice) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, prevent_from_sampling_twice) {
-        prevent_from_sampling_twice_ = prevent_from_sampling_twice;
-        for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                // create local lookup tree
-                LUT local_lookup_tree;
-                local_lookup_trees.push_back(local_lookup_tree);
-
-                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-                local_lookup_trees.at(particle_index).insert(0, search_index);
-
-                // create local arm memory
-                std::vector<Arm> local_arm_memory;
-                local_arm_memories.push_back(local_arm_memory);
-                local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
-
-                // pull the current particle
-                local_arm_memories[particle_index].at(0).pull();
-                double mean_reward = local_arm_memories[particle_index].at(0).mean_reward();
-
-                // create local SAT
-                std::multiset<MS_element, std::less<>> local_sat;
-                local_sats.push_back(local_sat);
-                local_sats[particle_index].insert(MS_element(0, mean_reward));
-
-                //add particle to global lookup tree, global arm memory and global SAT (index of particle in arm memory = particle index)
-                global_lookup_tree.insert(particle_index, search_index);
-                global_arm_memory.push_back(local_arm_memories[particle_index].at(0));
-                global_sat.insert(MS_element(particle_index, mean_reward));
-        }
-        save_current_best_solution();
-}
 std::vector<solution> PSOMAB::best_solutions() {
         return pso.best_solutions();
 }
