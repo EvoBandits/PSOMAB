@@ -17,16 +17,16 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
         best_global_mean_reward = std::numeric_limits<double>::max();
 
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                MS_element best_mean_element = *local_sats[particle_index].begin();
+                auto best_mean_element = *local_sats[particle_index].begin();
 
-                int arm_index = best_mean_element.arm_index;
+                int arm_index = best_mean_element.second;
 
                 pso.best_individual_arms()[particle_index] = local_arm_memories[particle_index][arm_index];
                 best_individual_arm_indices.push_back(arm_index);
 
                 // update global best
-                if (best_mean_element.mean_reward < best_global_mean_reward) {
-                        best_global_mean_reward = best_mean_element.mean_reward;
+                if (best_mean_element.first < best_global_mean_reward) {
+                        best_global_mean_reward = best_mean_element.first;
                         pso.best_particle_index() = particle_index;
                 }
         }
@@ -39,24 +39,23 @@ int PSOMAB::get_arm_index(const Arm &particle, LUT &lookup_tree) {
         return arm_index;
 }
 
-void PSOMAB::insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat){
+void PSOMAB::insert_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat){
         double pulled_arm_mean_reward = arm.mean_reward();
-        MS_element sat_node = MS_element(arm_index, pulled_arm_mean_reward);
+        std::pair<double, int> sat_node = std::pair(pulled_arm_mean_reward, arm_index);
         sat.insert(sat_node);
 }
 
-void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat) {
+void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat) {
         double existing_arm_mean_reward = arm.mean_reward();
 
-        MS_element existing_arm = MS_element(arm_index, existing_arm_mean_reward);
-        auto sat_node = sat.find(existing_arm);
+        auto sat_node = sat.find(existing_arm_mean_reward);
 
-        int sat_node_arm_index = (*sat_node).arm_index;
+        int sat_node_arm_index = (*sat_node).second;
 
         // If multiple nodes have the same mean value, iterated until sat_node_arm_index==arm_index
         while (sat_node_arm_index != arm_index) {
                 sat_node++;
-                sat_node_arm_index = (*sat_node).arm_index;
+                sat_node_arm_index = (*sat_node).second;
         }
 
         sat.erase(sat_node);
@@ -114,7 +113,7 @@ int PSOMAB::max_num_pulls() {
 
 int PSOMAB::find_best_ucb() {
         // find min mean of non-dominated set
-        int arm_index_ucb_norm_min = (*global_sat.begin()).arm_index;
+        int arm_index_ucb_norm_min = (*global_sat.begin()).second;
         double ucb_norm_min = global_arm_memory[arm_index_ucb_norm_min].mean_reward();
 
         // find max mean of non-dominated set
@@ -122,7 +121,7 @@ int PSOMAB::find_best_ucb() {
         double ucb_norm_max = std::numeric_limits<double>::min();
 
         for (auto global_sat_node : global_sat) {
-                int arm_index = global_sat_node.arm_index;
+                int arm_index = global_sat_node.second;
                 ucb_norm_max = std::max(ucb_norm_max, global_arm_memory[arm_index].mean_reward());
 
                 // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
@@ -136,7 +135,7 @@ int PSOMAB::find_best_ucb() {
         double best_ucb_value = std::numeric_limits<double>::max();
 
         for (auto global_sat_node : global_sat) {
-                int arm_index = global_sat_node.arm_index;
+                int arm_index = global_sat_node.second;
                 if (ucb_norm_max == ucb_norm_min) {
                         best_arm_index = arm_index;
                 }
@@ -196,7 +195,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
 
                 global_arm_memory.push_back(local_arm);
 
-                std::multiset<MS_element, std::less<>> local_sat;
+                std::multimap<double, int> local_sat;
                 local_sats.push_back(local_sat);
                 insert_sat_node(0, local_arm, local_sats[particle_index]);
                 insert_sat_node(particle_index, local_arm, global_sat);

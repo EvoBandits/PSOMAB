@@ -7,6 +7,7 @@
 #include "Eigen/Core"
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cmath>
+#include <map>
 #include <queue>
 #include <random>
 #include <set>
@@ -14,25 +15,16 @@
 #include <utility>
 #include <vector>
 
-struct MS_element {
-        double mean_reward; // key
-        int arm_index;
-
-        bool operator<(const MS_element &rhs) const { return mean_reward < rhs.mean_reward; }
-        bool operator>(const MS_element &rhs) const { return mean_reward > rhs.mean_reward; }
-
-        MS_element(int arm_index, double mean_reward) : arm_index(arm_index), mean_reward(mean_reward) {}
-};
 
 class PSOMAB {
        private:
         // local SATs, arm_memory, LUTs
-        std::vector<std::multiset<MS_element, std::less<>>> local_sats;
+        std::vector<std::multimap<double, int>> local_sats;
         std::vector<std::vector<Arm>> local_arm_memories;
         std::vector<LUT> local_lookup_trees;
 
         // global SAT, arm_memory, LUT
-        std::multiset<MS_element, std::less<>> global_sat;
+        std::multimap<double, int> global_sat;
         std::vector<Arm> global_arm_memory;
         LUT global_lookup_tree;
 
@@ -40,8 +32,8 @@ class PSOMAB {
 
         std::vector<int> retrieve_best_solutions();
         int get_arm_index(const Arm& particle, LUT &lookup_tree);
-        static void insert_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
-        static void delete_sat_node(int arm_index, Arm &arm, std::multiset<MS_element, std::less<>> &sat);
+        static void insert_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
+        static void delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
         bool budget_reached();
         int max_num_pulls();
