@@ -22,7 +22,7 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
         return proposed_solution;
 }
 
-void PSO::step(int num_pulls) {
+void PSO::update_positions(int num_pulls) {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
                 Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
@@ -84,7 +84,7 @@ void PSO::step(int num_pulls) {
 
 void PSO::optimize() {
         while (true) {
-                step(1);
+                update_positions(1);
                 if (sum_num_pulls(particles_history_) % 100 == 0) {
                         save_current_best_solution();
                 }
