@@ -23,13 +23,13 @@ int Arm::num_pulls() const { return num_pulls_; }
 
 double Arm::reward() const { return reward_; }
 
-void Arm::update_num_pulls(int k_var) { num_pulls_ = num_pulls_ + k_var; }
+void Arm::update_num_pulls(int new_num_pulls) { num_pulls_ = num_pulls_ + new_num_pulls; }
 
-void Arm::update_reward(double r_var) { reward_ = reward_ + r_var; }
+void Arm::update_reward(double new_reward) { reward_ = reward_ + new_reward; }
 
 Eigen::VectorXi Arm::get_action_vector() const { return action_vector_; }
 
 double Arm::mean_reward() const { return reward_ / num_pulls_; }
 
-Arm::Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi permutation, double init_r, int init_k)
-    : arm_func_{std::move(func)}, action_vector_{std::move(permutation)}, reward_{init_r}, num_pulls_{init_k} {}
+Arm::Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi action_vector, double initial_reward, int initial_num_pulls)
+    : arm_func_{std::move(func)}, action_vector_{std::move(action_vector)}, reward_{initial_reward}, num_pulls_{initial_num_pulls} {}
