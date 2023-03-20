@@ -24,7 +24,6 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
 
 void PSO::update_positions() {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
-                // Update velocity
                 Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
                 Eigen::VectorXd social_direction = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
 
@@ -40,8 +39,6 @@ void PSO::update_positions() {
                 //cap_velocity(new_velocity);
 
                 velocity_[particle_index] = new_velocity;
-
-                // update position
                 Eigen::VectorXi proposed_position = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
 
                 Eigen::VectorXi new_position;
@@ -55,26 +52,28 @@ void PSO::update_positions() {
         }
 }
 
+void PSO::sample_and_update(int particle_index) {
+        particles_[particle_index].pull();
+        update_simulation_budget();
+
+        // fix problem when best_individual_arm has never been pulled
+        // ToDo: was das?
+        if (best_individual_arms_[particle_index].reward() == 0) {
+                best_individual_arms_[particle_index] = particles_[particle_index];
+        }
+
+        if (new_local_best(particle_index))
+                best_individual_arms_[particle_index] = particles_[particle_index];
+        if (new_global_best(particle_index))
+                best_particle_index_ = particle_index;
+}
+
 void PSO::optimize() {
         while (true) {
                 update_positions();
 
                 for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
-                        // ToDo: make separate function (sample and update)
-                        particles_[particle_index].pull();
-                        update_simulation_budget();
-
-                        // fix problem when best_individual_arm has never been pulled
-                        // ToDo: was das?
-                        if (best_individual_arms_[particle_index].reward() == 0) {
-                                best_individual_arms_[particle_index] = particles_[particle_index];
-                        }
-
-                        // ToDo: make bools
-                        if (particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward())
-                                best_individual_arms_[particle_index] = particles_[particle_index];
-                        if (best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward())
-                                best_particle_index_ = particle_index;
+                        sample_and_update(particle_index);
 
                         save_history();
                         if (budget_reached())
