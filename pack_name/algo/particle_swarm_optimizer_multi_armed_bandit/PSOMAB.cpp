@@ -8,7 +8,6 @@
 #include <utility>
 
 std::vector<int> PSOMAB::retrieve_best_solutions() {
-        // ToDo: get rid of this if possible or "combine" with pso.best_individual_arms()
         std::vector<int> best_individual_arm_indices;
 
         double best_global_mean_reward;
@@ -16,7 +15,6 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
 
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 auto best_mean_element = *local_sats[particle_index].begin();
-
                 int arm_index = best_mean_element.second;
 
                 pso.best_individual_arms()[particle_index] = local_arm_memories[particle_index][arm_index];

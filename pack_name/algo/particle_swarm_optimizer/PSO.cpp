@@ -100,7 +100,7 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
 
                 particles_.emplace_back(opti_func_, v);
         }
-        // ToDo: in eigenes init
+
         best_individual_arms_ = particles_;
 }
 
