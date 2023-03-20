@@ -22,7 +22,7 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
         return proposed_solution;
 }
 
-void PSO::update_positions(int num_pulls) {
+void PSO::update_positions() {
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 // Update velocity
                 Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
@@ -52,44 +52,33 @@ void PSO::update_positions(int num_pulls) {
 
                 Arm new_arm = Arm(opti_func_, new_position);
                 particles_[particle_index] = new_arm;
-
-                // in case of PSOMAB: pull arm 0 times, as arm gets pulled in PSOMAB
-                // in case of PSO: pull arm 1 or more times (k times)
-                for (int k = 0; k < num_pulls; k++) {
-                        particles_[particle_index].pull();
-                }
-
-                // save history, used for output
-                // ToDo: replace particles_history_ with some kind of counter-variable as it is currently just used to track the number of simulations (<-> PSOMAB)
-                particles_history_.push_back(particles_[particle_index]);
-
-                // fix problem when best_individual_arm has never been pulled
-                // ToDo: was das?
-                if (best_individual_arms_[particle_index].reward() == 0) {
-                        best_individual_arms_[particle_index] = particles_[particle_index];
-                }
-
-                // Check if new personal best
-                // ToDo: not useful when using PSOMAB, as we already get the best arm in PSOMAB
-                if (particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward()) {
-                        best_individual_arms_[particle_index] = particles_[particle_index];
-                }
-
-                // check if new global best
-                if (best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward()) {
-                        best_particle_index_ = particle_index;
-                }
         }
 }
 
 void PSO::optimize() {
         while (true) {
-                update_positions(1);
-                if (sum_num_pulls(particles_history_) % 100 == 0) {
-                        save_current_best_solution();
-                }
-                if (sum_num_pulls(particles_history_) > max_simulations_) {
-                        break;
+                update_positions();
+
+                for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
+                        // ToDo: make separate function (sample and update)
+                        particles_[particle_index].pull();
+                        simulations_used += 1;
+
+                        // fix problem when best_individual_arm has never been pulled
+                        // ToDo: was das?
+                        if (best_individual_arms_[particle_index].reward() == 0) {
+                                best_individual_arms_[particle_index] = particles_[particle_index];
+                        }
+
+                        // ToDo: make bools
+                        if (particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward())
+                                best_individual_arms_[particle_index] = particles_[particle_index];
+                        if (best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward())
+                                best_particle_index_ = particle_index;
+
+                        save_history();
+                        if (budget_reached())
+                                return;
                 }
         }
 }
@@ -120,9 +109,9 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
         }
         // ToDo: in eigenes init
         best_individual_arms_ = particles_;
-        particles_history_ = particles_;
 }
 
+// Too: get rid of this
 int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
         int sum = 0;
         for (auto &arm : arms) {
@@ -130,16 +119,16 @@ int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
         }
         return sum;
 }
+
 void PSO::save_current_best_solution() {
         Arm& best_arm = best_individual_arms_[best_particle_index_];
 
-        double true_value = best_arm.true_value();
-        double num_pulls_all = sum_num_pulls(particles_history_);
         Eigen::VectorXi best_solution = best_arm.get_action_vector();
         double num_pulls_best = best_arm.num_pulls();
         double mean_value = best_arm.mean_reward();
+        double true_value = best_arm.true_value();
 
-        best_solutions_.emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
+        best_solutions_.emplace_back(simulations_used, best_solution, num_pulls_best, mean_value, true_value);
 }
 
 int PSO::num_particle() const {
@@ -180,4 +169,11 @@ std::vector<Arm> &PSO::best_individual_arms() {
 
 int &PSO::best_particle_index() {
         return best_particle_index_;
+}
+bool PSO::budget_reached() {
+        return simulations_used > max_simulations_;
+}
+void PSO::save_history() {
+        if (simulations_used % 100 == 0)
+                save_current_best_solution();
 }

@@ -18,8 +18,9 @@ class PSO {
 
         void optimize();
 
-        void update_positions(int num_pulls);
+        void update_positions();
         int sum_num_pulls(std::vector<Arm> &arms) const;
+        bool budget_reached();
         virtual std::vector<solution> &best_solutions();
         std::vector<Arm> &best_individual_arms();
         int max_simulation() const;
@@ -35,6 +36,7 @@ class PSO {
         double c1 = 2.5;
         double c2 = 1;
         double w = 0.2;
+        int simulations_used = 0;
         int max_simulations_;
         bool use_random_location_update_;
 
@@ -42,12 +44,12 @@ class PSO {
         std::vector<Eigen::VectorXd> velocity_;
         std::vector<Arm> best_individual_arms_;
         int best_particle_index_ = 0;
-        std::vector<Arm> particles_history_;
         std::vector<solution> best_solutions_;
 
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
         void save_current_best_solution();
+        void save_history();
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_
