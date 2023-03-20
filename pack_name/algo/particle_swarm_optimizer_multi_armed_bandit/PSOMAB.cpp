@@ -193,7 +193,7 @@ void PSOMAB::optimize() {
         while (true) {
                 std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
 
-                pso.update_positions(0);
+                pso.update_positions();
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                         // sample for updated particle and update local and global memory
