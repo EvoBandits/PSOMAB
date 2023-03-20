@@ -1,130 +1,6 @@
-#include <iostream>
-#include <random>
-#include <vector>
-#include <iomanip>
-#include <numeric>
-
-unsigned seed = 1;
-std::default_random_engine e(seed);
-
-
-int d_min=20;
-int d_max=60;
-
-
-// backorder costs
-std::vector<int> b_c{24,12,6,3};
-// holding costs
-std::vector<int> h_c{8,4,2,1};
-
-//transportation lead times
-std::vector<int> tlt_min{1,2,4,3};
-std::vector<int> tlt_max{1,4,6,5};
-
-//information lead times
-std::vector<int> ilt_min{0,0,0,0};
-std::vector<int> ilt_max{0,1,1,2};
-
-
-
-
-int random_number(int a, int b){
-        std::uniform_int_distribution<int> random_integer(a,b);
-        return random_integer(e);
-};
-
-
-void calc_inventory(int start_inventory[][8][2]);
-int calc_TC(int start_inventory[][8][2]);
-double Variance(std::vector<double> samples);
-
-
-int main(){
-
-        std::vector<double> results;
-        int sample_size=10'000;
-        std::cout << "Total number of supply chain simulations: " << sample_size << std::endl;
-        std::cout << "Seed number used: " << seed << std::endl;
-        for(int i=1; i<=sample_size;i++){
-
-
-                // best base-stock level vector
-                //std::vector<int> s{52,143,230,183}; //SDD1
-                //std::vector<int> s{54,144,229,180}; //SDD2
-                //std::vector<int> s{50,138,222,181}; //SDD3
-                //std::vector<int> s{95,142,273,183}; //SDD4
-                //std::vector<int> s{98,143,272,179}; //SDD5
-                //std::vector<int> s{92,138,264,180}; //SDD6
-                //std::vector<int> s{53,161,244,196}; //SSD1
-                //std::vector<int> s{105,157,285,196};//SSD2
-                std::vector<int> s{53,192}; //SSS1
-                //std::vector<int> s{53,193,303,283}; //SSS2
-
-
-
-                int start_inventory [2][8][2]= { {{s[0],s[1]},   {0,0},    {0,0},    {0,0},    {0,0},    {0,0},  {0,0},   {0,0},},
-                                                {{0,0},   {0,0},    {0,0},    {0,0},    {0,0},    {0,0},  {0,0},   {0,0}}   };
-
-                // start_inventory [0][0][1],...,[0][0][4] denote the inventory levels of agent 1,...,4
-                /*---------------------------------------*/
-                // start_inventory [0][1][1],...,[0][1][4]
-                // start_inventory ....................... denote the shipments that are in transit
-                // start_inventory [0][7][1],...,[0][7][4]
-                /*---------------------------------------*/
-                // start_inventory [1][0][1],...,[1][0][4]
-                // start_inventory ....................... denote the orders that are in transit
-                // start_inventory [1][7][1],...,[1][7][4]
-
-
-                if(i==1){
-                        std::cout << "Evaluated base-stock level vector: " << s[0] << " "<< s[1]  <<  std::endl;
-                        /*std::cout << "Min demand: " << d_min << "   ||   Max demand: " << d_max<<  std::endl;
-        std::cout << "Min transportation lead time: " << tlt_min[0] << ", " << tlt_min[1] << ", " << tlt_min[2] << ", " << tlt_min[3] <<  " (for each agent)"<<std::endl;
-        std::cout << "Max transportation lead time: " << tlt_max[0] << ", " << tlt_max[1] << ", " << tlt_max[2] << ", " << tlt_max[3] <<  " (for each agent)"<<std::endl;
-        std::cout << "Min information lead time: " << ilt_min[0] << ", " << ilt_min[1] << ", " << ilt_min[2] << ", " << ilt_min[3] <<  " (for each agent)"<<std::endl;
-        std::cout << "Max information lead time: " << ilt_max[0] << ", " << ilt_max[1] << ", " << ilt_max[2] << ", " << ilt_max[3] <<  " (for each agent)"<<std::endl;*/
-
-                        std::cout <<  std::endl << "Calculation progress:" <<  std::endl;
-                }
-
-
-                if(i%(sample_size/10)==0){std::cout <<i/(sample_size/100) << " %"<< std::endl;}
-
-
-                int period_number=1'200; // Supply Chain Horizon
-                double reward{0.0};
-                for(int i=0; i<period_number; i++){
-                        calc_inventory(start_inventory);
-                        reward=reward+calc_TC(start_inventory);
-                }
-                results.push_back(reward);
-        }
-
-
-        double sum = std::accumulate(results.begin(), results.end(), 0.0);
-        double mean = sum / results.size();
-
-        double var = Variance(results);
-        double stdev = sqrt(var);
-
-        std::cout << std::endl;
-        std::cout << std::fixed << std::setprecision(2) << "mean TC: " << mean << "    sample size: "<<sample_size<<""<< std::endl;
-        std::cout << "std: " << stdev << "  ||  variance: " << var << "    sample size: "<<sample_size<<""<< std::endl;
-
-        std::getchar();
-        return 0;
-}
-
-
-
-
-
-
-
-
+#include "tp1.h"
 
 void calc_inventory(int start_inventory[][8][2]){
-
         int information_lead_times[2]= {0,0}; // Information lead time that an order takes from agent i to agent i+1
         int transportation_lead_times[2]={0,0}; // Transportation lead time that a shipment takes from agent i+1 to agent i
 
@@ -136,10 +12,8 @@ void calc_inventory(int start_inventory[][8][2]){
         // Inventory Level: On-hand inventory - backlogged order
         int inventory_level[2]={start_inventory[0][0][0],start_inventory[0][0][1]};
 
-
         int arr_size =8;
         for(int i=0; i<2; i++){
-
                 for(int j=0; j<arr_size; j++){
                         if(j==0){
                                 // Shipments arrive
@@ -156,8 +30,6 @@ void calc_inventory(int start_inventory[][8][2]){
                                 start_inventory[1][j][i]=start_inventory[1][j+1][i];
                         }
 
-
-
                         if(j==arr_size-1){
                                 start_inventory[0][j][i]=0;
                                 start_inventory[1][j][i]=0;
@@ -165,7 +37,6 @@ void calc_inventory(int start_inventory[][8][2]){
                 }
 
         }
-
 
         for(int i=0; i<2; i++){
                 if(i==0){
@@ -216,10 +87,8 @@ void calc_inventory(int start_inventory[][8][2]){
                 start_inventory[0][0][i]=start_inventory[0][0][i]-incoming_orders[i];
         }
 
-
         // shipments are placed in transit
         for(int i=0; i<2; i++){
-
                 if(tlt_min[i]==tlt_max[i]){      // no sampling required
                         transportation_lead_times[i]=tlt_min[i];
                 }
@@ -238,15 +107,10 @@ void calc_inventory(int start_inventory[][8][2]){
         }
 }
 
-
-
-
-
 int calc_TC(int start_inventory[][8][2]){
         return (((start_inventory[0][0][0]>0) ? start_inventory[0][0][0]*h_c[0]: (-1)*start_inventory[0][0][0]*b_c[0]) +
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
 }
-
 
 double Variance(std::vector<double> samples)
 {
