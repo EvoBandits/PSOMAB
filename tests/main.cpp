@@ -11,7 +11,7 @@ int main() {
         Eigen::VectorXi x_ub(2);
         x_ub << 100, 100;
 
-        bool pso = true;
+        bool pso = false;
 
         if(pso){
                 PSO pso_instance = PSO(10, 2, x_lb, x_ub, inventory, 10000);
