@@ -33,7 +33,6 @@ class PSOMAB {
         int get_arm_index(const Arm& particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table);
         static void delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
-        bool budget_reached();
         int max_num_pulls();
         int find_best_ucb();
         void save_current_best_solution();

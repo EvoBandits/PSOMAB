@@ -62,7 +62,7 @@ void PSO::optimize() {
                 for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                         // ToDo: make separate function (sample and update)
                         particles_[particle_index].pull();
-                        simulations_used += 1;
+                        update_simulation_budget();
 
                         // fix problem when best_individual_arm has never been pulled
                         // ToDo: was das?
@@ -111,15 +111,6 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
         best_individual_arms_ = particles_;
 }
 
-// Too: get rid of this
-int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
-        int sum = 0;
-        for (auto &arm : arms) {
-                sum += arm.num_pulls();
-        }
-        return sum;
-}
-
 void PSO::save_current_best_solution() {
         Arm& best_arm = best_individual_arms_[best_particle_index_];
 
@@ -128,7 +119,7 @@ void PSO::save_current_best_solution() {
         double mean_value = best_arm.mean_reward();
         double true_value = best_arm.true_value();
 
-        best_solutions_.emplace_back(simulations_used, best_solution, num_pulls_best, mean_value, true_value);
+        best_solutions_.emplace_back(simulations_used_, best_solution, num_pulls_best, mean_value, true_value);
 }
 
 int PSO::num_particle() const {
@@ -163,6 +154,10 @@ int PSO::max_simulation() const {
         return max_simulations_;
 }
 
+int PSO::simulations_used() {
+        return simulations_used_;
+}
+
 std::vector<Arm> &PSO::best_individual_arms() {
         return best_individual_arms_;
 }
@@ -171,9 +166,12 @@ int &PSO::best_particle_index() {
         return best_particle_index_;
 }
 bool PSO::budget_reached() {
-        return simulations_used > max_simulations_;
+        return simulations_used_ > max_simulations_;
 }
 void PSO::save_history() {
-        if (simulations_used % 100 == 0)
+        if (simulations_used_ % 100 == 0)
                 save_current_best_solution();
+}
+void PSO::update_simulation_budget(int number_of_new_simulations) {
+        simulations_used_ += number_of_new_simulations;
 }

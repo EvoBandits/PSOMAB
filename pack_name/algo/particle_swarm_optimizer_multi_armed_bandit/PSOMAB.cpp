@@ -59,6 +59,7 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
 
                 double old_reward = local_arm.reward();
                 local_arm.pull();
+                pso.update_simulation_budget();
                 double new_reward = local_arm.reward();
 
                 global_arm.update_num_pulls(1);
@@ -72,6 +73,7 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 arm_index_local =  (int) local_arm_memories[particle_index].size() - 1;
 
                 local_arm.pull();
+                pso.update_simulation_budget();
 
                 global_arm_memory.push_back(local_arm_memories[particle_index].back());
                 Arm &global_arm = global_arm_memory.back();
@@ -83,10 +85,6 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
                 global_sat.emplace(global_arm.mean_reward(), arm_index_global);
         }
-}
-
-bool PSOMAB::budget_reached() {
-        return (pso.sum_num_pulls(global_arm_memory) >= pso.max_simulation());
 }
 
 int PSOMAB::max_num_pulls() {
@@ -128,7 +126,7 @@ int PSOMAB::find_best_ucb() {
 
                 // transform sample mean to interval [0,1]
                 double transformed_sample_mean = (global_arm_memory[arm_index].mean_reward() - ucb_norm_min) / (ucb_norm_max - ucb_norm_min);
-                double penalty_term = sqrt(2 * log(pso.sum_num_pulls(global_arm_memory)) / global_arm_memory[arm_index].num_pulls());
+                double penalty_term = sqrt(2 * log(pso.simulations_used()) / global_arm_memory[arm_index].num_pulls());
                 double ucb = transformed_sample_mean + penalty_term;
 
                 // new best solution is found
@@ -150,7 +148,7 @@ void PSOMAB::save_current_best_solution() {
         Arm &best_arm = global_arm_memory[best_arm_index];
 
         double true_value = best_arm.true_value();
-        double num_pulls_all = pso.sum_num_pulls(global_arm_memory);
+        double num_pulls_all = pso.simulations_used();
         Eigen::VectorXi best_solution = best_arm.get_action_vector();
         double num_pulls_best = best_arm.num_pulls();
         double mean_value = best_arm.mean_reward();
@@ -159,7 +157,7 @@ void PSOMAB::save_current_best_solution() {
 }
 
 void PSOMAB::save_history() {
-        if (pso.sum_num_pulls(global_arm_memory) % 100 == 0) {
+        if (pso.simulations_used() % 100 == 0) {
                 save_current_best_solution();
         }
 }
@@ -178,6 +176,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
                 Arm &local_arm = local_arm_memories[particle_index].back();
 
                 local_arm.pull();
+                pso.update_simulation_budget();
 
                 global_arm_memory.push_back(local_arm);
 
@@ -199,14 +198,14 @@ void PSOMAB::optimize() {
                         // sample for updated particle and update local and global memory
                         int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_tables[particle_index]);
                         sample_and_update(particle_index, arm_index_local);
-                        save_history();
-                        if (budget_reached()) return;
+                        pso.save_history();
+                        if (pso.budget_reached()) return;
 
                         // sample for best individual solution and update local and global memory
                         arm_index_local = best_individual_arm_indices[particle_index];
                         sample_and_update(particle_index, arm_index_local);
                         save_history();
-                        if (budget_reached()) return;
+                        if (pso.budget_reached()) return;
                 }
         }
 }
