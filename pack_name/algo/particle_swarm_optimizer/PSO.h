@@ -18,7 +18,7 @@ class PSO {
 
         void optimize();
 
-        void step(int num_pulls);
+        void update_positions(int num_pulls);
         int sum_num_pulls(std::vector<Arm> &arms) const;
         virtual std::vector<solution> &best_solutions();
         std::vector<Arm> &best_individual_arms();
