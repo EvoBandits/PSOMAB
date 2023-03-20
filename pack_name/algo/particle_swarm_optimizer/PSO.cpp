@@ -56,12 +56,6 @@ void PSO::sample_and_update(int particle_index) {
         particles_[particle_index].pull();
         update_simulation_budget();
 
-        // fix problem when best_individual_arm has never been pulled
-        // ToDo: was das?
-        if (best_individual_arms_[particle_index].reward() == 0) {
-                best_individual_arms_[particle_index] = particles_[particle_index];
-        }
-
         if (new_local_best(particle_index))
                 best_individual_arms_[particle_index] = particles_[particle_index];
         if (new_global_best(particle_index))
@@ -175,7 +169,9 @@ void PSO::update_simulation_budget(int number_of_new_simulations) {
         simulations_used_ += number_of_new_simulations;
 }
 bool PSO::new_local_best(int particle_index) {
-        return particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward();
+        bool better_reward_observed = particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward();
+        bool no_local_best_yet = best_individual_arms_[particle_index].reward() == 0;
+        return better_reward_observed || no_local_best_yet;
 }
 bool PSO::new_global_best(int particle_index) {
         return best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward();
