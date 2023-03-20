@@ -50,6 +50,9 @@ class PSO {
 
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
+        bool new_local_best(int particle_index);
+        bool new_global_best(int particle_index);
+        void sample_and_update(int particle_index);
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_

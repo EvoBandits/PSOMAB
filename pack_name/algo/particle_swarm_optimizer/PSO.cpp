@@ -175,3 +175,10 @@ void PSO::save_history() {
 void PSO::update_simulation_budget(int number_of_new_simulations) {
         simulations_used_ += number_of_new_simulations;
 }
+bool PSO::new_local_best(int particle_index) {
+        return particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward();
+}
+bool PSO::new_global_best(int particle_index) {
+        return best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward();
+}
+
