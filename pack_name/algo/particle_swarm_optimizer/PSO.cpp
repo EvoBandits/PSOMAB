@@ -123,18 +123,6 @@ int PSO::dimension() const {
         return dimension_;
 }
 
-Eigen::VectorXi PSO::x_min() const {
-        return x_min_;
-}
-
-Eigen::VectorXi PSO::x_max() const {
-        return x_max_;
-}
-
-std::function<double(Eigen::VectorXi, int)> PSO::opti_func() const {
-        return opti_func_;
-}
-
 std::vector<Arm> PSO::particles() const {
         return particles_;
 }
@@ -143,11 +131,7 @@ std::vector<solution> &PSO::best_solutions() {
         return best_solutions_;
 }
 
-int PSO::max_simulation() const {
-        return max_simulations_;
-}
-
-int PSO::simulations_used() {
+int PSO::simulations_used() const{
         return simulations_used_;
 }
 
@@ -158,21 +142,26 @@ std::vector<Arm> &PSO::best_individual_arms() {
 int &PSO::best_particle_index() {
         return best_particle_index_;
 }
-bool PSO::budget_reached() {
+
+bool PSO::budget_reached() const{
         return simulations_used_ > max_simulations_;
 }
+
 void PSO::save_history() {
         if (simulations_used_ % 100 == 0)
                 save_current_best_solution();
 }
+
 void PSO::update_simulation_budget(int number_of_new_simulations) {
         simulations_used_ += number_of_new_simulations;
 }
+
 bool PSO::new_local_best(int particle_index) {
         bool better_reward_observed = particles_[particle_index].mean_reward() < best_individual_arms_[particle_index].mean_reward();
         bool no_local_best_yet = best_individual_arms_[particle_index].reward() == 0;
         return better_reward_observed || no_local_best_yet;
 }
+
 bool PSO::new_global_best(int particle_index) {
         return best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward();
 }
