@@ -1,7 +1,5 @@
 #include "PSOMAB.h"
-#include "../../util/SolutionCodeCalculation.h"
 #include <algorithm>
-#include <boost/multiprecision/cpp_int.hpp>
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -33,9 +31,8 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
         return best_individual_arm_indices;
 }
 
-int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<boost::multiprecision::int128_t, int> &lookup_table) {
-        boost::multiprecision::int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-        auto arm_index = lookup_table.find(search_index);
+int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table) {
+        auto arm_index = lookup_table.find(particle.get_action_vector());
         if (arm_index == lookup_table.end())
                 return -1;
         else
@@ -80,9 +77,8 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 Arm &global_arm = global_arm_memory.back();
                 int arm_index_global = (int) global_arm_memory.size() - 1;
 
-                boost::multiprecision::int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-                local_lookup_tables[particle_index].emplace(search_index,arm_index_local);
-                global_lookup_table.emplace(search_index, arm_index_global);
+                local_lookup_tables[particle_index].emplace(local_arm.get_action_vector(),arm_index_local);
+                global_lookup_table.emplace(local_arm.get_action_vector(), arm_index_global);
 
                 local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
                 global_sat.emplace(global_arm.mean_reward(), arm_index_global);
@@ -170,12 +166,11 @@ void PSOMAB::save_history() {
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                std::unordered_map<boost::multiprecision::int128_t, int> local_lookup_table;
+                std::unordered_map<Eigen::VectorXi, int> local_lookup_table;
                 local_lookup_tables.push_back(local_lookup_table);
-                boost::multiprecision::int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
 
-                local_lookup_tables[particle_index].emplace(search_index, 0);
-                global_lookup_table.emplace(search_index, particle_index);
+                local_lookup_tables[particle_index].emplace(pso.particles()[particle_index].get_action_vector(), 0);
+                global_lookup_table.emplace(pso.particles()[particle_index].get_action_vector(), particle_index);
 
                 std::vector<Arm> local_arm_memory;
                 local_arm_memories.push_back(local_arm_memory);
