@@ -21,17 +21,18 @@ class PSOMAB {
         // local SATs, arm_memory, LUTs
         std::vector<std::multimap<double, int>> local_sats;
         std::vector<std::vector<Arm>> local_arm_memories;
-        std::vector<LUT> local_lookup_trees;
+        std::vector<std::unordered_map<int128_t, int>> local_lookup_trees;
 
         // global SAT, arm_memory, LUT
         std::multimap<double, int> global_sat;
         std::vector<Arm> global_arm_memory;
-        LUT global_lookup_tree;
+        std::unordered_map<int128_t, int> global_lookup_tree;
+        //LUT global_lookup_tree;
 
         PSO pso;
 
         std::vector<int> retrieve_best_solutions();
-        int get_arm_index(const Arm& particle, LUT &lookup_tree);
+        int get_arm_index(const Arm& particle, std::unordered_map<int128_t, int> &lookup_tree);
         static void insert_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
         static void delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
