@@ -96,15 +96,13 @@ void PSO::optimize() {
 
 Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions, Eigen::VectorXi x_lb, Eigen::VectorXi x_ub, int dimension) {
         Eigen::VectorXi v(dimension);
-        // generate random solutions as long as they are not unique
         while (true) {
                 for (int j = 0; j < dimension; j++) {
                         std::uniform_int_distribution<int> uniform_dist(x_lb(j), x_ub(j));
                         v(j) = uniform_dist(generator);
                 }
-                if (std::find(solutions.begin(), solutions.end(), v) == solutions.end()) {
+                if (std::find(solutions.begin(), solutions.end(), v) == solutions.end())
                         break;
-                }
         }
         return v;
 }
@@ -113,38 +111,18 @@ PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi
         std::vector<Eigen::VectorXi> init_solutions;
         for (int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
-                // initialize vector of solutions
+
                 Eigen::VectorXi v(dimension_);
-                // generate random solutions as long as they are not unique
                 v = generate_unique_solution(init_solutions, x_min_, x_max_, dimension_);
-                init_solutions.push_back(v);//required to check whether all elements are unique
-                // add arm to "arms", i.e. where all arms are stored
-                Arm new_arm(opti_func_, v);// 0 = cost info, last element (0) is actually not necessary
-                particles_.push_back(new_arm);
+                init_solutions.push_back(v);
+
+                particles_.emplace_back(opti_func_, v);
         }
-        // initialize best individual arms
         // ToDo: in eigenes init
         best_individual_arms_ = particles_;
         particles_history_ = particles_;
 }
-int PSO::num_particle() const {
-        return num_particle_;
-}
-int PSO::dimension() const {
-        return dimension_;
-}
-Eigen::VectorXi PSO::x_min() const {
-        return x_min_;
-}
-Eigen::VectorXi PSO::x_max() const {
-        return x_max_;
-}
-std::function<double(Eigen::VectorXi, int)> PSO::opti_func() const {
-        return opti_func_;
-}
-std::vector<Arm> PSO::particles() const {
-        return particles_;
-}
+
 int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
         int sum = 0;
         for (auto &arm : arms) {
@@ -163,15 +141,43 @@ void PSO::save_current_best_solution() {
 
         best_solutions_.emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
+
+int PSO::num_particle() const {
+        return num_particle_;
+}
+
+int PSO::dimension() const {
+        return dimension_;
+}
+
+Eigen::VectorXi PSO::x_min() const {
+        return x_min_;
+}
+
+Eigen::VectorXi PSO::x_max() const {
+        return x_max_;
+}
+
+std::function<double(Eigen::VectorXi, int)> PSO::opti_func() const {
+        return opti_func_;
+}
+
+std::vector<Arm> PSO::particles() const {
+        return particles_;
+}
+
 std::vector<solution> &PSO::best_solutions() {
         return best_solutions_;
 }
+
 int PSO::max_simulation() const {
         return max_simulations_;
 }
+
 std::vector<Arm> &PSO::best_individual_arms() {
         return best_individual_arms_;
 }
+
 int &PSO::best_particle_index() {
         return best_particle_index_;
 }
