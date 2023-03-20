@@ -7,15 +7,14 @@
 
 class Arm {
        public:
-        // ToDo: rename permutation to action_vector, init_r to reward, init_k to num_pulls
-        Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi permutation, double init_r = 0.0, int init_k = 0);
+        Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi action_vector, double initial_reward = 0.0, int initial_num_pulls = 0);
         double function_value() const;
         double pull();
         int num_pulls() const;
         double reward() const;
         Eigen::VectorXi get_action_vector() const;
-        void update_num_pulls(int k_var);
-        void update_reward(double r_var);
+        void update_num_pulls(int new_num_pulls);
+        void update_reward(double new_reward);
         double mean_reward() const;
         double true_value() const;
 
