@@ -153,7 +153,15 @@ int PSO::sum_num_pulls(std::vector<Arm> &arms) const {
         return sum;
 }
 void PSO::save_current_best_solution() {
-        best_solutions_.emplace_back(sum_num_pulls(particles_history_), best_individual_arms_[best_particle_index_].get_action_vector(), best_individual_arms_[best_particle_index_].num_pulls(), best_individual_arms_[best_particle_index_].mean_reward(), best_individual_arms_[best_particle_index_].true_value());
+        Arm& best_arm = best_individual_arms_[best_particle_index_];
+
+        double true_value = best_arm.true_value();
+        double num_pulls_all = sum_num_pulls(particles_history_);
+        Eigen::VectorXi best_solution = best_arm.get_action_vector();
+        double num_pulls_best = best_arm.num_pulls();
+        double mean_value = best_arm.mean_reward();
+
+        best_solutions_.emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
 std::vector<solution> &PSO::best_solutions() {
         return best_solutions_;
