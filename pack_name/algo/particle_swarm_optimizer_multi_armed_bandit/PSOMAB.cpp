@@ -33,8 +33,8 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
         return best_individual_arm_indices;
 }
 
-int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<int128_t, int> &lookup_tree) {
-        int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<boost::multiprecision::int128_t, int> &lookup_tree) {
+        boost::multiprecision::int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
         auto arm_index = lookup_tree.find(search_index);
         if (arm_index == lookup_tree.end())
                 return -1;
@@ -92,7 +92,7 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 Arm &global_arm = global_arm_memory.back();
                 int arm_index_global = (int) global_arm_memory.size() - 1;
 
-                int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+                boost::multiprecision::int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
                 global_lookup_tree.emplace(search_index, arm_index_global);
                 local_lookup_trees[particle_index].emplace(search_index,arm_index_local);
 
@@ -182,9 +182,9 @@ void PSOMAB::save_history() {
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                std::unordered_map<int128_t, int> local_lookup_tree;
+                std::unordered_map<boost::multiprecision::int128_t, int> local_lookup_tree;
                 local_lookup_trees.push_back(local_lookup_tree);
-                int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
+                boost::multiprecision::int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
 
                 local_lookup_trees[particle_index].emplace(search_index, 0);
                 global_lookup_tree.emplace(search_index, particle_index);
