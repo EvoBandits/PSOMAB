@@ -1268,6 +1268,7 @@ double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         return Results[(action_vector.coeffRef(0) - 1) * 100 + (action_vector.coeffRef(1) - 1)];
 }
 
+// ToDo: change noise parameter to boolean?
 double inventory(Eigen::VectorXi action_vector, int noise_level) {
         int s = action_vector[0];
         int S = action_vector[1] + s;

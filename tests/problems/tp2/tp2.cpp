@@ -1,177 +1,6 @@
-#include <iostream>
-#include <random>
-#include <vector>
-#include <cmath>
-
-#include <iomanip>
-#include <fstream>
-#include <string>
-
-unsigned seed = 1; //
-std::default_random_engine e(seed);
-
-
-int d_min=20;
-int d_max=60;
-
-
-// backorder costs
-std::vector<int> b_c{24,12,6,3};
-// holding costs
-std::vector<int> h_c{8,4,2,1};
-
-//transportation lead times
-std::vector<int> tlt_min{1,2,4,3};
-std::vector<int> tlt_max{1,4,6,5};
-
-//information lead times
-std::vector<int> ilt_min{0,0,0,0};
-std::vector<int> ilt_max{0,1,1,2};
-
-int random_number(int a, int b){
-        std::uniform_int_distribution<int> random_integer(a,b);
-        return random_integer(e);
-};
-
-
-void calc_inventory(int start_inventory[][8][2]);
-int calc_TC(int start_inventory[][8][2]);
-double Variance(std::vector<double> samples);
-
-
-
-
-
-
-
-
-
-// alt *****
-double double_random_number(double a, double b){
-        std::uniform_real_distribution<double> random_integer(a,b);
-        return random_integer(e);
-};
-
-double poisson_random_number(double a){
-        std::poisson_distribution<int> random_integer(a);
-        return random_integer(e);
-};
-
-double normal_distribution(double a, double b){
-        std::normal_distribution<double> random_integer(a,b);
-        return random_integer(e);
-};
-
-//****** alt kann gelöcht werden
-
-
-
-
-int main()
-{
-        std::cout << std::fixed << std::setprecision(0);
-
-        std::vector<int> min={191,  40};  // min x_1   // min x_1
-        std::vector<int> max={360,  300};  // max x_1   // max x_2
-
-        std::vector<std::vector<int>> action_vectors;
-        std::vector<double> result_vector_mean;
-        std::vector<double> result_vector_stdev;
-
-        for(int i=min[0]; i<=max[0]; i++){  //klein s
-                for(int j=min[1]; j<=max[1]; j++){ // GROß S
-                        e.seed(1); //standardmäßig bei jedem Durchlauf auf 1
-                        double final_r=0.0;
-                        std::vector<double> results;
-                        int sample_size=10'000;
-                        for(int o=0; o<sample_size; o++)
-                        {
-                                std::vector<int> s{i,j};
-
-
-
-                                int start_inventory [2][8][2]= { {{s[0],s[1]},   {0,0},    {0,0},    {0,0},    {0,0},    {0,0},  {0,0},   {0,0},},
-                                                                {{0,0},   {0,0},    {0,0},    {0,0},    {0,0},    {0,0},  {0,0},   {0,0}}   };
-
-                                // start_inventory [0][0][1],...,[0][0][2] denote the inventory levels of agent 1,2
-                                /*---------------------------------------*/
-                                // start_inventory [0][1][1],...,[0][1][2]
-                                // start_inventory ....................... denote the shipments that are in transit
-                                // start_inventory [0][7][1],...,[0][7][2]
-                                /*---------------------------------------*/
-                                // start_inventory [1][0][1],...,[1][0][2]
-                                // start_inventory ....................... denote the orders that are in transit
-                                // start_inventory [1][7][1],...,[1][7][2]
-
-
-                                if(o==1){
-                                        //std::cout << "Evaluated base-stock level vector: " << s[0] << " "<< s[1]  <<  std::endl;
-
-                                        //std::cout <<  std::endl << "Calculation progress:" <<  std::endl;
-                                }
-
-
-                                //if(o%(sample_size/10)==0){std::cout <<o/(sample_size/100) << " %"<< std::endl;}
-
-
-                                int period_number=1'200; // Supply Chain Horizon
-                                double reward{0.0};
-                                for(int t=0; t<period_number; t++){
-                                        calc_inventory(start_inventory);
-                                        reward=reward+calc_TC(start_inventory);
-                                }
-                                results.push_back(reward);
-                        }
-                        double sum = std::accumulate(results.begin(), results.end(), 0.0);
-                        double mean = sum / results.size();
-
-                        double var = Variance(results);
-                        double stdev = sqrt(var);
-
-                        std::cout <<std::fixed<<"x_1: "<<i << "  x_2: " << j <<"  mean: "<< mean<< "   stdev: "<<stdev<< std::endl;
-
-                        result_vector_mean.push_back(mean);
-                        result_vector_stdev.push_back(stdev);
-                        std::vector<int> a_v = {i,j};
-                        action_vectors.push_back(a_v);
-
-                }
-        }
-
-
-
-        std::ofstream result_save;
-        //std::string string_save="H:/GMAB2/.....".csv";  C:/Users/preilden/Downloads/Results/results.
-        std::string string_save="C:/Users/preilden/Downloads/SS/results2.csv";
-        result_save.open(string_save);
-        for(int q=0; q<result_vector_mean.size(); q++){
-                result_save <<std::fixed<< std::setprecision(2)<< action_vectors[q][0] <<";"<< action_vectors[q][1] <<";" <<result_vector_mean[q]<< ";" <<result_vector_stdev[q] << std::endl;
-        }
-
-        result_save.close();
-
-
-
-
-        return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#include "tp2.h"
 
 void calc_inventory(int start_inventory[][8][2]){
-
         int information_lead_times[2]= {0,0}; // Information lead time that an order takes from agent i to agent i+1
         int transportation_lead_times[2]={0,0}; // Transportation lead time that a shipment takes from agent i+1 to agent i
 
@@ -182,7 +11,6 @@ void calc_inventory(int start_inventory[][8][2]){
         int incoming_shipments[2]= {start_inventory[0][1][0],start_inventory[0][1][1]}; // [cf. DEL^IN in the paper version]
         // Inventory Level: On-hand inventory - backlogged order
         int inventory_level[2]={start_inventory[0][0][0],start_inventory[0][0][1]};
-
 
         int arr_size =8;
         for(int i=0; i<2; i++){
@@ -202,17 +30,12 @@ void calc_inventory(int start_inventory[][8][2]){
                         if(j<arr_size-1){
                                 start_inventory[1][j][i]=start_inventory[1][j+1][i];
                         }
-
-
-
                         if(j==arr_size-1){
                                 start_inventory[0][j][i]=0;
                                 start_inventory[1][j][i]=0;
                         }
                 }
-
         }
-
 
         for(int i=0; i<2; i++){
                 if(i==0){
@@ -263,10 +86,8 @@ void calc_inventory(int start_inventory[][8][2]){
                 start_inventory[0][0][i]=start_inventory[0][0][i]-incoming_orders[i];
         }
 
-
         // shipments are placed in transit
         for(int i=0; i<2; i++){
-
                 if(tlt_min[i]==tlt_max[i]){      // no sampling required
                         transportation_lead_times[i]=tlt_min[i];
                 }
@@ -285,18 +106,12 @@ void calc_inventory(int start_inventory[][8][2]){
         }
 }
 
-
-
-
-
-int calc_TC(int start_inventory[][8][2]){
+int calc_TC(int start_inventory[][8][2]) {
         return (((start_inventory[0][0][0]>0) ? start_inventory[0][0][0]*h_c[0]: (-1)*start_inventory[0][0][0]*b_c[0]) +
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
 }
 
-
-double Variance(std::vector<double> samples)
-{
+double Variance(std::vector<double> samples) {
         int size = samples.size();
 
         double variance = 0;
