@@ -11,8 +11,6 @@ include_directories(third_party/eigen)
 add_executable(PSOMAB
         pack_name/objects/arm/Arm.cpp
         pack_name/objects/arm/Arm.h
-        pack_name/objects/look_up_tree/LUT.cpp
-        pack_name/objects/look_up_tree/LUT.h
         pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.cpp
         pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h
         pack_name/util/RandomNumber.cpp
