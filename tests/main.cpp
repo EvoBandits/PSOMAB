@@ -11,17 +11,25 @@ int main() {
         Eigen::VectorXi x_ub(2);
         x_ub << 100, 100;
 
-        //PSO pso_instance = PSO(10, 2, x_lb, x_ub, inventory, 10000);
-        //pso_instance.optimize();
+        bool pso = true;
 
-        //ToDo: Seed setzen
-        PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2, false);
-        psomab_instance.optimize();
+        if(pso){
+                PSO pso_instance = PSO(10, 2, x_lb, x_ub, inventory, 10000);
+                pso_instance.optimize();
 
+                for (auto &best_solution : pso_instance.best_solutions()) {
+                        best_solution.print();
+                }
+        } else {
+                //ToDo: Seed setzen
+                PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2, false);
+                psomab_instance.optimize();
 
-        for (auto &best_solution : psomab_instance.best_solutions()) {
-                best_solution.print();
+                for (auto &best_solution : psomab_instance.best_solutions()) {
+                        best_solution.print();
+                }
         }
+
 
         return 0;
 }
