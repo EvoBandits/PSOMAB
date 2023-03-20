@@ -42,11 +42,6 @@ int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<boost::multipr
                 return (*arm_index).second;
 }
 
-void PSOMAB::insert_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat){
-        double pulled_arm_mean_reward = arm.mean_reward();
-        sat.emplace(arm.mean_reward(), arm_index);
-}
-
 void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat) {
         double existing_arm_mean_reward = arm.mean_reward();
 
@@ -79,8 +74,8 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 global_arm.update_num_pulls(1);
                 global_arm.update_reward(new_reward - old_reward);
 
-                insert_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
-                insert_sat_node(arm_index_global, global_arm, global_sat);
+                local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
+                global_sat.emplace(global_arm.mean_reward(), arm_index_global);
         } else {
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
                 Arm &local_arm = local_arm_memories[particle_index].back();
@@ -93,11 +88,11 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 int arm_index_global = (int) global_arm_memory.size() - 1;
 
                 boost::multiprecision::int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-                global_lookup_tree.emplace(search_index, arm_index_global);
                 local_lookup_trees[particle_index].emplace(search_index,arm_index_local);
+                global_lookup_tree.emplace(search_index, arm_index_global);
 
-                insert_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
-                insert_sat_node(arm_index_global, global_arm, global_sat);
+                local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
+                global_sat.emplace(global_arm.mean_reward(), arm_index_global);
         }
 }
 
@@ -200,8 +195,8 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
 
                 std::multimap<double, int> local_sat;
                 local_sats.push_back(local_sat);
-                insert_sat_node(0, local_arm, local_sats[particle_index]);
-                insert_sat_node(particle_index, local_arm, global_sat);
+                local_sats[particle_index].emplace(local_arm.mean_reward(), 0);
+                global_sat.emplace(local_arm.mean_reward(), particle_index);
         }
         save_current_best_solution();
 }
