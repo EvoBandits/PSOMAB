@@ -33,27 +33,20 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
         return best_individual_arm_indices;
 }
 
-int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<boost::multiprecision::int128_t, int> &lookup_tree) {
+int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<boost::multiprecision::int128_t, int> &lookup_table) {
         boost::multiprecision::int128_t search_index = calc_solution_code(particle.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-        auto arm_index = lookup_tree.find(search_index);
-        if (arm_index == lookup_tree.end())
+        auto arm_index = lookup_table.find(search_index);
+        if (arm_index == lookup_table.end())
                 return -1;
         else
                 return (*arm_index).second;
 }
 
 void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat) {
-        double existing_arm_mean_reward = arm.mean_reward();
+        auto sat_node = sat.find(arm.mean_reward());
 
-        auto sat_node = sat.find(existing_arm_mean_reward);
-
-        int sat_node_arm_index = (*sat_node).second;
-
-        // If multiple nodes have the same mean value, iterated until sat_node_arm_index==arm_index
-        while (sat_node_arm_index != arm_index) {
+        while ((*sat_node).second != arm_index)
                 sat_node++;
-                sat_node_arm_index = (*sat_node).second;
-        }
 
         sat.erase(sat_node);
 }
@@ -61,7 +54,7 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int>
 void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
                 Arm &local_arm = local_arm_memories[particle_index][arm_index_local];
-                int arm_index_global = get_arm_index(local_arm, global_lookup_tree);
+                int arm_index_global = get_arm_index(local_arm, global_lookup_table);
                 Arm &global_arm = global_arm_memory[arm_index_global];
 
                 delete_sat_node(arm_index_local, local_arm, local_sats[particle_index]);
@@ -88,8 +81,8 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 int arm_index_global = (int) global_arm_memory.size() - 1;
 
                 boost::multiprecision::int128_t search_index = calc_solution_code(local_arm.get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
-                local_lookup_trees[particle_index].emplace(search_index,arm_index_local);
-                global_lookup_tree.emplace(search_index, arm_index_global);
+                local_lookup_tables[particle_index].emplace(search_index,arm_index_local);
+                global_lookup_table.emplace(search_index, arm_index_global);
 
                 local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
                 global_sat.emplace(global_arm.mean_reward(), arm_index_global);
@@ -177,12 +170,12 @@ void PSOMAB::save_history() {
 
 PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, unsigned seed, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
-                std::unordered_map<boost::multiprecision::int128_t, int> local_lookup_tree;
-                local_lookup_trees.push_back(local_lookup_tree);
+                std::unordered_map<boost::multiprecision::int128_t, int> local_lookup_table;
+                local_lookup_tables.push_back(local_lookup_table);
                 boost::multiprecision::int128_t search_index = calc_solution_code(pso.particles()[particle_index].get_action_vector(), pso.dimension(), pso.x_min(), pso.x_max());
 
-                local_lookup_trees[particle_index].emplace(search_index, 0);
-                global_lookup_tree.emplace(search_index, particle_index);
+                local_lookup_tables[particle_index].emplace(search_index, 0);
+                global_lookup_table.emplace(search_index, particle_index);
 
                 std::vector<Arm> local_arm_memory;
                 local_arm_memories.push_back(local_arm_memory);
@@ -203,20 +196,18 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
 
 void PSOMAB::optimize() {
         while (true) {
-                // find local bast solutions
                 std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
 
-                // update particle positions
                 pso.step(0);
 
                 for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                         // sample for updated particle and update local and global memory
-                        int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_trees[particle_index]);
+                        int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_tables[particle_index]);
                         sample_and_update(particle_index, arm_index_local);
                         save_history();
                         if (budget_reached()) return;
 
-                        // resample best solution and update local and global memory
+                        // sample for best individual solution and update local and global memory
                         arm_index_local = best_individual_arm_indices[particle_index];
                         sample_and_update(particle_index, arm_index_local);
                         save_history();
