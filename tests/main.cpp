@@ -22,7 +22,7 @@ int main() {
                 }
         } else {
                 //ToDo: Seed setzen
-                PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, 1, x_lb, x_ub, 2, false);
+                PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, x_lb, x_ub, 2, false);
                 psomab_instance.optimize();
 
                 for (auto &best_solution : psomab_instance.best_solutions()) {
