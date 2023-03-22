@@ -4,7 +4,7 @@ Eigen::Vector2i tp1_lb(20, 40);
 Eigen::Vector2i tp1_ub (360, 300);
 int tp1_dim = 2;
 
-int random_number(int a, int b){
+int uniform_random_number(int a, int b){
         std::uniform_int_distribution<int> random_integer(a,b);
         return random_integer(generator);
 };
@@ -113,7 +113,7 @@ void calc_inventory_tp1(int start_inventory[][8][2]){
                         transportation_lead_times[i]=tlt_min[i];
                 }
                 else{
-                        transportation_lead_times[i]=random_number(tlt_min[i],tlt_max[i]);
+                        transportation_lead_times[i]=uniform_random_number(tlt_min[i],tlt_max[i]);
                 }
 
                 if(i<=2){
