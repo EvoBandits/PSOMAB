@@ -11,7 +11,6 @@ extern Eigen::Vector2i inventory_lb;
 extern Eigen::Vector2i inventory_ub;
 extern int inventory_dim;
 
-double poisson_random_number(double a);
 double get_true_objective_value(const Eigen::VectorXi& action_vector);
 double inventory(Eigen::VectorXi action_vector, int noise_level);
 

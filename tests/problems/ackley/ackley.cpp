@@ -4,11 +4,6 @@ Eigen::Vector2i ackley_lb(-500, -500);
 Eigen::Vector2i ackley_ub(500, 500);
 int ackley_dim = 2;
 
-double random_number() {
-        std::normal_distribution<> random_integer(0, 1);
-        return random_integer(generator);
-}
-
 double get_true_objective_value_ackley(const Eigen::VectorXi &action_vector) {
         double sum_sq = 0;
         double sum_cos = 0;
@@ -27,6 +22,6 @@ double get_true_objective_value_ackley(const Eigen::VectorXi &action_vector) {
 
 
 double ackley(Eigen::VectorXi action_vector, int noise_level) {
-        return get_true_objective_value_ackley(action_vector) + noise_level * random_number();
+        return get_true_objective_value_ackley(action_vector) + noise_level * random_normal(0, 1);
 }
 
