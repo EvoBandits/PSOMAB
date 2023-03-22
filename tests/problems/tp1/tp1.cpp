@@ -1,6 +1,26 @@
 #include "tp1.h"
 
-void calc_inventory(int start_inventory[][8][2]){
+Eigen::Vector2i tp1_lb(20, 40);
+Eigen::Vector2i tp1_ub (360, 300);
+int tp1_dim = 2;
+
+int random_number(int a, int b){
+        std::uniform_int_distribution<int> random_integer(a,b);
+        return random_integer(generator);
+};
+
+void calc_inventory_tp1(int start_inventory[][8][2]){
+        int d_min=20;
+        int d_max=60;
+
+        //transportation lead times
+        std::vector<int> tlt_min{1,2,4,3};
+        std::vector<int> tlt_max{1,4,6,5};
+
+        //information lead times
+        std::vector<int> ilt_min{0,0,0,0};
+        std::vector<int> ilt_max{0,1,1,2};
+
         int information_lead_times[2]= {0,0}; // Information lead time that an order takes from agent i to agent i+1
         int transportation_lead_times[2]={0,0}; // Transportation lead time that a shipment takes from agent i+1 to agent i
 
@@ -107,23 +127,28 @@ void calc_inventory(int start_inventory[][8][2]){
         }
 }
 
-int calc_TC(int start_inventory[][8][2]){
+int calc_TC_tp1(int start_inventory[][8][2]){
+        // backorder costs
+        std::vector<int> b_c{24,12,6,3};
+        // holding costs
+        std::vector<int> h_c{8,4,2,1};
+
         return (((start_inventory[0][0][0]>0) ? start_inventory[0][0][0]*h_c[0]: (-1)*start_inventory[0][0][0]*b_c[0]) +
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
 }
 
-double Variance(std::vector<double> samples)
-{
-        int size = samples.size();
+double tp1(Eigen::VectorXi action_vector, int noise_level){
+        //std::vector<int> s{53,180}; //SSS1
 
-        double variance = 0;
-        double t = samples[0]+0.0;
-        for (int i = 1; i < size; i++)
-        {
-                t += samples[i];
-                double diff = ((i + 1) * samples[i]) - t;
-                variance += (diff * diff) / ((i + 1.0) *i);
+        int start_inventory [2][8][2]= { {{action_vector[0],action_vector[1]}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0},},
+                                        {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}};
+
+        int period_number=1'200; // Supply Chain Horizon
+        double reward{0.0};
+        for(int i=0; i<period_number; i++){
+                calc_inventory_tp1(start_inventory);
+                reward=reward+ calc_TC_tp1(start_inventory);
         }
 
-        return variance / (size - 1);
+        return reward;
 }
