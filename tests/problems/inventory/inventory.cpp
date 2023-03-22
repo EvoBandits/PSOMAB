@@ -1,17 +1,13 @@
-#ifndef PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
-#define PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
+#include "inventory.h"
 
-#include <random>
-#include <vector>
-#include "Eigen/Core"
-#include "../../pack_name/util/RandomNumber.h"
-
-// 17 36
+Eigen::Vector2i inventory_lb (1, 1);
+Eigen::Vector2i inventory_ub (100, 100);
+int inventory_dim = 2;
 
 double poisson_random_number(double a) {
         std::poisson_distribution<int> random_integer(a);
         return random_integer(generator);
-};
+}
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
@@ -1306,5 +1302,3 @@ double inventory(Eigen::VectorXi action_vector, int noise_level) {
 
         return get_true_objective_value(action_vector) + noise_level * (costs - get_true_objective_value(action_vector));
 }
-
-#endif// PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
