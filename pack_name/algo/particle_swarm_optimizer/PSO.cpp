@@ -7,8 +7,7 @@
 Eigen::VectorXi PSO::update_location_random(Eigen::VectorXi proposed_solution){
         for (int j = 0; j < dimension_; j++) {
                 if (proposed_solution[j] > x_max_[j] || proposed_solution[j] < x_min_[j]) {
-                        std::uniform_int_distribution<int> uniform_int_distribution(x_min_[j], x_max_[j]);
-                        proposed_solution[j] = uniform_int_distribution(generator);
+                        proposed_solution[j] = random_uniform_int(x_min_[j], x_max_[j]);
                 }
         }
         return proposed_solution;
@@ -27,11 +26,9 @@ void PSO::update_positions() {
                 Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
                 Eigen::VectorXd social_direction = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
 
-                std::uniform_real_distribution<double> distribution_0_1(0, 1);
-
                 Eigen::VectorXd old_velocity = w * velocity_[particle_index].cast<double>();
-                Eigen::VectorXd social_component = (distribution_0_1(generator) * c2) * social_direction;
-                Eigen::VectorXd cognitive_component = (distribution_0_1(generator) * c1) * cognitive_direction;
+                Eigen::VectorXd social_component = (random_uniform_double(0,1) * c2) * social_direction;
+                Eigen::VectorXd cognitive_component = (random_uniform_double(0,1) * c1) * cognitive_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
 
@@ -80,8 +77,7 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         Eigen::VectorXi v(dimension);
         while (true) {
                 for (int j = 0; j < dimension; j++) {
-                        std::uniform_int_distribution<int> uniform_dist(x_lb(j), x_ub(j));
-                        v(j) = uniform_dist(generator);
+                        v(j) = random_uniform_int(x_lb(j), x_ub(j));
                 }
                 if (std::find(solutions.begin(), solutions.end(), v) == solutions.end())
                         break;

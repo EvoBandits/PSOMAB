@@ -4,10 +4,6 @@ Eigen::Vector2i inventory_lb (1, 1);
 Eigen::Vector2i inventory_ub (100, 100);
 int inventory_dim = 2;
 
-double poisson_random_number(double a) {
-        std::poisson_distribution<int> random_integer(a);
-        return random_integer(generator);
-}
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
@@ -1287,7 +1283,7 @@ double inventory(Eigen::VectorXi action_vector, int noise_level) {
                 }
 
                 inventory_after_ordering =
-                    inventory_after_ordering - poisson_random_number(25);
+                    inventory_after_ordering - random_poisson(25);
 
                 if (inventory_after_ordering >= 0) {
                         costs = costs + 1 * inventory_after_ordering;

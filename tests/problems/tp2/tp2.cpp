@@ -4,17 +4,6 @@ Eigen::Vector4i tp2_lb(20, 40, 80, 60);
 Eigen::Vector4i tp2_ub( 1200, 1140, 840, 420);
 int tp2_dim = 4;
 
-
-double poisson_random_number_tp2(double a){
-        std::poisson_distribution<int> random_integer(a);
-        return random_integer(generator);
-};
-
-int uniform_random_number_tp2(int a, int b){
-        std::uniform_int_distribution<int> random_integer(a,b);
-        return random_integer(generator);
-};
-
 void calc_inventory_tp2(int start_inventory[][8][2]){
         int d_min=20;
         int d_max=60;
@@ -67,14 +56,14 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
         for(int i=0; i<2; i++){
                 if(i==0){
                         // sampling external customer demand
-                        incoming_orders[i]=uniform_random_number_tp2(d_min,d_max);
+                        incoming_orders[i]=random_uniform_int(d_min,d_max);
                 }
 
                 if(ilt_min[i]==ilt_max[i]){                  // no sampling required
                         information_lead_times[i]=ilt_min[i];
                 }
                 else{
-                        information_lead_times[i]=uniform_random_number_tp2(ilt_min[i],ilt_max[i]);
+                        information_lead_times[i]=random_uniform_int(ilt_min[i],ilt_max[i]);
                 }
 
                 if(inventory_level[i]>0){
@@ -119,9 +108,8 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
                         transportation_lead_times[i]=tlt_min[i];
                 }
                 else{
-                        transportation_lead_times[i]=uniform_random_number_tp2(tlt_min[i],tlt_max[i]);
+                        transportation_lead_times[i]=random_uniform_int(tlt_min[i],tlt_max[i]);
                 }
-
                 if(i<=2){
                         // shipment that is placed in transit by agent i+1 for agent i. It will arrive with a delay of transportation_lead_times[i]
                         start_inventory[0][transportation_lead_times[i]][i]+=outgoing_shipments[i+1];

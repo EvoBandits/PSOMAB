@@ -15,8 +15,6 @@ extern Eigen::Vector4i tp2_lb;
 extern Eigen::Vector4i tp2_ub;
 extern int tp2_dim;
 
-double poisson_random_number_tp2(double a);
-int uniform_random_number_tp2(int a, int b);
 void calc_inventory_tp2(int start_inventory[][8][2]);
 int calc_TC_tp2(int start_inventory[][8][2]);
 
