@@ -8,41 +8,19 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include "Eigen/Core"
 #include "../../pack_name/util/RandomNumber.h"
 
-int d_min=20;
-int d_max=60;
+extern Eigen::Vector4i tp2_lb;
+extern Eigen::Vector4i tp2_ub;
+extern int tp2_dim;
 
-// backorder costs
-std::vector<int> b_c{24,12,6,3};
-// holding costs
-std::vector<int> h_c{8,4,2,1};
+double poisson_random_number_tp2(double a);
+int uniform_random_number_tp2(int a, int b);
+void calc_inventory_tp2(int start_inventory[][8][2]);
+int calc_TC_tp2(int start_inventory[][8][2]);
 
-//transportation lead times
-std::vector<int> tlt_min{1,2,4,3};
-std::vector<int> tlt_max{1,4,6,5};
-
-//information lead times
-std::vector<int> ilt_min{0,0,0,0};
-std::vector<int> ilt_max{0,1,1,2};
-
-
-void calc_inventory(int start_inventory[][8][2]);
-int calc_TC(int start_inventory[][8][2]);
-double Variance(std::vector<double> samples);
-
-
-double poisson_random_number(double a){
-        std::poisson_distribution<int> random_integer(a);
-        return random_integer(generator);
-};
-
-int random_number(int a, int b){
-        std::uniform_int_distribution<int> random_integer(a,b);
-        return random_integer(generator);
-};
-
-
+/*
 int main() {
         std::cout << std::fixed << std::setprecision(0);
 
@@ -68,8 +46,8 @@ int main() {
                                 int period_number=1'200; // Supply Chain Horizon
                                 double reward{0.0};
                                 for(int t=0; t<period_number; t++){
-                                        calc_inventory(start_inventory);
-                                        reward=reward+calc_TC(start_inventory);
+                                        calc_inventory_tp2(start_inventory);
+                                        reward=reward+calc_TC_tp2(start_inventory);
                                 }
                                 results.push_back(reward);
                         }
@@ -82,5 +60,6 @@ int main() {
 
         return 0;
 }
+*/
 
 #endif//PSOMAB_TESTS_PROBLEMS_TP2_TP2_H_

@@ -1,6 +1,33 @@
 #include "tp2.h"
 
-void calc_inventory(int start_inventory[][8][2]){
+Eigen::Vector4i tp2_lb(20, 40, 80, 60);
+Eigen::Vector4i tp2_ub( 1200, 1140, 840, 420);
+int tp2_dim = 4;
+
+
+double poisson_random_number_tp2(double a){
+        std::poisson_distribution<int> random_integer(a);
+        return random_integer(generator);
+};
+
+int uniform_random_number_tp2(int a, int b){
+        std::uniform_int_distribution<int> random_integer(a,b);
+        return random_integer(generator);
+};
+
+void calc_inventory_tp2(int start_inventory[][8][2]){
+        int d_min=20;
+        int d_max=60;
+
+        //transportation lead times
+        std::vector<int> tlt_min{1,2,4,3};
+        std::vector<int> tlt_max{1,4,6,5};
+
+        //information lead times
+        std::vector<int> ilt_min{0,0,0,0};
+        std::vector<int> ilt_max{0,1,1,2};
+
+
         int information_lead_times[2]= {0,0}; // Information lead time that an order takes from agent i to agent i+1
         int transportation_lead_times[2]={0,0}; // Transportation lead time that a shipment takes from agent i+1 to agent i
 
@@ -40,14 +67,14 @@ void calc_inventory(int start_inventory[][8][2]){
         for(int i=0; i<2; i++){
                 if(i==0){
                         // sampling external customer demand
-                        incoming_orders[i]=random_number(d_min,d_max);
+                        incoming_orders[i]=uniform_random_number_tp2(d_min,d_max);
                 }
 
                 if(ilt_min[i]==ilt_max[i]){                  // no sampling required
                         information_lead_times[i]=ilt_min[i];
                 }
                 else{
-                        information_lead_times[i]=random_number(ilt_min[i],ilt_max[i]);
+                        information_lead_times[i]=uniform_random_number_tp2(ilt_min[i],ilt_max[i]);
                 }
 
                 if(inventory_level[i]>0){
@@ -92,7 +119,7 @@ void calc_inventory(int start_inventory[][8][2]){
                         transportation_lead_times[i]=tlt_min[i];
                 }
                 else{
-                        transportation_lead_times[i]=random_number(tlt_min[i],tlt_max[i]);
+                        transportation_lead_times[i]=uniform_random_number_tp2(tlt_min[i],tlt_max[i]);
                 }
 
                 if(i<=2){
@@ -106,22 +133,12 @@ void calc_inventory(int start_inventory[][8][2]){
         }
 }
 
-int calc_TC(int start_inventory[][8][2]) {
+int calc_TC_tp2(int start_inventory[][8][2]) {
+        // backorder costs
+        std::vector<int> b_c{24,12,6,3};
+        // holding costs
+        std::vector<int> h_c{8,4,2,1};
+
         return (((start_inventory[0][0][0]>0) ? start_inventory[0][0][0]*h_c[0]: (-1)*start_inventory[0][0][0]*b_c[0]) +
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
-}
-
-double Variance(std::vector<double> samples) {
-        int size = samples.size();
-
-        double variance = 0;
-        double t = samples[0]+0.0;
-        for (int i = 1; i < size; i++)
-        {
-                t += samples[i];
-                double diff = ((i + 1) * samples[i]) - t;
-                variance += (diff * diff) / ((i + 1.0) *i);
-        }
-
-        return variance / (size - 1);
 }
