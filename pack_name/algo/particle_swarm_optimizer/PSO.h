@@ -23,31 +23,31 @@ class PSO {
         void save_history();
         int &best_particle_index();
 
-       private:
-        // hyperparameters
-        int dimension_;
-        std::function<double(Eigen::VectorXi, int)> opti_func_;
-        Eigen::VectorXi x_min_; // lower bounds
-        Eigen::VectorXi x_max_; // upper bounds
+        void sample_and_update(int particle_index);
         int num_particle_;
         double c1 = 2.5;
         double c2 = 1;
         double w = 0.2;
-        int max_simulations_;
-        int simulations_used_ = 0;
+        // hyperparameters
+        int dimension_;
+        std::function<double(Eigen::VectorXi, int)> opti_func_;
         bool use_random_location_update_;
-
         std::vector<Arm> particles_;
         std::vector<Eigen::VectorXd> velocity_;
         std::vector<Arm> best_individual_arms_;
         int best_particle_index_ = 0;
-        std::vector<solution> best_solutions_;
-
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
+       private:
+        Eigen::VectorXi x_min_; // lower bounds
+        Eigen::VectorXi x_max_; // upper bounds
+
+        int max_simulations_;
+
+        int simulations_used_ = 0;
+        std::vector<solution> best_solutions_;
         bool new_local_best(int particle_index);
         bool new_global_best(int particle_index);
-        void sample_and_update(int particle_index);
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_
