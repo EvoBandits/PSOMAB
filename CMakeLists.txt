@@ -21,4 +21,4 @@ add_executable(PSOMAB
         pack_name/algo/particle_swarm_optimizer/PSO.h
         pack_name/objects/solution/Solution.cpp
         pack_name/objects/solution/Solution.h
-        pack_name/util/SolutionCodeCalculation.h)
+        pack_name/util/SolutionCodeCalculation.h pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.cpp pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h)
