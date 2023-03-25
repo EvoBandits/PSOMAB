@@ -4,7 +4,7 @@ Eigen::Vector4i tp2_lb(20, 40, 80, 60);
 Eigen::Vector4i tp2_ub( 1200, 1140, 840, 420);
 int tp2_dim = 4;
 
-void calc_inventory_tp2(int start_inventory[][8][2]){
+void calc_inventory_tp2(int start_inventory[][8][4]){
         int d_min=20;
         int d_max=60;
 
@@ -15,7 +15,6 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
         //information lead times
         std::vector<int> ilt_min{0,0,0,0};
         std::vector<int> ilt_max{0,1,1,2};
-
 
         int information_lead_times[2]= {0,0}; // Information lead time that an order takes from agent i to agent i+1
         int transportation_lead_times[2]={0,0}; // Transportation lead time that a shipment takes from agent i+1 to agent i
@@ -29,8 +28,8 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
         int inventory_level[2]={start_inventory[0][0][0],start_inventory[0][0][1]};
 
         int arr_size =8;
-        for(int i=0; i<2; i++){
 
+        for(int i=0; i<2; i++){
                 for(int j=0; j<arr_size; j++){
                         if(j==0){
                                 // Shipments arrive
@@ -58,14 +57,12 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
                         // sampling external customer demand
                         incoming_orders[i]=random_uniform_int(d_min,d_max);
                 }
-
                 if(ilt_min[i]==ilt_max[i]){                  // no sampling required
                         information_lead_times[i]=ilt_min[i];
                 }
                 else{
                         information_lead_times[i]=random_uniform_int(ilt_min[i],ilt_max[i]);
                 }
-
                 if(inventory_level[i]>0){
                         if(incoming_orders[i] < incoming_shipments[i]+inventory_level[i]){    // [cf. CASE 1 in the paper version]
                                 outgoing_shipments[i]=incoming_orders[i];
@@ -82,7 +79,6 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
                                 outgoing_shipments[i]=incoming_shipments[i];
                         }
                 }
-
                 if(information_lead_times[i]==0){ // if the information lead time of agent i equals 0, i.e. the order incoming_order[i] (= DEL^IN_i=DEL^OUT_i) arrives immediately at agent i+1.
                         // incoming order(s) at agent i+1 (from agent i) = order immediately sent from agent i to agent i+1 + orders that were placed in previous time periods by agent i and that now arrive at agent i+1.
                         incoming_orders[i+1] = incoming_orders[i] + start_inventory[1][0][i];
@@ -96,12 +92,10 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
                         start_inventory[1][information_lead_times[i]][i]+=incoming_orders[i];
                 }
         }
-
         // updating the inventory level(s), i.e. subtracting the demand(s) in the current time period
         for(int i=0; i<2; i++){
                 start_inventory[0][0][i]=start_inventory[0][0][i]-incoming_orders[i];
         }
-
         // shipments are placed in transit
         for(int i=0; i<2; i++){
                 if(tlt_min[i]==tlt_max[i]){      // no sampling required
@@ -121,7 +115,7 @@ void calc_inventory_tp2(int start_inventory[][8][2]){
         }
 }
 
-int calc_TC_tp2(int start_inventory[][8][2]) {
+int calc_TC_tp2(int start_inventory[][8][4]) {
         // backorder costs
         std::vector<int> b_c{24,12,6,3};
         // holding costs
@@ -129,4 +123,16 @@ int calc_TC_tp2(int start_inventory[][8][2]) {
 
         return (((start_inventory[0][0][0]>0) ? start_inventory[0][0][0]*h_c[0]: (-1)*start_inventory[0][0][0]*b_c[0]) +
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
+}
+
+double tp2(Eigen::VectorXi action_vector, int noise_level) {
+        int start_inventory [2][8][4]= { {{action_vector[0],action_vector[1], action_vector[2], action_vector[3]},   {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},  {0,0,0,0},   {0,0,0,0},},
+                                        {{0,0,0,0},   {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},  {0,0,0,0},   {0,0,0,0}}};
+
+        int period_number=1200; // Supply Chain Horizon
+        double reward = 0;
+        for(int t=0; t<period_number; t++){
+                calc_inventory_tp2(start_inventory);
+                reward=reward+calc_TC_tp2(start_inventory);
+        }
 }
