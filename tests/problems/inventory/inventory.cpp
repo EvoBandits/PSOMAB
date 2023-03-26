@@ -1,17 +1,9 @@
-#ifndef PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
-#define PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
+#include "inventory.h"
 
-#include <random>
-#include <vector>
-#include "Eigen/Core"
-#include "../../pack_name/util/RandomNumber.h"
+Eigen::Vector2i inventory_lb (1, 1);
+Eigen::Vector2i inventory_ub (100, 100);
+int inventory_dim = 2;
 
-// 17 36
-
-double poisson_random_number(double a) {
-        std::poisson_distribution<int> random_integer(a);
-        return random_integer(generator);
-};
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
@@ -1268,6 +1260,7 @@ double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         return Results[(action_vector.coeffRef(0) - 1) * 100 + (action_vector.coeffRef(1) - 1)];
 }
 
+// ToDo: change noise parameter to boolean?
 double inventory(Eigen::VectorXi action_vector, int noise_level) {
         int s = action_vector[0];
         int S = action_vector[1] + s;
@@ -1290,7 +1283,7 @@ double inventory(Eigen::VectorXi action_vector, int noise_level) {
                 }
 
                 inventory_after_ordering =
-                    inventory_after_ordering - poisson_random_number(25);
+                    inventory_after_ordering - random_poisson(25);
 
                 if (inventory_after_ordering >= 0) {
                         costs = costs + 1 * inventory_after_ordering;
@@ -1305,5 +1298,3 @@ double inventory(Eigen::VectorXi action_vector, int noise_level) {
 
         return get_true_objective_value(action_vector) + noise_level * (costs - get_true_objective_value(action_vector));
 }
-
-#endif// PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
