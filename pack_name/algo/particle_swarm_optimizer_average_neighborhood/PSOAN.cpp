@@ -1,35 +1,12 @@
 #include "PSOAN.h"
 
-void PSOAN::optimize() {
-        while (true) {
-                update_positions();
-
-                for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                        pso.sample_and_update(particle_index);
-
-                        pso.save_history();
-                        if (pso.budget_reached())
-                                return;
-                }
-        }
-}
-
-PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
-}
-
-std::vector<solution> PSOAN::best_solutions() {
-        return pso.best_solutions();
-}
-
-typedef std::pair<int, double> argsort_pair;
-
-bool argsort_comp(const argsort_pair& left, const argsort_pair& right) {
+bool argsort_comp(const std::pair<int, double> & left, const std::pair<int, double> & right) {
         return left.second < right.second;
 }
 
 std::vector<int> argsort(const Eigen::VectorXd &x) {
         std::vector<int> indices;
-        std::vector<argsort_pair> data(x.size());
+        std::vector<std::pair<int, double> > data(x.size());
         for(int i=0;i<x.size();i++) {
                 data[i].first = i;
                 data[i].second = x(i);
@@ -41,17 +18,18 @@ std::vector<int> argsort(const Eigen::VectorXd &x) {
         return indices;
 }
 
-void PSOAN::update_positions() {
-        // calculate distance matrix
-        Eigen::MatrixXd distance_matrix(pso.num_particle_, pso.num_particle_);
+void PSOAN::calculate_distance_matrix(Eigen::MatrixXd &distance_matrix) {
         for (int particle_index_1 = 0; particle_index_1 < pso.num_particle_; particle_index_1++) {
                 for (int particle_index_2 = 0; particle_index_2 < pso.num_particle_; particle_index_2++) {
                         distance_matrix(particle_index_1, particle_index_2) = (pso.particles_[particle_index_1].get_action_vector() - pso.particles_[particle_index_2].get_action_vector()).norm();
                 }
         }
+}
 
-        int neighborhood_size = 3;
-        std::vector<Eigen::VectorXd> averaged_best_individual_arms;
+void PSOAN::calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms) {
+        Eigen::MatrixXd distance_matrix(pso.num_particle_, pso.num_particle_);
+        calculate_distance_matrix(distance_matrix);
+
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd averaged_best_individual_arm = Eigen::VectorXd::Zero(pso.dimension_);
                 std::vector<int>  indices_sorted = argsort(distance_matrix.row(particle_index));
@@ -61,7 +39,11 @@ void PSOAN::update_positions() {
                 averaged_best_individual_arm /= neighborhood_size;
                 averaged_best_individual_arms.push_back(averaged_best_individual_arm);
         }
+}
 
+void PSOAN::update_positions() {
+        std::vector<Eigen::VectorXd> averaged_best_individual_arms;
+        calculate_averaged_best_individual_arms(averaged_best_individual_arms);
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -93,3 +75,25 @@ void PSOAN::update_positions() {
                 pso.particles_[particle_index] = new_arm;
         }
 }
+
+PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+}
+
+void PSOAN::optimize() {
+        while (true) {
+                update_positions();
+
+                for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                pso.sample_and_update(particle_index);
+
+                pso.save_history();
+                if (pso.budget_reached())
+                        return;
+                }
+        }
+}
+
+std::vector<solution> PSOAN::best_solutions() {
+        return pso.best_solutions();
+}
+

@@ -5,10 +5,16 @@
 #include "../../util/RandomNumber.h"
 #include <iostream>
 
-class PSOAN {
+bool argsort_comp(const std::pair<int, double> & left, const std::pair<int, double> & right);
+std::vector<int> argsort(const Eigen::VectorXd &x) ;
+
+    class PSOAN {
        private:
         PSO pso;
+        int neighborhood_size = pso.num_particle_*0.3;
         void update_positions();
+        void calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms);
+        void calculate_distance_matrix(Eigen::MatrixXd &distance_matrix);
 
 
        public:
