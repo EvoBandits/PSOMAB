@@ -13,6 +13,8 @@ add_executable(PSOMAB
         pack_name/objects/arm/Arm.h
         pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.cpp
         pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h
+        pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.cpp
+        pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h
         pack_name/util/RandomNumber.cpp
         pack_name/util/RandomNumber.h
         tests/main.cpp

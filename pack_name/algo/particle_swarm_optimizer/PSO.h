@@ -38,6 +38,7 @@ class PSO {
         int best_particle_index_ = 0;
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
+
        private:
         Eigen::VectorXi x_min_; // lower bounds
         Eigen::VectorXi x_max_; // upper bounds
