@@ -2,14 +2,17 @@
 #define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_AVERAGE_NEIGHBORHOOD_PSOAN_H_
 
 #include "../particle_swarm_optimizer/PSO.h"
+#include "../../util/RandomNumber.h"
+#include <iostream>
 
 class PSOAN {
        private:
         PSO pso;
+        void update_positions();
 
 
        public:
-        PSOAN(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_lb, const Eigen::VectorXi &s_ub, int D, bool use_random_location_update=false);
+        PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
         void optimize();
         std::vector<solution> best_solutions();
 };
