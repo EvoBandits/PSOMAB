@@ -30,4 +30,4 @@ add_executable(PSOMAB
         tests/problems/tp1/tp1.cpp
         tests/problems/tp1/tp1.h
         tests/problems/tp2/tp2.h
-        tests/problems/tp2/tp2.cpp)
+        tests/problems/tp2/tp2.cpp pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.cpp pack_name/util/SortIndices.h pack_name/util/SortIndices.cpp)
