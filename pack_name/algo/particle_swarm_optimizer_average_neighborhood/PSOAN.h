@@ -3,10 +3,8 @@
 
 #include "../particle_swarm_optimizer/PSO.h"
 #include "../../util/RandomNumber.h"
+#include "../../util/SortIndices.h"
 #include <iostream>
-
-bool argsort_comp(const std::pair<int, double> & left, const std::pair<int, double> & right);
-std::vector<int> argsort(const Eigen::VectorXd &x) ;
 
     class PSOAN {
        private:
@@ -23,4 +21,4 @@ std::vector<int> argsort(const Eigen::VectorXd &x) ;
         std::vector<solution> best_solutions();
 };
 
-#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_AVERAGE_NEIGHBORHOOD_PSOAN_H_
+#endif PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_AVERAGE_NEIGHBORHOOD_PSOAN_H_
