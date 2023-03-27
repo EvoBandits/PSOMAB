@@ -1,23 +1,5 @@
 #include "PSOAN.h"
 
-bool argsort_comp(const std::pair<int, double> & left, const std::pair<int, double> & right) {
-        return left.second < right.second;
-}
-
-std::vector<int> argsort(const Eigen::VectorXd &x) {
-        std::vector<int> indices;
-        std::vector<std::pair<int, double> > data(x.size());
-        for(int i=0;i<x.size();i++) {
-                data[i].first = i;
-                data[i].second = x(i);
-        }
-        std::sort(data.begin(), data.end(), argsort_comp);
-        for(int i=0;i<data.size();i++) {
-                indices.push_back(data[i].first);
-        }
-        return indices;
-}
-
 void PSOAN::calculate_distance_matrix(Eigen::MatrixXd &distance_matrix) {
         for (int particle_index_1 = 0; particle_index_1 < pso.num_particle_; particle_index_1++) {
                 for (int particle_index_2 = 0; particle_index_2 < pso.num_particle_; particle_index_2++) {
@@ -32,7 +14,7 @@ void PSOAN::calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd>
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd averaged_best_individual_arm = Eigen::VectorXd::Zero(pso.dimension_);
-                std::vector<int>  indices_sorted = argsort(distance_matrix.row(particle_index));
+                std::vector<int>  indices_sorted = sort_indices(distance_matrix.row(particle_index));
                 for (int i = 0; i < neighborhood_size; i++) {
                         averaged_best_individual_arm += (pso.best_individual_arms_[indices_sorted[i]].get_action_vector()).cast<double>();
                 }
