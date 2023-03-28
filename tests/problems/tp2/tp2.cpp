@@ -125,6 +125,8 @@ int calc_TC_tp2(int start_inventory[][8][4]) {
                 ((start_inventory[0][0][1]>0) ? start_inventory[0][0][1]*h_c[1]: (-1)*start_inventory[0][0][1]*b_c[1]));
 }
 
+// ToDo: Problem of too big numbers (should be in the same range as given in the csv, just range as we have different random numbers on different OS despite the same seed)
+// ToDo: Adjust some things to include all 4 dimensions? not sure tbh...
 double tp2(Eigen::VectorXi action_vector, int noise_level) {
         int start_inventory [2][8][4]= { {{action_vector[0],action_vector[1], action_vector[2], action_vector[3]},   {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},  {0,0,0,0},   {0,0,0,0},},
                                         {{0,0,0,0},   {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},    {0,0,0,0},  {0,0,0,0},   {0,0,0,0}}};
