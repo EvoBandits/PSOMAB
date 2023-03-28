@@ -9,7 +9,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "pso";
+        std::string algo = "psogd";
 
         if(algo == "pso"){
                 PSO pso_instance = PSO(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
@@ -26,7 +26,7 @@ int main() {
                         best_solution.print();
                 }
         } else if (algo == "psogd"){
-                PSOGD psogd_instance = PSOGD(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                PSOGD psogd_instance = PSOGD(50, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
