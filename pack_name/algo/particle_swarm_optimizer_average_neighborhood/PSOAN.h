@@ -14,7 +14,6 @@
         void calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms);
         void calculate_distance_matrix(Eigen::MatrixXd &distance_matrix);
 
-
        public:
         PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
         void optimize();
