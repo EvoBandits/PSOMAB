@@ -22,9 +22,14 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
 }
 
 void PSO::update_positions() {
+        Eigen::VectorXd global_best_position = best_individual_arms_[best_particle_index_].get_action_vector().cast<double>();
+
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
-                Eigen::VectorXd cognitive_direction = (best_individual_arms_[particle_index].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
-                Eigen::VectorXd social_direction = (best_individual_arms_[best_particle_index_].get_action_vector() - particles_[particle_index].get_action_vector()).cast<double>();
+                Eigen::VectorXd current_position = particles_[particle_index].get_action_vector().cast<double>();
+                Eigen::VectorXd local_best_position = best_individual_arms_[particle_index].get_action_vector().cast<double>();
+
+                Eigen::VectorXd cognitive_direction = local_best_position - current_position;
+                Eigen::VectorXd social_direction = global_best_position - current_position;
 
                 Eigen::VectorXd old_velocity = w * velocity_[particle_index].cast<double>();
                 Eigen::VectorXd social_component = (random_uniform_double(0,1) * c2) * social_direction;
@@ -61,8 +66,6 @@ void PSO::sample_and_update(int particle_index) {
 
 void PSO::optimize() {
         while (true) {
-                update_positions();
-
                 for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                         sample_and_update(particle_index);
 
@@ -70,6 +73,8 @@ void PSO::optimize() {
                         if (budget_reached())
                                 return;
                 }
+
+                update_positions();
         }
 }
 

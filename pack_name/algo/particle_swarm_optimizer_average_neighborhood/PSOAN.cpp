@@ -1,23 +1,5 @@
 #include "PSOAN.h"
 
-bool argsort_comp(const std::pair<int, double> & left, const std::pair<int, double> & right) {
-        return left.second < right.second;
-}
-
-std::vector<int> argsort(const Eigen::VectorXd &x) {
-        std::vector<int> indices;
-        std::vector<std::pair<int, double> > data(x.size());
-        for(int i=0;i<x.size();i++) {
-                data[i].first = i;
-                data[i].second = x(i);
-        }
-        std::sort(data.begin(), data.end(), argsort_comp);
-        for(int i=0;i<data.size();i++) {
-                indices.push_back(data[i].first);
-        }
-        return indices;
-}
-
 void PSOAN::calculate_distance_matrix(Eigen::MatrixXd &distance_matrix) {
         for (int particle_index_1 = 0; particle_index_1 < pso.num_particle_; particle_index_1++) {
                 for (int particle_index_2 = 0; particle_index_2 < pso.num_particle_; particle_index_2++) {
@@ -32,7 +14,7 @@ void PSOAN::calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd>
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd averaged_best_individual_arm = Eigen::VectorXd::Zero(pso.dimension_);
-                std::vector<int>  indices_sorted = argsort(distance_matrix.row(particle_index));
+                std::vector<int>  indices_sorted = sort_indices(distance_matrix.row(particle_index));
                 for (int i = 0; i < neighborhood_size; i++) {
                         averaged_best_individual_arm += (pso.best_individual_arms_[indices_sorted[i]].get_action_vector()).cast<double>();
                 }
@@ -59,17 +41,14 @@ void PSOAN::update_positions() {
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
 
-                // ToDo: check if cap_velocity is necessary/usefully
-                //cap_velocity(new_velocity);
-
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
 
                 Eigen::VectorXi new_position;
                 if(pso.use_random_location_update_)
-                new_position = pso.update_location_random(proposed_position);
+                        new_position = pso.update_location_random(proposed_position);
                 else
-                new_position = pso.update_location_cap(proposed_position);
+                        new_position = pso.update_location_cap(proposed_position);
 
                 Arm new_arm = Arm(pso.opti_func_, new_position);
                 pso.particles_[particle_index] = new_arm;
@@ -81,15 +60,15 @@ PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::Vect
 
 void PSOAN::optimize() {
         while (true) {
-                update_positions();
-
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                pso.sample_and_update(particle_index);
+                        pso.sample_and_update(particle_index);
 
-                pso.save_history();
-                if (pso.budget_reached())
-                        return;
+                        pso.save_history();
+                        if (pso.budget_reached())
+                                return;
                 }
+
+                update_positions();
         }
 }
 
