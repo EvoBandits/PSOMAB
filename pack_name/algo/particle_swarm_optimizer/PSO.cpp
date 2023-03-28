@@ -66,8 +66,6 @@ void PSO::sample_and_update(int particle_index) {
 
 void PSO::optimize() {
         while (true) {
-                update_positions();
-
                 for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                         sample_and_update(particle_index);
 
@@ -75,6 +73,8 @@ void PSO::optimize() {
                         if (budget_reached())
                                 return;
                 }
+
+                update_positions();
         }
 }
 

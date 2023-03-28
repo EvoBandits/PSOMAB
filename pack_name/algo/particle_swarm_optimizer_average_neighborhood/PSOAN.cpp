@@ -41,17 +41,14 @@ void PSOAN::update_positions() {
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
 
-                // ToDo: check if cap_velocity is necessary/usefully
-                //cap_velocity(new_velocity);
-
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
 
                 Eigen::VectorXi new_position;
                 if(pso.use_random_location_update_)
-                new_position = pso.update_location_random(proposed_position);
+                        new_position = pso.update_location_random(proposed_position);
                 else
-                new_position = pso.update_location_cap(proposed_position);
+                        new_position = pso.update_location_cap(proposed_position);
 
                 Arm new_arm = Arm(pso.opti_func_, new_position);
                 pso.particles_[particle_index] = new_arm;
@@ -63,15 +60,15 @@ PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::Vect
 
 void PSOAN::optimize() {
         while (true) {
-                update_positions();
-
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                pso.sample_and_update(particle_index);
+                        pso.sample_and_update(particle_index);
 
-                pso.save_history();
-                if (pso.budget_reached())
-                        return;
+                        pso.save_history();
+                        if (pso.budget_reached())
+                                return;
                 }
+
+                update_positions();
         }
 }
 
