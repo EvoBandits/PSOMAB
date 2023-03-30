@@ -3,6 +3,27 @@
 PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
 }
 
+Eigen::VectorXi PSOOCBA::smart_rounding(Eigen::VectorXd &v) {
+        Eigen::VectorXd margin (v.size());
+        Eigen::VectorXi rounded (v.size());
+
+        int desired_sum = std::floor(v.sum());
+
+        for (int i = 0; i < v.size() ; i++) {
+                rounded(i) = std::floor(v(i));
+                margin(i) = v(i) - rounded(i);
+        }
+
+        std::vector<int> indices = sort_indices(margin);
+        std::reverse(indices.begin(), indices.end());
+        indices.resize(desired_sum - rounded.sum());
+
+        for (int index : indices)
+                rounded(index) = rounded(index) + 1;
+
+        return rounded;
+}
+
 void PSOOCBA::sample_ocba(int iteration) {
         // collect n0 samples for each Xi
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
@@ -34,8 +55,8 @@ void PSOOCBA::sample_ocba(int iteration) {
                 T += std::min(T_max - T, delta);
                 std::cout << "T: " << T << std::endl;
 
-                Eigen::VectorXi nprimes (pso.num_particle_);
-                Eigen::VectorXd nprimes_weights (pso.num_particle_);
+                Eigen::VectorXi addition_simulations(pso.num_particle_);
+                Eigen::VectorXd weights(pso.num_particle_);
                 double helper;
 
                 // ToDo: check logic behind this (Theorem 1)
@@ -45,29 +66,28 @@ void PSOOCBA::sample_ocba(int iteration) {
                                 continue;
                         double variance = pso.particles_[particle_index].variance();
                         double particle_mean_reward = pso.particles_[particle_index].mean_reward();
-                        nprimes_weights(particle_index) = pow(variance / (best_particle_mean_reward - particle_mean_reward), 2);
+                        weights(particle_index) = pow(variance / (best_particle_mean_reward - particle_mean_reward), 2);
 
-                        std::cout << "val: " << nprimes_weights(particle_index)  << std::endl;
+                        std::cout << "val: " << weights(particle_index)  << std::endl;
 
-                        helper += pow(nprimes_weights(particle_index)/variance, 2);
+                        helper += pow(weights(particle_index)/variance, 2);
                 }
-                nprimes_weights(best_particle_index) = pso.particles_[best_particle_index].variance() * pow(helper, 1/2);
+                weights(best_particle_index) = pso.particles_[best_particle_index].variance() * pow(helper, 1/2);
 
-                double nprimes_weights_sum = nprimes_weights.sum();
+                double weights_sum = weights.sum();
 
-                // ToDo: Smart rounding
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                        nprimes(particle_index) = std::round(delta * (nprimes_weights(particle_index) / nprimes_weights_sum));
+                        weights(particle_index) = delta * (weights(particle_index) / weights_sum);
                 }
 
-                std::cout << "nprimes sum: " << nprimes.sum() << std::endl;
+                addition_simulations = smart_rounding(weights);
+
+                std::cout << "addition_simulations sum: " << addition_simulations.sum() << std::endl;
                 std::cout << "best: index: " << best_particle_index << std::endl;
 
-
-
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                        std::cout << "nprimes, pulls: " << nprimes(particle_index) << " | " << pso.particles_[particle_index].num_pulls() << " | "  << pso.particles_[particle_index].mean_reward() << " | "  << pso.particles_[particle_index].variance() << std::endl;
-                        for (int i = 0; i < nprimes(particle_index); i++) {
+                        std::cout << "addition_simulations, pulls: " << addition_simulations(particle_index) << " | " << pso.particles_[particle_index].num_pulls() << " | "  << pso.particles_[particle_index].mean_reward() << " | "  << pso.particles_[particle_index].variance() << std::endl;
+                        for (int i = 0; i < addition_simulations(particle_index); i++) {
                                 pso.particles_[particle_index].pull();
                                 pso.update_simulation_budget();
 
