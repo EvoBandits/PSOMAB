@@ -1,6 +1,7 @@
 #include "../pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
 #include "../pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h"
 #include "../pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h"
+#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
 #include <iostream>
 
@@ -9,7 +10,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psogd";
+        std::string algo = "psoocba";
 
         if(algo == "pso"){
                 PSO pso_instance = PSO(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
@@ -30,6 +31,13 @@ int main() {
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
+                        best_solution.print();
+                }
+        } else if (algo == "psoocba"){
+                PSOOCBA psoocba_instance = PSOOCBA(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                psoocba_instance.optimize();
+
+                for (auto &best_solution : psoocba_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psomab"){
