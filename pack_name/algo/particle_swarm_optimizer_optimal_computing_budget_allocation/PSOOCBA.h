@@ -3,6 +3,7 @@
 
 #include "Eigen/Core"
 #include "../particle_swarm_optimizer/PSO.h"
+#include "../../util/SortIndices.h"
 #include <iostream>
 
 class PSOOCBA {
@@ -18,6 +19,7 @@ class PSOOCBA {
         void sample_ocba();
         void update();
         void sample_ocba(int iteration);
+        Eigen::VectorXi smart_rounding(Eigen::VectorXd &v);
 };
 
 #endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_OPTIMAL_COMPUTING_BUDGET_ALLOCATION_PSOOCBA_H_
