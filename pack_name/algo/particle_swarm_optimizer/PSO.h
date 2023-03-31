@@ -6,6 +6,12 @@
 #include <vector>
 #include "../../objects/solution/Solution.h"
 
+/*
+ * Based on:
+ * James Kennedy and Russell Eberhart. Particle swarm optimization.
+ * In Proceedings of ICNN’95-international conference on neural networks, volume 4, pages 1942–1948. IEEE, 1995
+ */
+
 class PSO {
        public:
         PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);

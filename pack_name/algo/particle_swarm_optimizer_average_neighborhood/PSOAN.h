@@ -6,10 +6,16 @@
 #include "../../util/SortIndices.h"
 #include <iostream>
 
-    class PSOAN {
+/*
+ * Based on:
+ * Juan Rada-Vilela, Mark Johnston, and Mengjie Zhang. Population statistics for particle swarm optimization: Single-evaluation methods in noisy optimization problems.
+ * Soft computing, 19:2691–2716, 2015a
+ */
+
+class PSOAN {
        private:
         PSO pso;
-        int neighborhood_size = pso.num_particle_*0.3;
+        int neighborhood_size = (int) (pso.num_particle_*0.3);
         void update_positions();
         void calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms);
         void calculate_distance_matrix(Eigen::MatrixXd &distance_matrix);

@@ -6,6 +6,12 @@
 #include "../../util/SortIndices.h"
 #include <iostream>
 
+/*
+ * Based on:
+ * Hui Pan, Ling Wang, and Bo Liu. Particle swarm optimization for function optimization in noisy environment.
+ * Applied mathematics and Computation, 181(2):908–919, 2006.
+ */
+
 class PSOOCBA {
        private:
         PSO pso;
