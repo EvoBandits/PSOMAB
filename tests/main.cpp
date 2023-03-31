@@ -10,38 +10,45 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psoocba";
+        std::string algo = "psogd";
+        int max_simulation = 2500;
+        int num_particle = 10;
+        int dimension = inventory_dim;
+        Eigen::VectorXi lb = inventory_lb;
+        Eigen::VectorXi ub = inventory_ub;
+        std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
+
 
         if(algo == "pso"){
-                PSO pso_instance = PSO(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 pso_instance.optimize();
 
                 for (auto &best_solution : pso_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psoan"){
-                PSOAN psoan_instance = PSOAN(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 psoan_instance.optimize();
 
                 for (auto &best_solution : psoan_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psogd"){
-                PSOGD psogd_instance = PSOGD(50, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                PSOGD psogd_instance = PSOGD(50, dimension, lb, ub, opti_func, max_simulation);
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psoocba"){
-                PSOOCBA psoocba_instance = PSOOCBA(10, inventory_dim, inventory_lb, inventory_ub, inventory, 10000);
+                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 psoocba_instance.optimize();
 
                 for (auto &best_solution : psoocba_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psomab"){
-                PSOMAB psomab_instance = PSOMAB(inventory, 10000, 10, inventory_lb, inventory_ub, inventory_dim, false);
+                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, false);
                 psomab_instance.optimize();
 
                 for (auto &best_solution : psomab_instance.best_solutions()) {
