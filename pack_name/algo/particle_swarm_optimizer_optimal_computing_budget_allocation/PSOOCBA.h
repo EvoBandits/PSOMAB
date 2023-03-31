@@ -18,6 +18,7 @@ class PSOOCBA {
         void update();
         void sample_ocba(int iteration);
         static Eigen::VectorXi smart_rounding(Eigen::VectorXd &v, int desired_sum);
+        int find_best_particle_index();
 };
 
 #endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_OPTIMAL_COMPUTING_BUDGET_ALLOCATION_PSOOCBA_H_
