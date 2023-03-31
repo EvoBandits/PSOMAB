@@ -2,6 +2,7 @@
 #include "../pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h"
 #include "../pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h"
 #include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
+#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
 #include <iostream>
 
@@ -10,8 +11,8 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psogd";
-        int max_simulation = 2500;
+        std::string algo = "psoocbaa";
+        int max_simulation = 10000;
         int num_particle = 10;
         int dimension = inventory_dim;
         Eigen::VectorXi lb = inventory_lb;
@@ -45,6 +46,13 @@ int main() {
                 psoocba_instance.optimize();
 
                 for (auto &best_solution : psoocba_instance.best_solutions()) {
+                        best_solution.print();
+                }
+        } else if (algo == "psoocbaa"){
+                PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                psoocbaa_instance.optimize();
+
+                for (auto &best_solution : psoocbaa_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psomab"){
