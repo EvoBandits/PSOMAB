@@ -1,13 +1,13 @@
 #include "PSOOCBA.h"
+#include <cmath>
+#include <iostream>
 
-PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
 }
 
-Eigen::VectorXi PSOOCBA::smart_rounding(Eigen::VectorXd &v) {
+Eigen::VectorXi PSOOCBA::smart_rounding(Eigen::VectorXd &v, int desired_sum) {
         Eigen::VectorXd margin (v.size());
         Eigen::VectorXi rounded (v.size());
-
-        int desired_sum = std::floor(v.sum());
 
         for (int i = 0; i < v.size() ; i++) {
                 rounded(i) = std::floor(v(i));
@@ -43,7 +43,7 @@ void PSOOCBA::sample_ocba(int iteration) {
         std::cout << "T_max: " << T_max << std::endl;
         std::cout << "T: " << T << std::endl;
 
-        int delta = 0.1 * pso.num_particle_; // suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
+        int delta = std::max((int) 0.1 * pso.num_particle_, 1); // suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
 
         int best_particle_index = -1;
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
@@ -68,11 +68,10 @@ void PSOOCBA::sample_ocba(int iteration) {
                         double particle_mean_reward = pso.particles_[particle_index].mean_reward();
                         weights(particle_index) = pow(variance / (best_particle_mean_reward - particle_mean_reward), 2);
 
-                        std::cout << "val: " << weights(particle_index)  << std::endl;
 
                         helper += pow(weights(particle_index)/variance, 2);
                 }
-                weights(best_particle_index) = pso.particles_[best_particle_index].variance() * pow(helper, 1/2);
+                weights(best_particle_index) = pso.particles_[best_particle_index].variance() * pow(helper, 0.5);
 
                 double weights_sum = weights.sum();
 
@@ -80,10 +79,12 @@ void PSOOCBA::sample_ocba(int iteration) {
                         weights(particle_index) = delta * (weights(particle_index) / weights_sum);
                 }
 
-                addition_simulations = smart_rounding(weights);
+                std::cout << "weights: " << weights  << std::endl;
+                std::cout << "best: index: " << best_particle_index << std::endl;
+
+                addition_simulations = smart_rounding(weights, delta);
 
                 std::cout << "addition_simulations sum: " << addition_simulations.sum() << std::endl;
-                std::cout << "best: index: " << best_particle_index << std::endl;
 
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                         std::cout << "addition_simulations, pulls: " << addition_simulations(particle_index) << " | " << pso.particles_[particle_index].num_pulls() << " | "  << pso.particles_[particle_index].mean_reward() << " | "  << pso.particles_[particle_index].variance() << std::endl;
