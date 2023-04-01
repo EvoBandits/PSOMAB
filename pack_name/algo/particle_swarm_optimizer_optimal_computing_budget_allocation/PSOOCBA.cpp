@@ -60,12 +60,13 @@ void PSOOCBA::sample_ocba(int iteration) {
 
                 Eigen::VectorXi addition_simulations(pso.num_particle_);
                 Eigen::VectorXd weights(pso.num_particle_);
-                double helper_weight_best_particle;
+                double helper_weight_best_particle = 0;
 
                 double best_particle_mean_reward = pso.particles_[best_particle_index].mean_reward();
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                        if (particle_index == best_particle_index)
+                        if (particle_index == best_particle_index) {
                                 continue;
+                        }
                         double variance = pso.particles_[particle_index].variance();
                         double particle_mean_reward = pso.particles_[particle_index].mean_reward();
                         weights(particle_index) = pow(variance / (best_particle_mean_reward - particle_mean_reward), 2);
@@ -80,7 +81,6 @@ void PSOOCBA::sample_ocba(int iteration) {
                 }
 
                 addition_simulations = smart_rounding(weights, delta);
-
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                         for (int i = 0; i < addition_simulations(particle_index); i++) {
                                 pso.particles_[particle_index].pull();
