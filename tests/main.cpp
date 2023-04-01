@@ -11,7 +11,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psoocbaa";
+        std::string algo = "psoocba";
         int max_simulation = 10000;
         int num_particle = 10;
         int dimension = inventory_dim;
@@ -63,6 +63,19 @@ int main() {
                         best_solution.print();
                 }
         }
+
+        /*
+        double mean_reward = 0;
+        int runs = 100;
+        for (int i = 0; i < runs; i++) {
+                std::cout << "Run: " << i << std::endl;
+                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                psoocba_instance.optimize();
+                mean_reward += psoocba_instance.best_solutions().back().true_func_val;
+        }
+
+        std::cout << "Mean reward: " << mean_reward / runs << std::endl;
+        */
 
         return 0;
 }
