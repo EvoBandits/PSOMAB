@@ -14,15 +14,12 @@ Eigen::VectorXi PSOOCBA::smart_rounding(Eigen::VectorXd &v, int desired_sum) {
                 margin(index) = v(index) - rounded(index);
         }
 
-        //std::cout << "A" << std::endl;
         std::vector<int> indices = sort_indices(margin);
         std::reverse(indices.begin(), indices.end());
         indices.resize(desired_sum - rounded.sum());
 
         for(int index : indices)
                 rounded(index) += 1;
-
-        //std::cout << "B" << std::endl;
 
         return rounded;
 }
@@ -58,7 +55,7 @@ void PSOOCBA::sample_ocba(int iteration) {
 
         int best_particle_index = find_best_particle_index();
 
-        double add_term = 1e-8;
+        double add_term = 1e-10;
 
         while (additional_simulations_done < additional_simulations_max) {
                 additional_simulations_done += std::min(additional_simulations_max - additional_simulations_done, delta);
@@ -66,29 +63,28 @@ void PSOOCBA::sample_ocba(int iteration) {
                 Eigen::VectorXi addition_simulations = Eigen::VectorXi::Zero(pso.num_particle_);
                 Eigen::VectorXd weights = Eigen::VectorXd::Zero(pso.num_particle_);
                 double helper_weight_best_particle = 0;
-
                 double best_particle_mean_reward = pso.particles_[best_particle_index].mean_reward();
+
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                         if (particle_index == best_particle_index) {
                                 continue;
                         }
+
                         double variance = pso.particles_[particle_index].variance();
                         double particle_mean_reward = pso.particles_[particle_index].mean_reward();
-                        weights(particle_index) = pow(variance+add_term / (best_particle_mean_reward - particle_mean_reward)+add_term, 2);
 
-                        helper_weight_best_particle += pow(weights(particle_index)+add_term /variance+add_term, 2);
+                        weights(particle_index) = pow((variance + add_term) / (best_particle_mean_reward - particle_mean_reward + add_term), 2);
+
+                        helper_weight_best_particle += pow((weights(particle_index) + add_term) / (variance + add_term), 2);
                 }
                 weights(best_particle_index) = pso.particles_[best_particle_index].variance() * pow(helper_weight_best_particle, 0.5);
-
-                //std::cout << "weights: " << weights << std::endl;
 
                 double weights_sum = weights.sum();
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                         weights(particle_index) = delta * (weights(particle_index) / weights_sum);
                 }
 
-                //addition_simulations = smart_rounding(weights, delta);
-                addition_simulations = weights.cast<int>();
+                addition_simulations = smart_rounding(weights, delta);
 
                 for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                         for (int i = 0; i < addition_simulations(particle_index); i++) {
