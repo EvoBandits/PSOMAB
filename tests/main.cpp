@@ -13,13 +13,13 @@
 int main() {
         std::string algo = "psoocba";
         int max_simulation = 10000;
-        int num_particle = 10;
-        int dimension = inventory_dim;
-        Eigen::VectorXi lb = inventory_lb;
-        Eigen::VectorXi ub = inventory_ub;
-        std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
+        int num_particle = 50;
+        int dimension = ackley_dim;//inventory_dim;
+        Eigen::VectorXi lb = ackley_lb;//inventory_lb;
+        Eigen::VectorXi ub = ackley_ub;//inventory_ub;
+        std::function<double(Eigen::VectorXi, int)> opti_func = ackley;//inventory;
 
-
+        /*
         if(algo == "pso"){
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 pso_instance.optimize();
@@ -35,7 +35,7 @@ int main() {
                         best_solution.print();
                 }
         } else if (algo == "psogd"){
-                PSOGD psogd_instance = PSOGD(50, dimension, lb, ub, opti_func, max_simulation);
+                PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
@@ -64,18 +64,22 @@ int main() {
                 }
         }
 
-        /*
+        */
         double mean_reward = 0;
-        int runs = 100;
+        int runs = 500;
+
+        std::cout << std::fixed;
+        std::cout << std::setprecision(3);
+
         for (int i = 0; i < runs; i++) {
-                std::cout << "Run: " << i << std::endl;
-                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation);
-                psoocba_instance.optimize();
-                mean_reward += psoocba_instance.best_solutions().back().true_func_val;
+                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, false);
+                psomab_instance.optimize();
+                std::cout << "Run: " << i  << " | best reward: " << psomab_instance.best_solutions().back().true_func_val << std::endl;
+                mean_reward += psomab_instance.best_solutions().back().true_func_val;
         }
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
-        */
+
 
         return 0;
 }
