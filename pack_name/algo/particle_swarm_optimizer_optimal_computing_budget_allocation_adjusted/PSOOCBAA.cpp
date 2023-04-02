@@ -83,7 +83,7 @@ void PSOOCBAA::sample_ocba(int iteration) {
 
         int best_particle_index = find_best_particle_index(num_participating_particles);
 
-        double add_term = 1e-8;
+        double add_term = 1e-10;
 
         while (additional_simulations_used < additional_simulations_max) {
                 additional_simulations_used += std::min(additional_simulations_max - additional_simulations_used, delta);
@@ -91,16 +91,18 @@ void PSOOCBAA::sample_ocba(int iteration) {
                 Eigen::VectorXi addition_simulations = Eigen::VectorXi::Zero(num_participating_particles);
                 Eigen::VectorXd weights = Eigen::VectorXd::Zero(num_participating_particles);
                 double helper_weight_best_particle = 0;
-
                 double best_particle_mean_reward = get_mean_reward(best_particle_index);
+
                 for (int particle_index = 0; particle_index < num_participating_particles; particle_index++) {
                         if (particle_index == best_particle_index)
                                 continue;
+
                         double variance = get_variance(particle_index);
                         double particle_mean_reward = get_mean_reward(particle_index);
-                        weights(particle_index) = pow(variance+add_term / (best_particle_mean_reward - particle_mean_reward)+add_term, 2);
 
-                        helper_weight_best_particle += pow(weights(particle_index)+add_term / variance+add_term, 2);
+                        weights(particle_index) = pow((variance + add_term)/ (best_particle_mean_reward - particle_mean_reward + add_term), 2);
+
+                        helper_weight_best_particle += pow((weights(particle_index) + add_term) / (variance + add_term), 2);
                 }
                 weights(best_particle_index) = get_variance(best_particle_index) * pow(helper_weight_best_particle, 0.5);
 
@@ -109,8 +111,7 @@ void PSOOCBAA::sample_ocba(int iteration) {
                         weights(particle_index) = delta * (weights(particle_index) / weights_sum);
                 }
 
-                //addition_simulations = smart_rounding(weights, delta);
-                addition_simulations = weights.cast<int>();
+                addition_simulations = smart_rounding(weights, delta);
 
                 for (int particle_index = 0; particle_index < num_participating_particles; particle_index++) {
                         for (int i = 0; i < addition_simulations(particle_index); i++) {
