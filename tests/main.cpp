@@ -3,7 +3,8 @@
 #include "../pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h"
 #include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
 #include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
-#include "../pack_name/algo/particle_swarm_optimizer_ learning_automaton/LAPSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.h"
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
 #include <iostream>
 
@@ -12,7 +13,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "lapso";
+        std::string algo = "psola";
         int max_simulation = 10000;
         int num_particle = 50;
         int dimension = inventory_dim;
@@ -20,7 +21,7 @@ int main() {
         Eigen::VectorXi ub = inventory_ub;
         std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
 
-        /*
+
         if(algo == "pso"){
                 std::cout << "PSO:" << std::endl;
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
@@ -61,7 +62,16 @@ int main() {
                 for (auto &best_solution : psoocbaa_instance.best_solutions()) {
                         best_solution.print();
                 }
-        } else if (algo == "lapso"){
+        } else if (algo == "psola"){
+                std::cout << "PSOLA" << std::endl;
+                PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                psola_instance.optimize();
+
+                for (auto &best_solution : psola_instance.best_solutions()) {
+                        best_solution.print();
+                }
+        }
+        else if (algo == "lapso"){
                 std::cout << "LAPSO" << std::endl;
                 LAPSO lapso_instance = LAPSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
                 lapso_instance.optimize();
@@ -69,7 +79,8 @@ int main() {
                 for (auto &best_solution : lapso_instance.best_solutions()) {
                         best_solution.print();
                 }
-        } else if (algo == "psomab"){
+        }
+        else if (algo == "psomab"){
                 std::cout << "PSOMAB:" << std::endl;
                 PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, false);
                 psomab_instance.optimize();
@@ -79,7 +90,7 @@ int main() {
                 }
         }
 
-        */
+        /*
 
         double mean_reward = 0;
         int runs = 500;
@@ -95,7 +106,7 @@ int main() {
         }
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
-
+        */
 
         return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
-#define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
+#ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_PSOLA_H_
+#define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_PSOLA_H_
 
 #include <iostream>
 #include "Eigen/Core"
@@ -14,7 +14,7 @@
  * Applied mathematics and Computation, 181(2):908–919, 2006.
  */
 
-class LAPSO {
+class PSOLA {
        private:
         PSO pso;
         int n_0 = 5; // suitable choice for n0 is between 5 and 20 (Law and Kelton [1991]; Bechhofer et al. [1995])
@@ -24,12 +24,11 @@ class LAPSO {
         Arm global_best_arm = Arm(pso.opti_func_, Eigen::VectorXi(pso.num_particle_));
 
        public:
-        LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
+        PSOLA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
         void optimize();
         std::vector<solution> best_solutions();
         void update();
-        void sample_la(int iteration);
-        void update_positions();
+        void sample_la();
 };
 
-#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
+#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_PSOLA_H_
