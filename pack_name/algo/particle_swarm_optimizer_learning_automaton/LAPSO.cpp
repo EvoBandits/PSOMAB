@@ -6,7 +6,7 @@
 LAPSO::LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
 }
 
-void LAPSO::sample_la(int iteration) {
+void LAPSO::sample_la() {
         // collect n0 samples for each Xi
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 for (int i = 0; i < n_0; i++) {
@@ -123,7 +123,7 @@ void LAPSO::optimize() {
         int iteration = 0;
 
         while (true) {
-                sample_la(iteration);
+                sample_la();
                 update();
                 if (pso.budget_reached())
                         return;
