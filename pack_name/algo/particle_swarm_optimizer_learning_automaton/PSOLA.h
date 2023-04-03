@@ -10,8 +10,8 @@
 
 /*
  * Based on:
- * Hui Pan, Ling Wang, and Bo Liu. Particle swarm optimization for function optimization in noisy environment.
- * Applied mathematics and Computation, 181(2):908–919, 2006.
+ * JunQi Zhang, LinWei Xu, Jie Li, Qi Kang. Integrating Particle Swarm Optimization with Learning Automata to Solve Optimization Problems in Noisy Environment
+ * 2014 IEEE International Conference on Systems, Man, and Cybernetics, 2014.
  */
 
 class PSOLA {

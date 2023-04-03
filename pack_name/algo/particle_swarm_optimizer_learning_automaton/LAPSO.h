@@ -10,8 +10,8 @@
 
 /*
  * Based on:
- * Hui Pan, Ling Wang, and Bo Liu. Particle swarm optimization for function optimization in noisy environment.
- * Applied mathematics and Computation, 181(2):908–919, 2006.
+ * JunQi Zhang, LinWei Xu, Ji Ma, and MengChu Zhou. A learning automata-based particle swarm optimization algorithm for noisy environment.
+ * In 2015 IEEE Congress on Evolutionary Computation (CEC), pages 141–147. IEEE, 2015
  */
 
 class LAPSO {
