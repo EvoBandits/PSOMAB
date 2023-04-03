@@ -8,8 +8,9 @@ class solution {
         int obs_number;   // the "obs-number"-th observation over the course of time
         Eigen::VectorXi x;// x
         int N;
-        double mean_func_val = 0.0;// meanfunction value
-        double true_func_val = 0.0;// truefunction value
+        double mean_func_val = 0.0;// mean function value of gbest
+        double true_func_val = 0.0;// true function value of gbest
+        double average_true_func_val = 0.0;
 
         solution(int obs_number, Eigen::VectorXi x, int N, double mean_func_val,
                  double true_func_val)
