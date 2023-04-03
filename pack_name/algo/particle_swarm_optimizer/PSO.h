@@ -31,9 +31,9 @@ class PSO {
 
         void sample_and_update(int particle_index);
         int num_particle_;
-        double c1 = 2.5;
-        double c2 = 1;
-        double w = 0.2;
+        double c1 = 1.49618 ;
+        double c2 = 1.49618;
+        double w = 0.729844;
         int simulations_used_ = 0;
         // hyperparameters
         int dimension_;

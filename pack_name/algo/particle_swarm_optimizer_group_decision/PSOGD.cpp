@@ -56,7 +56,6 @@ void PSOGD::update_positions() {
 
 PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
         pso.w = 0.4;
-        alpha = 3.2;
 }
 
 void PSOGD::optimize() {
