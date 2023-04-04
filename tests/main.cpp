@@ -13,7 +13,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psola";
+        std::string algo = "lapso";
         int max_simulation = 10000;
         int num_particle = 50;
         int dimension = inventory_dim;

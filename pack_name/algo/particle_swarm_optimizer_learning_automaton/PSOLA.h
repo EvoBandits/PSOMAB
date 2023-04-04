@@ -17,11 +17,10 @@
 class PSOLA {
        private:
         PSO pso;
-        int n_0 = 5; // suitable choice for n0 is between 5 and 20 (Law and Kelton [1991]; Bechhofer et al. [1995])
+        int n_0 = 5;
         int additional_simulations = 50;
         double probability_penalty = 0.001;
         double threshold = 0.7;
-        Arm global_best_arm = Arm(pso.opti_func_, Eigen::VectorXi(pso.num_particle_));
 
        public:
         PSOLA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);

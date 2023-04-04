@@ -17,10 +17,11 @@
 class LAPSO {
        private:
         PSO pso;
-        int n_0 = 5; // suitable choice for n0 is between 5 and 20 (Law and Kelton [1991]; Bechhofer et al. [1995])
+        int n_0 = 1;
         int additional_simulations = 50;
         double probability_penalty = 0.001;
-        double threshold = 0.7;
+        double threshold = 0.9;
+        int subset_capacity = 3;
         Arm global_best_arm = Arm(pso.opti_func_, Eigen::VectorXi(pso.num_particle_));
 
        public:
@@ -30,6 +31,7 @@ class LAPSO {
         void update();
         void sample_la();
         void update_positions();
+        std::vector<int> get_subset_indices();
 };
 
 #endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_

@@ -1,9 +1,23 @@
 #include "LAPSO.h"
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iterator>
+#include <vector>
 
-LAPSO::LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+LAPSO::LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+}
+
+std::vector<int> LAPSO::get_subset_indices() {
+        Eigen::VectorXd current_mean_rewards(pso.num_particle_);
+        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                current_mean_rewards(particle_index) = pso.particles_[particle_index].mean_reward();
+        }
+
+        std::vector<int> sorted_indices = sort_indices(current_mean_rewards);
+        sorted_indices.resize(subset_capacity);
+
+        return sorted_indices;
 }
 
 void LAPSO::sample_la() {
@@ -23,25 +37,14 @@ void LAPSO::sample_la() {
         int additional_simulations_max = additional_simulations_done + additional_simulations; //TODO: make this a parameter
 
         Eigen::VectorXd probabilities = Eigen::VectorXd::Zero(pso.num_particle_);
-        double max = std::numeric_limits<double>::min();
-        double min = std::numeric_limits<double>::max();
 
-        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                double mean_reward = pso.particles_[particle_index].mean_reward();
-                if (mean_reward > max) {
-                        max = mean_reward;
-                }
-                if (mean_reward < min) {
-                        min = mean_reward;
-                }
-        }
-
-        double add_term = 1e-10;
         for (int particle_index = 0; particle_index < pso.num_particle_; ++particle_index) {
-                probabilities(particle_index) = (max - pso.particles_[particle_index].mean_reward() + add_term) / (max - min + add_term);
+                probabilities(particle_index) = 1.0/pso.num_particle_;
         }
 
-        while (additional_simulations_done < additional_simulations_max && probabilities.maxCoeff() < threshold) {
+        std::vector<int> subset_indices = get_subset_indices();
+
+        while (additional_simulations_done < additional_simulations_max && probabilities(subset_indices).sum() < threshold) {
                 additional_simulations_done += 1;
 
                 // distribution
@@ -56,15 +59,20 @@ void LAPSO::sample_la() {
                 if (pso.budget_reached())
                         return;
 
+                // determine subset (best subset_capacity-particles)
+               subset_indices = get_subset_indices();
+
                 // update probabilities
                 double helper_sum = 0;
-                for (int particle_index = 0; particle_index < pso.num_particle_; ++particle_index) {
-                        if (particle_index == sample_particle_index)
+                for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                        if (std::find(subset_indices.begin(), subset_indices.end(), particle_index) != subset_indices.end())
                                 continue;
                         probabilities(particle_index) = std::max(0.0, probabilities(particle_index) - probability_penalty);
                         helper_sum += probabilities(particle_index);
                 }
-                probabilities(sample_particle_index) += helper_sum;
+                probabilities(subset_indices) = (helper_sum / subset_capacity) * Eigen::VectorXd::Ones(subset_capacity);
+
+                //std::cout << "Sims done: " << additional_simulations_done << " | Sum: " << probabilities(subset_indices).sum() << std::endl;
         }
 }
 
@@ -124,12 +132,19 @@ void LAPSO::optimize() {
 
         while (true) {
                 sample_la();
+                /*
+                for (Arm& arm : pso.particles_) {
+                        std::cout << "reward " << arm.mean_reward() << " | num pulls: " << arm.num_pulls() << std::endl;
+                }
+                std::cout << "global best reward: " << global_best_arm.mean_reward() << std::endl;
+                std::cout << "-------------------" << std::endl;
+                 */
                 update();
                 if (pso.budget_reached())
                         return;
 
-                // for LAPSO: update_positions();
-                pso.update_positions();
+                update_positions();
+                //pso.update_positions();
                 iteration++;
         }
 }
