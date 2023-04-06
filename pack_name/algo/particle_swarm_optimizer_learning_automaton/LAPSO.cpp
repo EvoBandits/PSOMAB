@@ -70,7 +70,7 @@ void LAPSO::sample_la() {
                         probabilities(particle_index) = std::max(0.0, probabilities(particle_index) - probability_penalty);
                         helper_sum += probabilities(particle_index);
                 }
-                probabilities(subset_indices) = (helper_sum / subset_capacity) * Eigen::VectorXd::Ones(subset_capacity);
+                probabilities(subset_indices) = ((1 - helper_sum) / subset_capacity) * Eigen::VectorXd::Ones(subset_capacity);
 
                 //std::cout << "Sims done: " << additional_simulations_done << " | Sum: " << probabilities(subset_indices).sum() << std::endl;
         }
