@@ -4,6 +4,7 @@
 #include "Eigen/Core"
 #include "../particle_swarm_optimizer/PSO.h"
 #include "../../util/SortIndices.h"
+#include "../../util/SmartRounding.h"
 #include <iostream>
 
 /*
@@ -23,7 +24,6 @@ class PSOOCBAA {
         std::vector<solution> best_solutions();
         void update();
         void sample_ocba(int iteration);
-        static Eigen::VectorXi smart_rounding(Eigen::VectorXd v, int desired_sum);
         int find_best_particle_index(int num_participating_particles);
         double get_mean_reward(int index);
         double get_variance(int index);

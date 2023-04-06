@@ -5,26 +5,6 @@
 PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
 }
 
-// ToDo: to separate file (also used in OCBAA)
-Eigen::VectorXi PSOOCBA::smart_rounding(Eigen::VectorXd &v, int desired_sum) {
-        Eigen::VectorXd margin (v.size());
-        Eigen::VectorXi rounded (v.size());
-
-        for (int index = 0; index < v.size() ; index++) {
-                rounded(index) = std::floor(v(index));
-                margin(index) = v(index) - rounded(index);
-        }
-
-        std::vector<int> indices = sort_indices(margin);
-        std::reverse(indices.begin(), indices.end());
-        indices.resize(desired_sum - rounded.sum());
-
-        for(int index : indices)
-                rounded(index) += 1;
-
-        return rounded;
-}
-
 int PSOOCBA::find_best_particle_index() {
         int best_particle_index = -1;
 
