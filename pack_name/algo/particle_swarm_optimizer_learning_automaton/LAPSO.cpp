@@ -71,8 +71,6 @@ void LAPSO::sample_la() {
                         helper_sum += probabilities(particle_index);
                 }
                 probabilities(subset_indices) = ((1 - helper_sum) / subset_capacity) * Eigen::VectorXd::Ones(subset_capacity);
-
-                //std::cout << "Sims done: " << additional_simulations_done << " | Sum: " << probabilities(subset_indices).sum() << std::endl;
         }
 }
 
