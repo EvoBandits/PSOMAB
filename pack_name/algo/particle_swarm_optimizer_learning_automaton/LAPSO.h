@@ -18,7 +18,7 @@ class LAPSO {
        private:
         PSO pso;
         int n_0 = 1;
-        int additional_simulations = 50;
+        int additional_simulations = 250;
         double probability_penalty = 0.001;
         double threshold = 0.9;
         int subset_capacity = 3;
