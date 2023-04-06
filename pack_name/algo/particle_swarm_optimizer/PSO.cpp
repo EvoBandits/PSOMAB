@@ -60,7 +60,6 @@ void PSO::update_positions() {
                 Eigen::VectorXd cognitive_component = (random_uniform_double(0,1) * c1) * cognitive_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
-
                 if (cap_velocity_) cap_velocity(new_velocity);
 
                 velocity_[particle_index] = new_velocity;
