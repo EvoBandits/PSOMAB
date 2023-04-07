@@ -160,7 +160,7 @@ void PSOMAB::save_history() {
         }
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool cap_velocity) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update, cap_velocity) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 std::unordered_map<Eigen::VectorXi, int> local_lookup_table;
                 local_lookup_tables.push_back(local_lookup_table);

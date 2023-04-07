@@ -29,6 +29,7 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
 
 void PSOGD::update_positions() {
         Eigen::VectorXd search_center = calculate_search_center();
+        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -39,6 +40,7 @@ void PSOGD::update_positions() {
                 Eigen::VectorXd social_component = random_uniform_double(0,1) * alpha* social_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + social_component;
+                if (pso.cap_velocity_) pso.cap_velocity(new_velocity);
 
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
@@ -54,7 +56,7 @@ void PSOGD::update_positions() {
         }
 }
 
-PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
         pso.w = 0.4;
         alpha = 3.2;
 }

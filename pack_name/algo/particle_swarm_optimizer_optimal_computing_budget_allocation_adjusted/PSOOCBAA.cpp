@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-PSOOCBAA::PSOOCBAA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+PSOOCBAA::PSOOCBAA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
 }
 
 Eigen::VectorXi PSOOCBAA::smart_rounding(Eigen::VectorXd v, int desired_sum) {
@@ -129,20 +129,6 @@ void PSOOCBAA::sample_ocba(int iteration) {
 
                 best_particle_index = find_best_particle_index(num_participating_particles);
         }
-        /*
-        for (int i = 0; i < num_participating_particles; i++) {
-                std::cout << get_mean_reward(i) << " ";
-        }
-        std::cout << std::endl;
-        for (int i = 0; i < num_participating_particles; i++) {
-                std::cout << get_variance(i) << " ";
-        }
-        std::cout << std::endl;
-        for (int i = 0; i < num_participating_particles; i++) {
-                std::cout << get_num_pulls(i) << " ";
-        }
-        std::cout << std::endl;
-        */
 }
 
 void PSOOCBAA::update(){
