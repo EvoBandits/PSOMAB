@@ -6,8 +6,8 @@
 
 Eigen::VectorXi PSO::update_location_random(Eigen::VectorXi proposed_solution){
         for (int j = 0; j < dimension_; j++) {
-                if (proposed_solution[j] > x_max_[j] || proposed_solution[j] < x_min_[j]) {
-                        proposed_solution[j] = random_uniform_int(x_min_[j], x_max_[j]);
+                if (proposed_solution[j] > ub[j] || proposed_solution[j] < lb[j]) {
+                        proposed_solution[j] = random_uniform_int(lb[j], ub[j]);
                 }
         }
         return proposed_solution;
@@ -15,14 +15,38 @@ Eigen::VectorXi PSO::update_location_random(Eigen::VectorXi proposed_solution){
 
 Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
         for (int j = 0; j < dimension_; j++) {
-                if (proposed_solution[j] < x_min_[j]) proposed_solution[j] = x_min_[j];
-                else if (proposed_solution[j] > x_max_[j]) proposed_solution[j] =  x_max_[j];
+                if (proposed_solution[j] < lb[j]) proposed_solution[j] = lb[j];
+                else if (proposed_solution[j] > ub[j]) proposed_solution[j] = ub[j];
         }
         return proposed_solution;
 }
 
+void PSO::calculate_max_velocity() {
+        max_velocity_ = Eigen::VectorXd(dimension_);
+        Eigen::VectorXd min_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::max());
+        Eigen::VectorXd max_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::min());
+
+        for (int particle_index = 0; particle_index < num_particle_; ++particle_index) {
+                for (int j = 0; j < dimension_; j++) {
+                        double position = (double) particles_[particle_index].get_action_vector()[j];
+                        if (position < min_position[j]) min_position[j] = position;
+                        if (position > max_position[j]) max_position[j] = position;
+                }
+        }
+
+        max_velocity_ = 0.25 * (max_position - min_position);
+}
+
+void PSO::cap_velocity(Eigen::VectorXd &new_velocity){
+        for (int j = 0; j < dimension_; j++) {
+                if (new_velocity[j] > max_velocity_[j]) new_velocity[j] = max_velocity_[j];
+                else if (new_velocity[j] < -max_velocity_[j]) new_velocity[j] = -max_velocity_[j];
+        }
+}
+
 void PSO::update_positions() {
         Eigen::VectorXd global_best_position = best_individual_arms_[best_particle_index_].get_action_vector().cast<double>();
+        if (cap_velocity_) calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = particles_[particle_index].get_action_vector().cast<double>();
@@ -36,9 +60,7 @@ void PSO::update_positions() {
                 Eigen::VectorXd cognitive_component = (random_uniform_double(0,1) * c1) * cognitive_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
-
-                // ToDo: check if cap_velocity is necessary/usefully
-                //cap_velocity(new_velocity);
+                if (cap_velocity_) cap_velocity(new_velocity);
 
                 velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = particles_[particle_index].get_action_vector() + velocity_[particle_index].cast<int>();
@@ -90,13 +112,13 @@ Eigen::VectorXi generate_unique_solution(std::vector<Eigen::VectorXi> &solutions
         return v;
 }
 
-PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : num_particle_{num_particle}, dimension_{dimension}, x_min_{std::move(x_min)}, x_max_{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulations_{max_simulation}, use_random_location_update_{use_random_location_update}{
+PSO::PSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : num_particle_{num_particle}, dimension_{dimension}, lb{std::move(x_min)}, ub{std::move(x_max)}, opti_func_{std::move(opti_func)}, max_simulations_{max_simulation}, use_random_location_update_{use_random_location_update}, cap_velocity_{cap_velocity} {
         std::vector<Eigen::VectorXi> init_solutions;
         for (int i = 0; i < num_particle_; i++) {
                 velocity_.emplace_back(Eigen::VectorXd::Zero(dimension_));
 
                 Eigen::VectorXi v(dimension_);
-                v = generate_unique_solution(init_solutions, x_min_, x_max_, dimension_);
+                v = generate_unique_solution(init_solutions, lb, ub, dimension_);
                 init_solutions.push_back(v);
 
                 particles_.emplace_back(opti_func_, v);

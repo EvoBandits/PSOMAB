@@ -39,7 +39,7 @@ class PSOMAB {
         void save_history();
 
        public:
-        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false);
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool cap_velocity=true);
         void optimize();
         std::vector<solution> best_solutions();
 };
