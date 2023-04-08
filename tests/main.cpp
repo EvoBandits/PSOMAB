@@ -16,6 +16,9 @@ int main() {
         std::string algo = "lapso";
         int max_simulation = 10000;
         int num_particle = 50;
+        bool use_random_location_update = false;
+        bool cap_velocity = false;
+
         int dimension = inventory_dim;
         Eigen::VectorXi lb = inventory_lb;
         Eigen::VectorXi ub = inventory_ub;
@@ -23,40 +26,35 @@ int main() {
 
 
         if(algo == "pso"){
-                std::cout << "PSO:" << std::endl;
-                PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 pso_instance.optimize();
 
                 for (auto &best_solution : pso_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psoan"){
-                std::cout << "PSO-AN:" << std::endl;
-                PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoan_instance.optimize();
 
                 for (auto &best_solution : psoan_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psogd"){
-                std::cout << "PSO-GD:" << std::endl;
-                PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psoocba"){
-                std::cout << "PSO-OCBA:" << std::endl;
-                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocba_instance.optimize();
 
                 for (auto &best_solution : psoocba_instance.best_solutions()) {
                         best_solution.print();
                 }
         } else if (algo == "psoocbaa"){
-                std::cout << "PSO-OCBA adjusted:" << std::endl;
-                PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocbaa_instance.optimize();
 
                 for (auto &best_solution : psoocbaa_instance.best_solutions()) {
@@ -99,10 +97,10 @@ int main() {
         std::cout << std::setprecision(3);
 
         for (int i = 0; i < runs; i++) {
-                LAPSO lapso_instance = LAPSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
-                lapso_instance.optimize();
-                std::cout << "Run: " << i  << " | best reward: " << lapso_instance.best_solutions().back().true_func_val << std::endl;
-                mean_reward += lapso_instance.best_solutions().back().true_func_val;
+                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
+                psomab_instance.optimize();
+                std::cout << "Run: " << i  << " | best reward: " << psomab_instance.best_solutions().back().true_func_val << std::endl;
+                mean_reward += psomab_instance.best_solutions().back().true_func_val;
         }
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
