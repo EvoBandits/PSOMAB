@@ -5,7 +5,7 @@
 #include <iterator>
 #include <vector>
 
-LAPSO::LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+LAPSO::LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
 }
 
 std::vector<int> LAPSO::get_subset_indices() {
@@ -94,6 +94,7 @@ void LAPSO::update(){
 
 void LAPSO::update_positions() {
         Eigen::VectorXd global_best_position = global_best_arm.get_action_vector().cast<double>();
+        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -107,9 +108,7 @@ void LAPSO::update_positions() {
                 Eigen::VectorXd cognitive_component = (random_uniform_double(0,1) * pso.c1) * cognitive_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
-
-                // ToDo: check if cap_velocity is necessary/usefully
-                //cap_velocity(new_velocity);
+                if (pso.cap_velocity_) pso.cap_velocity(new_velocity);
 
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
