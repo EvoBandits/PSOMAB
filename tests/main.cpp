@@ -17,7 +17,7 @@ int main() {
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
-        bool cap_velocity = false;
+        bool cap_velocity = true;
 
         int dimension = inventory_dim;
         Eigen::VectorXi lb = inventory_lb;
@@ -71,7 +71,7 @@ int main() {
         }
         else if (algo == "lapso"){
                 std::cout << "LAPSO" << std::endl;
-                LAPSO lapso_instance = LAPSO(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                LAPSO lapso_instance = LAPSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 lapso_instance.optimize();
 
                 for (auto &best_solution : lapso_instance.best_solutions()) {

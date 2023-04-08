@@ -25,7 +25,7 @@ class LAPSO {
         Arm global_best_arm = Arm(pso.opti_func_, Eigen::VectorXi(pso.num_particle_));
 
        public:
-        LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
+        LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false, bool cap_velocity=true);
         void optimize();
         std::vector<solution> best_solutions();
         void update();
