@@ -13,7 +13,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "lapso";
+        std::string algo = "psola";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -62,7 +62,7 @@ int main() {
                 }
         } else if (algo == "psola"){
                 std::cout << "PSOLA" << std::endl;
-                PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation);
+                PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psola_instance.optimize();
 
                 for (auto &best_solution : psola_instance.best_solutions()) {
