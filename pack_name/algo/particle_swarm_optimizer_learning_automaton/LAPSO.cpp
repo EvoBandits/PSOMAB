@@ -34,7 +34,7 @@ void LAPSO::sample_la() {
         }
 
         int additional_simulations_done = pso.num_particle_ * n_0;
-        int additional_simulations_max = additional_simulations_done + additional_simulations; //TODO: make this a parameter
+        int additional_simulations_max = additional_simulations_done + additional_simulations;
 
         Eigen::VectorXd probabilities = Eigen::VectorXd::Zero(pso.num_particle_);
 
