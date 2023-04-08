@@ -17,7 +17,7 @@ class PSOGD {
        private:
         PSO pso;
         int decision_layer_size =  (int) (pso.num_particle_*0.3);
-        double alpha = 2;
+        double alpha = 3.2;
 
         void update_positions();
         Eigen::VectorXd calculate_search_center();
