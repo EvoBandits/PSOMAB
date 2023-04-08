@@ -5,25 +5,6 @@
 PSOOCBAA::PSOOCBAA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
 }
 
-Eigen::VectorXi PSOOCBAA::smart_rounding(Eigen::VectorXd v, int desired_sum) {
-        Eigen::VectorXd margin (v.size());
-        Eigen::VectorXi rounded (v.size());
-
-        for (int i = 0; i < v.size() ; i++) {
-                rounded(i) = std::floor(v(i));
-                margin(i) = v(i) - rounded(i);
-        }
-
-        std::vector<int> indices = sort_indices(margin);
-        std::reverse(indices.begin(), indices.end());
-        indices.resize(desired_sum - rounded.sum());
-
-        for(int index : indices)
-                rounded(index) += 1;
-
-        return rounded;
-}
-
 int PSOOCBAA::get_num_pulls(int index) {
         if (index >= pso.num_particle_)
                 return pso.best_individual_arms()[index - pso.num_particle_].num_pulls();
