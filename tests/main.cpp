@@ -98,6 +98,7 @@ int main() {
                 for (auto &best_solution : psoern_instance.best_solutions()) {
                         best_solution.print();
                 }
+        }
         else if (algo == "psoer"){
                 std::cout << "PSOER:" << std::endl;
                 PSOER psoer_instance = PSOER(num_particle, dimension, lb, ub, opti_func, max_simulation, 20, use_random_location_update, cap_velocity);
