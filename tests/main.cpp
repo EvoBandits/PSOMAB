@@ -7,22 +7,26 @@
 #include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.h"
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
 #include <iostream>
+#include <ctime>
 
 #include "problems/inventory/inventory.h"
 #include "problems/tp1/tp1.h"
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psola";
-        int max_simulation = 10000;
+        std::string time = std::to_string(std::time(0));
+
+        std::string algo = "pso";
+        int max_simulation = 1000;
         int num_particle = 50;
         bool use_random_location_update = false;
-        bool cap_velocity = true;
+        bool cap_velocity = false;
 
         int dimension = inventory_dim;
         Eigen::VectorXi lb = inventory_lb;
         Eigen::VectorXi ub = inventory_ub;
         std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
+
 
 
         if(algo == "pso"){
@@ -32,6 +36,9 @@ int main() {
                 for (auto &best_solution : pso_instance.best_solutions()) {
                         best_solution.print();
                 }
+                std::cout << "Number of simulations used: " << pso_instance.simulations_used() << std::endl;
+                pso_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
+                std::cout << "Number of simulations used: " << pso_instance.simulations_used() << std::endl;
         } else if (algo == "psoan"){
                 PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoan_instance.optimize();
