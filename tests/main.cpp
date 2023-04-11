@@ -6,6 +6,7 @@
 #include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h"
 #include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.h"
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h"
 #include <iostream>
 
 #include "problems/inventory/inventory.h"
@@ -13,7 +14,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psola";
+        std::string algo = "psoer";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -84,6 +85,15 @@ int main() {
                 psomab_instance.optimize();
 
                 for (auto &best_solution : psomab_instance.best_solutions()) {
+                        best_solution.print();
+                }
+        }
+        else if (algo == "psoer"){
+                std::cout << "PSOER:" << std::endl;
+                PSOER psoer_instance = PSOER(num_particle, dimension, lb, ub, opti_func, max_simulation, 20, use_random_location_update, cap_velocity);
+                psoer_instance.optimize();
+
+                for (auto &best_solution : psoer_instance.best_solutions()) {
                         best_solution.print();
                 }
         }
