@@ -20,7 +20,7 @@ double Arm::pull() {
         return G;
 }
 
-double Arm::pull(int num_pulls) {
+void Arm::pull(int num_pulls) {
         for (int i = 0; i < num_pulls; i++) {
                 pull();
         }

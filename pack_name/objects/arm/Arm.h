@@ -10,7 +10,7 @@ class Arm {
         Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi action_vector, double initial_reward = 0.0, int initial_num_pulls = 0);
         double function_value() const;
         double pull();
-        double pull(int num_pulls);
+        void pull(int num_pulls);
         int num_pulls() const;
         double reward() const;
         Eigen::VectorXi get_action_vector() const;
