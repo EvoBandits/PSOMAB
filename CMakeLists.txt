@@ -43,4 +43,6 @@ add_executable(PSOMAB
         pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.cpp
         pack_name/util/SmartRounding.cpp pack_name/util/SmartRounding.h
         pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.cpp
-        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h)
+        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h
+        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.cpp
+        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h)
