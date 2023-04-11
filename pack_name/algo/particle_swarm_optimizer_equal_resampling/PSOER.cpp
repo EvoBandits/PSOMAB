@@ -2,7 +2,7 @@
 
 void PSOER::sample_and_update(int particle_index) {
         pso.particles_[particle_index].pull(num_pulls_);
-        pso.update_simulation_budget();
+        pso.update_simulation_budget(num_pulls_);
 
         if (pso.new_local_best(particle_index))
                 pso.best_individual_arms_[particle_index] = pso.particles_[particle_index];
