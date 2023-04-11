@@ -20,6 +20,12 @@ double Arm::pull() {
         return G;
 }
 
+double Arm::pull(int num_pulls) {
+        for (int i = 0; i < num_pulls; i++) {
+                pull();
+        }
+}
+
 int Arm::num_pulls() const { return num_pulls_; }
 
 double Arm::reward() const { return reward_; }
