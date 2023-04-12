@@ -19,7 +19,7 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psoan";
+        std::string algo = "psoer";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -116,6 +116,7 @@ int main() {
                 for (auto &best_solution : psoer_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoer_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
 
         /*
