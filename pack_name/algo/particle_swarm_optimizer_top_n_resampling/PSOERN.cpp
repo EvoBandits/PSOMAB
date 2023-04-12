@@ -54,7 +54,10 @@ void PSOERN::sample() {
                 if (pso.budget_reached())
                         return;
         }
-
+        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                if (pso.memory_active)
+                        pso.save_particle_to_memory(particle_index);
+        }
 }
 
 void PSOERN::optimize() {
@@ -71,4 +74,8 @@ void PSOERN::optimize() {
 
 std::vector<solution> PSOERN::best_solutions() {
         return pso.best_solutions();
+}
+
+void PSOERN::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }
