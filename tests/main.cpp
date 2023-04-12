@@ -17,7 +17,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string time = std::to_string(std::time(0));
+        std::string time = std::to_string(std::time(nullptr));
 
         std::string algo = "psoern";
         int max_simulation = 10000;
@@ -45,6 +45,7 @@ int main() {
                 for (auto &best_solution : psoan_instance.best_solutions()) {
                         best_solution.print();
                 }
+                //psoan_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psogd"){
                 PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psogd_instance.optimize();
@@ -86,7 +87,7 @@ int main() {
         }
         else if (algo == "psomab"){
                 std::cout << "PSOMAB:" << std::endl;
-                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, false);
+                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
                 psomab_instance.optimize();
 
                 for (auto &best_solution : psomab_instance.best_solutions()) {
