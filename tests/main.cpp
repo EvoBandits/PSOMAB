@@ -19,7 +19,7 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psoern";
+        std::string algo = "psoan";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -31,6 +31,7 @@ int main() {
         std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
 
         if(algo == "pso"){
+                std::cout << "PSO" << std::endl;
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 pso_instance.optimize();
 
@@ -39,14 +40,16 @@ int main() {
                 }
                 pso_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psoan"){
+                std::cout << "PSOAN" << std::endl;
                 PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoan_instance.optimize();
 
                 for (auto &best_solution : psoan_instance.best_solutions()) {
                         best_solution.print();
                 }
-                //psoan_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
+                psoan_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psogd"){
+                std::cout << "PSOGD" << std::endl;
                 PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psogd_instance.optimize();
 
@@ -54,6 +57,7 @@ int main() {
                         best_solution.print();
                 }
         } else if (algo == "psoocba"){
+                std::cout << "PSOOCBA" << std::endl;
                 PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocba_instance.optimize();
 
@@ -61,6 +65,7 @@ int main() {
                         best_solution.print();
                 }
         } else if (algo == "psoocbaa"){
+                std::cout << "PSOOCBAA" << std::endl;
                 PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocbaa_instance.optimize();
 
