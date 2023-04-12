@@ -56,7 +56,7 @@ void PSOERN::sample() {
         }
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 if (pso.memory_active)
-                        pso.save_particle_to_memory(particle_index);
+                        pso.save_particle_to_memory(pso.particles_[particle_index]);
         }
 }
 

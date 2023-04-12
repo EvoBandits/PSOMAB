@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-PSOOCBAA::PSOOCBAA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
+PSOOCBAA::PSOOCBAA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
 }
 
 int PSOOCBAA::get_num_pulls(int index) {
@@ -53,14 +53,13 @@ void PSOOCBAA::sample_ocba(int iteration) {
         int additional_simulations_used = pso.num_particle_ * n_0;
         int additional_simulations_max = additional_simulations_used + iteration * 2;
 
-
         // include the pbest of each particle in the ocba procedure
         int num_participating_particles = pso.num_particle_;
-        if (iteration > 0){
+        if (iteration > 0) {
                 num_participating_particles += pso.num_particle_;
         }
 
-        int delta = std::max((int) 0.1 * num_participating_particles, 1); // suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
+        int delta = std::max((int) 0.1 * num_participating_particles, 1);// suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
 
         int best_particle_index = find_best_particle_index(num_participating_particles);
 
@@ -81,7 +80,7 @@ void PSOOCBAA::sample_ocba(int iteration) {
                         double variance = get_variance(particle_index);
                         double particle_mean_reward = get_mean_reward(particle_index);
 
-                        weights(particle_index) = pow((variance + add_term)/ (best_particle_mean_reward - particle_mean_reward + add_term), 2);
+                        weights(particle_index) = pow((variance + add_term) / (best_particle_mean_reward - particle_mean_reward + add_term), 2);
 
                         helper_weight_best_particle += pow((weights(particle_index) + add_term) / (variance + add_term), 2);
                 }
@@ -96,10 +95,12 @@ void PSOOCBAA::sample_ocba(int iteration) {
 
                 for (int particle_index = 0; particle_index < num_participating_particles; particle_index++) {
                         for (int i = 0; i < addition_simulations(particle_index); i++) {
-                                if (particle_index >= pso.num_particle_)
+                                if (particle_index >= pso.num_particle_) {
                                         pso.best_individual_arms_[particle_index - pso.num_particle_].pull();
-                                else
+                                        pso.save_particle_to_memory(pso.best_individual_arms_[particle_index - pso.num_particle_], 1);
+                                } else {
                                         pso.particles_[particle_index].pull();
+                                }
                                 pso.update_simulation_budget();
 
                                 pso.save_history();
@@ -110,9 +111,13 @@ void PSOOCBAA::sample_ocba(int iteration) {
 
                 best_particle_index = find_best_particle_index(num_participating_particles);
         }
+        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                if (pso.memory_active)
+                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+        }
 }
 
-void PSOOCBAA::update(){
+void PSOOCBAA::update() {
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 if (pso.new_local_best(particle_index))
                         pso.best_individual_arms_[particle_index] = pso.particles_[particle_index];
@@ -126,8 +131,13 @@ void PSOOCBAA::optimize() {
 
         while (true) {
                 sample_ocba(iteration);
-                if (pso.budget_reached())
+                if (pso.budget_reached()) {
+                        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                                if (pso.memory_active)
+                                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+                        }
                         return;
+                }
 
                 update();
                 pso.update_positions();
@@ -137,4 +147,7 @@ void PSOOCBAA::optimize() {
 
 std::vector<solution> PSOOCBAA::best_solutions() {
         return pso.best_solutions();
+}
+void PSOOCBAA::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }

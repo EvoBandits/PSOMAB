@@ -28,6 +28,7 @@ class PSOOCBAA {
         double get_mean_reward(int index);
         double get_variance(int index);
         int get_num_pulls(int index);
+        void memory_to_csv(const std::string &filename);
 };
 
 #endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_OPTIMAL_COMPUTING_BUDGET_ALLOCATION_ADJUSTED_PSOOCBAA_H_
