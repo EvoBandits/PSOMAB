@@ -216,7 +216,7 @@ std::vector<solution> PSOMAB::best_solutions() {
 void PSOMAB::memory_to_csv(const std::string &filename) {
         //ToDo: sum of pulls not equal to 10.000
         for (const auto& arm: global_arm_memory){
-                pso.memory.emplace(arm.get_action_vector(), arm.num_pulls());
+                pso.save_particle_to_memory(arm);
         }
 
         pso.memory_to_csv(filename);
