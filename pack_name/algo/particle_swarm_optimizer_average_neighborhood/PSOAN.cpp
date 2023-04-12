@@ -66,6 +66,8 @@ void PSOAN::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(particle_index);
                         if (pso.budget_reached())
                                 return;
                 }
@@ -77,4 +79,6 @@ void PSOAN::optimize() {
 std::vector<solution> PSOAN::best_solutions() {
         return pso.best_solutions();
 }
-
+void PSOAN::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
+}
