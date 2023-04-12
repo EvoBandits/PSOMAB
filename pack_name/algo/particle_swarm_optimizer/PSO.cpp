@@ -199,23 +199,14 @@ void PSO::save_particle_to_memory(const Arm &particle) {
 
 void PSO::save_particle_to_memory(const Arm &particle, int num_pulls) {
         Eigen::VectorXi action_vector = particle.get_action_vector();
-
-        auto particle_node = memory.find(action_vector);
-        if (particle_node == memory.end()) {
-                memory.emplace(action_vector, num_pulls);
-        } else {
-                int old_num_pulls = particle_node->second;
-                memory.erase(particle_node);
-                memory.emplace(action_vector, old_num_pulls + num_pulls);
-        }
+        memory[action_vector] += num_pulls;
 }
 
 void PSO::memory_to_csv(const std::string &filename) {
         if (!memory_active)
                 return;
 
-        std::ofstream fs;
-        fs.open(filename, std::ios_base::app);
+        std::ofstream fs(filename, std::ios_base::app);
         for (int x = lb[0]; x <= ub[0]; x++) {
                 for (int y = lb[1]; y <= ub[1]; y++) {
                         Eigen::VectorXi action_vector(dimension_);
@@ -227,7 +218,7 @@ void PSO::memory_to_csv(const std::string &filename) {
                         } else
                                 fs << particle_node->second << ",";
                 }
-                fs << std::endl;
+                fs << "\n";
         }
         fs.close();
 }
