@@ -206,7 +206,7 @@ void PSO::save_particle_to_memory(int particle_index) {
         }
 }
 
-void PSO::memory_to_csv(std::string filename) {
+void PSO::memory_to_csv(const std::string& filename) {
         if (!memory_active)
                 return;
 

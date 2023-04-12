@@ -73,7 +73,7 @@ class PSO {
         std::unordered_map<Eigen::VectorXi, int> memory;
         bool memory_active = true;
         void save_particle_to_memory(int particle_index);
-        void memory_to_csv(std::string filename);
+        void memory_to_csv(const std::string& filename);
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_
