@@ -19,7 +19,7 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psomab";
+        std::string algo = "psoocba";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -65,6 +65,7 @@ int main() {
                 for (auto &best_solution : psoocba_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoocba_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psoocbaa"){
                 std::cout << "PSOOCBAA" << std::endl;
                 PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
