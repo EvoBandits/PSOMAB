@@ -16,6 +16,7 @@
 #include "problems/ackley/ackley.h"
 
 int main() {
+        /*
         std::string algo = "psoern";
         int max_simulation = 10000;
         int num_particle = 50;
@@ -109,7 +110,7 @@ int main() {
                 }
         }
 
-        /*
+
 
         double mean_reward = 0;
         int runs = 500;
@@ -126,6 +127,9 @@ int main() {
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
         */
+
+        Eigen::Vector2i input{53, 156};
+        tp1(input, 0);
 
         return 0;
 }
