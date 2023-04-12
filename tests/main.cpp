@@ -19,7 +19,7 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psogd";
+        std::string algo = "lapso";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -90,6 +90,7 @@ int main() {
                 for (auto &best_solution : lapso_instance.best_solutions()) {
                         best_solution.print();
                 }
+                lapso_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "psomab"){
                 std::cout << "PSOMAB:" << std::endl;
