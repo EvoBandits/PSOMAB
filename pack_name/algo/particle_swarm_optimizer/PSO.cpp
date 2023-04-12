@@ -94,7 +94,7 @@ void PSO::optimize() {
 
                         save_history();
                         if (memory_active)
-                                save_particle_to_memory(particle_index);
+                                save_particle_to_memory(particles_[particle_index]);
                         if (budget_reached())
                                 return;
                 }
@@ -192,9 +192,13 @@ bool PSO::new_global_best(int particle_index) {
         return best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward();
 }
 
-void PSO::save_particle_to_memory(int particle_index) {
-        Eigen::VectorXi action_vector = particles_[particle_index].get_action_vector();
-        int num_pulls = particles_[particle_index].num_pulls();
+void PSO::save_particle_to_memory(const Arm &particle) {
+        int num_pulls = particle.num_pulls();
+        save_particle_to_memory(particle, num_pulls);
+}
+
+void PSO::save_particle_to_memory(const Arm &particle, int num_pulls) {
+        Eigen::VectorXi action_vector = particle.get_action_vector();
 
         auto particle_node = memory.find(action_vector);
         if (particle_node == memory.end()) {
@@ -206,14 +210,14 @@ void PSO::save_particle_to_memory(int particle_index) {
         }
 }
 
-void PSO::memory_to_csv(const std::string& filename) {
+void PSO::memory_to_csv(const std::string &filename) {
         if (!memory_active)
                 return;
 
         std::ofstream fs;
         fs.open(filename, std::ios_base::app);
-        for(int x = lb[0]; x <= ub[0]; x++){
-                for(int y = lb[1]; y <= ub[1]; y++){
+        for (int x = lb[0]; x <= ub[0]; x++) {
+                for (int y = lb[1]; y <= ub[1]; y++) {
                         Eigen::VectorXi action_vector(dimension_);
                         action_vector << x, y;
 

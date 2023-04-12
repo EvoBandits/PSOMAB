@@ -17,7 +17,7 @@ void PSOER::optimize() {
 
                         pso.save_history();
                         if (pso.memory_active)
-                                pso.save_particle_to_memory(particle_index);
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached())
                                 return;
                 }
