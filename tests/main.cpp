@@ -19,7 +19,7 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psoocba";
+        std::string algo = "psomab";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -74,6 +74,7 @@ int main() {
                 for (auto &best_solution : psoocbaa_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoocbaa_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psola"){
                 std::cout << "PSOLA" << std::endl;
                 PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
@@ -112,6 +113,7 @@ int main() {
                 for (auto &best_solution : psoern_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoern_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "psoer"){
                 std::cout << "PSOER:" << std::endl;
