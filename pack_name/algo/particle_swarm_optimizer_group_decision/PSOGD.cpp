@@ -66,6 +66,8 @@ void PSOGD::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached()) {
                                 return;
                         }
@@ -76,4 +78,7 @@ void PSOGD::optimize() {
 
 std::vector<solution> PSOGD::best_solutions() {
         return pso.best_solutions();
+}
+void PSOGD::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }

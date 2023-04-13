@@ -10,13 +10,16 @@
 #include "../pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h"
 
 #include <iostream>
+#include <ctime>
 
 #include "problems/inventory/inventory.h"
 #include "problems/tp1/tp1.h"
 #include "problems/ackley/ackley.h"
 
 int main() {
-        std::string algo = "psoern";
+        std::string time = std::to_string(std::time(nullptr));
+
+        std::string algo = "psomab";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
@@ -27,42 +30,51 @@ int main() {
         Eigen::VectorXi ub = inventory_ub;
         std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
 
-
         if(algo == "pso"){
+                std::cout << "PSO" << std::endl;
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 pso_instance.optimize();
 
                 for (auto &best_solution : pso_instance.best_solutions()) {
                         best_solution.print();
                 }
+                pso_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psoan"){
+                std::cout << "PSOAN" << std::endl;
                 PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoan_instance.optimize();
 
                 for (auto &best_solution : psoan_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoan_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psogd"){
+                std::cout << "PSOGD" << std::endl;
                 PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psogd_instance.optimize();
 
                 for (auto &best_solution : psogd_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psogd_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psoocba"){
+                std::cout << "PSOOCBA" << std::endl;
                 PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocba_instance.optimize();
 
                 for (auto &best_solution : psoocba_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoocba_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psoocbaa"){
+                std::cout << "PSOOCBAA" << std::endl;
                 PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 psoocbaa_instance.optimize();
 
                 for (auto &best_solution : psoocbaa_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoocbaa_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         } else if (algo == "psola"){
                 std::cout << "PSOLA" << std::endl;
                 PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
@@ -71,6 +83,7 @@ int main() {
                 for (auto &best_solution : psola_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psola_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "lapso"){
                 std::cout << "LAPSO" << std::endl;
@@ -80,15 +93,17 @@ int main() {
                 for (auto &best_solution : lapso_instance.best_solutions()) {
                         best_solution.print();
                 }
+                lapso_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "psomab"){
                 std::cout << "PSOMAB:" << std::endl;
-                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, false);
+                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
                 psomab_instance.optimize();
 
                 for (auto &best_solution : psomab_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psomab_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "psoern"){
                 std::cout << "PSOERN:" << std::endl;
@@ -98,6 +113,7 @@ int main() {
                 for (auto &best_solution : psoern_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoern_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
         else if (algo == "psoer"){
                 std::cout << "PSOER:" << std::endl;
@@ -107,6 +123,7 @@ int main() {
                 for (auto &best_solution : psoer_instance.best_solutions()) {
                         best_solution.print();
                 }
+                psoer_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
 
         /*

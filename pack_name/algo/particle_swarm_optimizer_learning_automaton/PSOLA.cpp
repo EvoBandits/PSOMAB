@@ -66,6 +66,10 @@ void PSOLA::sample_la() {
                 }
                 probabilities(sample_particle_index) += helper_sum;
         }
+        for (int particle_index = 0; particle_index < pso.num_particle_; ++particle_index) {
+                if (pso.memory_active)
+                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+        }
 }
 
 void PSOLA::update(){
@@ -81,8 +85,13 @@ void PSOLA::optimize() {
         while (true) {
                 sample_la();
                 update();
-                if (pso.budget_reached())
+                if (pso.budget_reached()) {
+                        for (int particle_index = 0; particle_index < pso.num_particle_; ++particle_index) {
+                                if (pso.memory_active)
+                                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+                        }
                         return;
+                }
 
                 pso.update_positions();
         }
@@ -91,4 +100,6 @@ void PSOLA::optimize() {
 std::vector<solution> PSOLA::best_solutions() {
         return pso.best_solutions();
 }
-
+void PSOLA::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
+}
