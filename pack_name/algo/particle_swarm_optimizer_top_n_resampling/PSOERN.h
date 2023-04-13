@@ -17,7 +17,7 @@ class PSOERN {
         PSO pso;
         int top_n = 2;
         int n_0 = 5;
-        int additional_simulations = 25;
+        int additional_simulations = 50;
         bool new_global_best(int particle_index);
         bool new_local_best(int particle_index);
         std::vector<int> get_subset_indices();
