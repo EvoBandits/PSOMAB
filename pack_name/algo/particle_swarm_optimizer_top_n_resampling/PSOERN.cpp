@@ -54,15 +54,15 @@ void PSOERN::sample() {
                 if (pso.budget_reached())
                         return;
         }
-        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
-                if (pso.memory_active)
-                        pso.save_particle_to_memory(pso.particles_[particle_index]);
-        }
 }
 
 void PSOERN::optimize() {
         while (true) {
                 sample();
+                for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
+                }
                 update();
 
                 if (pso.budget_reached())
