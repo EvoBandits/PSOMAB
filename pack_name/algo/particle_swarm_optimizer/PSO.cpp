@@ -1,6 +1,5 @@
 #include "PSO.h"
 #include "../../util/RandomNumber.h"
-#include <ios>
 #include <iostream>
 #include <utility>
 
@@ -206,7 +205,7 @@ void PSO::memory_to_csv(const std::string &filename) {
         if (!memory_active)
                 return;
 
-        std::ofstream fs(filename, std::ios_base::app);
+        std::ofstream fs(filename);
         for (int x = lb[0]; x <= ub[0]; x++) {
                 for (int y = lb[1]; y <= ub[1]; y++) {
                         Eigen::VectorXi action_vector(dimension_);
