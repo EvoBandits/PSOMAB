@@ -47,8 +47,8 @@ void PSOERN::sample() {
 
         std::vector<int> subset_indices = get_subset_indices();
         for (auto &particle_index : subset_indices) {
-                pso.particles_[particle_index].pull(additional_simulations);
-                pso.update_simulation_budget(additional_simulations);
+                pso.particles_[particle_index].pull(additional_simulations / top_n);
+                pso.update_simulation_budget(additional_simulations / top_n);
 
                 pso.save_history();
                 if (pso.budget_reached())
