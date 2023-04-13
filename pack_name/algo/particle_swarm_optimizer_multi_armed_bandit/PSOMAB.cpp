@@ -68,20 +68,31 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         } else {
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
                 Arm &local_arm = local_arm_memories[particle_index].back();
-                arm_index_local =  (int) local_arm_memories[particle_index].size() - 1;
+                arm_index_local = (int) local_arm_memories[particle_index].size() - 1;
 
                 local_arm.pull();
                 pso.update_simulation_budget();
 
-                global_arm_memory.push_back(local_arm_memories[particle_index].back());
-                Arm &global_arm = global_arm_memory.back();
-                int arm_index_global = (int) global_arm_memory.size() - 1;
+                int arm_index_global = get_arm_index(local_arm, global_lookup_table);
+                if (arm_index_global >= 0) {
+                        Arm &global_arm = global_arm_memory[arm_index_global];
 
-                local_lookup_tables[particle_index].emplace(local_arm.get_action_vector(),arm_index_local);
-                global_lookup_table.emplace(local_arm.get_action_vector(), arm_index_global);
+                        delete_sat_node(arm_index_global, global_arm, global_sat);
 
+                        global_arm.update_num_pulls(1);
+                        global_arm.update_reward(local_arm.reward());
+
+                        global_sat.emplace(global_arm.mean_reward(), arm_index_global);
+                } else {
+                        global_arm_memory.push_back(local_arm_memories[particle_index].back());
+                        Arm &global_arm = global_arm_memory.back();
+                        arm_index_global = (int) global_arm_memory.size() - 1;
+
+                        global_lookup_table.emplace(local_arm.get_action_vector(), arm_index_global);
+                        global_sat.emplace(global_arm.mean_reward(), arm_index_global);
+                }
+                local_lookup_tables[particle_index].emplace(local_arm.get_action_vector(), arm_index_local);
                 local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
-                global_sat.emplace(global_arm.mean_reward(), arm_index_global);
         }
 }
 
