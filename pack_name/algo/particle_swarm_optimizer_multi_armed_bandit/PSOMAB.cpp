@@ -69,7 +69,7 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
                 Arm &local_arm = local_arm_memories[particle_index].back();
                 arm_index_local = (int) local_arm_memories[particle_index].size() - 1;
-                //test push
+
                 local_arm.pull();
                 pso.update_simulation_budget();
 
