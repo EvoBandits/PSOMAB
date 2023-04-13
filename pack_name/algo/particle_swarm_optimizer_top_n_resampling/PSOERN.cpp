@@ -11,7 +11,7 @@ bool PSOERN::new_local_best(int particle_index) {
 }
 
 bool PSOERN::new_global_best(int particle_index) {
-        return pso.best_individual_arms_[particle_index].mean_reward() < pso.best_individual_arms_[pso.best_particle_index_].mean_reward() && pso.best_individual_arms_[particle_index].num_pulls() >= pso.best_individual_arms_[pso.best_particle_index_].num_pulls();
+        return pso.best_individual_arms_[particle_index].num_pulls() > pso.best_individual_arms_[pso.best_particle_index_].num_pulls();
 }
 
 std::vector<int> PSOERN::get_subset_indices() {
@@ -47,8 +47,8 @@ void PSOERN::sample() {
 
         std::vector<int> subset_indices = get_subset_indices();
         for (auto &particle_index : subset_indices) {
-                pso.particles_[particle_index].pull(additional_simulations);
-                pso.update_simulation_budget(additional_simulations);
+                pso.particles_[particle_index].pull(additional_simulations / top_n);
+                pso.update_simulation_budget(additional_simulations / top_n);
 
                 pso.save_history();
                 if (pso.budget_reached())
