@@ -16,6 +16,8 @@ void PSOER::optimize() {
                         sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached())
                                 return;
                 }
@@ -29,4 +31,7 @@ PSOER::PSOER(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::Vect
 
 std::vector<solution> PSOER::best_solutions() {
         return pso.best_solutions();
+}
+void PSOER::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }

@@ -197,17 +197,27 @@ void PSOMAB::optimize() {
                         int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_tables[particle_index]);
                         sample_and_update(particle_index, arm_index_local);
                         pso.save_history();
-                        if (pso.budget_reached()) return;
+                        if (pso.budget_reached())
+                                return;
 
                         // sample for best individual solution and update local and global memory
                         arm_index_local = best_individual_arm_indices[particle_index];
                         sample_and_update(particle_index, arm_index_local);
                         save_history();
-                        if (pso.budget_reached()) return;
+                        if (pso.budget_reached())
+                                return;
                 }
         }
 }
 
 std::vector<solution> PSOMAB::best_solutions() {
         return pso.best_solutions();
+}
+void PSOMAB::memory_to_csv(const std::string &filename) {
+        //ToDo: sum of pulls not equal to 10.000
+        for (const auto& arm: global_arm_memory){
+                pso.save_particle_to_memory(arm);
+        }
+
+        pso.memory_to_csv(filename);
 }
