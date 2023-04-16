@@ -41,6 +41,7 @@ void PSOLA::sample_la() {
                 probabilities(particle_index) = (max - pso.particles_[particle_index].mean_reward() + add_term) / (max - min + add_term);
         }
 
+        // adapted because of mistake in paper
         while (additional_simulations_done < additional_simulations_max && probabilities.maxCoeff() < threshold) {
                 additional_simulations_done += 1;
 

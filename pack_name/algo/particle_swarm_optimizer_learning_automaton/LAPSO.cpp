@@ -44,6 +44,7 @@ void LAPSO::sample_la() {
 
         std::vector<int> subset_indices = get_subset_indices();
 
+        // adapted because of mistake in paper
         while (additional_simulations_done < additional_simulations_max && probabilities(subset_indices).sum() < threshold) {
                 additional_simulations_done += 1;
 
