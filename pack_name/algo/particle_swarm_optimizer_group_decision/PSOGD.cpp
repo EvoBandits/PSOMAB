@@ -14,6 +14,7 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
         double min = rewards_gd_maker_layer.minCoeff();
         double max = rewards_gd_maker_layer.maxCoeff();
 
+        // adapted because of mistake in paper
         Eigen::VectorXd decision_weights = exp(-(rewards_gd_maker_layer.array() - min) / (max - min));
 
         double sum_decision_weights = decision_weights.sum();
