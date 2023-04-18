@@ -1,37 +1,65 @@
-#include "../pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
+#include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
 #include "../pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h"
+#include "../pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h"
 #include "../pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h"
-#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
-#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
 #include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h"
 #include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.h"
-#include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
+#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
+#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
 #include "../pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h"
-#include "../pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h"
 
-#include <iostream>
 #include <ctime>
+#include <iostream>
 
-#include "problems/inventory/inventory.h"
-#include "problems/tp1/tp1.h"
 #include "problems/ackley/ackley.h"
+#include "problems/inventory/inventory.h"
+#include "problems/styblinski-tang/styblinski-tang.h"
+#include "problems/tp1/tp1.h"
+#include "problems/tp2/tp2.h"
 
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "pso";
+        std::string algo = "psomab";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
-        bool cap_velocity = false;
+        bool cap_velocity = true;
 
-        int dimension = inventory_dim;
-        Eigen::VectorXi lb = inventory_lb;
-        Eigen::VectorXi ub = inventory_ub;
-        std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
+        int dimension;
+        Eigen::VectorXi lb;
+        Eigen::VectorXi ub;
+        std::function<double(Eigen::VectorXi, int)> opti_func;
+        std::string problem = "inventory";
+        if (problem == "inventory") {
+                dimension = inventory_dim;
+                lb = inventory_lb;
+                ub = inventory_ub;
+                opti_func = inventory;
+        } else if (problem == "tp1") {
+                dimension = tp1_dim;
+                lb = tp1_lb;
+                ub = tp1_ub;
+                opti_func = tp1;
+        } else if (problem == "tp2") {
+                dimension = tp2_dim;
+                lb = tp2_lb;
+                ub = tp2_ub;
+                opti_func = tp2;
+        } else if (problem == "ackley") {
+                dimension = ackley_dim;
+                lb = ackley_lb;
+                ub = ackley_ub;
+                opti_func = ackley;
+        } else if (problem == "styblinski-tang") {
+                dimension = styblinski_tang_dim;
+                styblinski_tang_lb;
+                styblinski_tang_ub;
+                opti_func = styblinski_tang;
+        }
 
-        /*
-        if(algo == "pso"){
+        if (algo == "pso") {
                 std::cout << "PSO" << std::endl;
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
                 pso_instance.optimize();
@@ -127,8 +155,7 @@ int main() {
                 psoer_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
 
-        */
-
+        /*
         double mean_reward = 0;
         int runs = 500;
 
@@ -142,10 +169,7 @@ int main() {
                 mean_reward += pso_instance.best_solutions().back().true_func_val;
         }
 
-        std::cout << "Mean reward: " << mean_reward / runs << std::endl;
-
-        Eigen::Vector2i input{53, 156};
-        tp1(input, 0);
+        std::cout << "Mean reward: " << mean_reward / runs << std::endl;*/
 
         return 0;
 }
