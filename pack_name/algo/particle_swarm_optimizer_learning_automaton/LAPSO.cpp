@@ -99,7 +99,6 @@ void LAPSO::update(){
 
 void LAPSO::update_positions() {
         Eigen::VectorXd global_best_position = global_best_arm.get_action_vector().cast<double>();
-        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();

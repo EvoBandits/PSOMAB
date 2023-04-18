@@ -21,32 +21,17 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
         return proposed_solution;
 }
 
-void PSO::calculate_max_velocity() {
-        max_velocity_ = Eigen::VectorXd(dimension_);
-        Eigen::VectorXd min_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::max());
-        Eigen::VectorXd max_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::min());
-
-        for (int particle_index = 0; particle_index < num_particle_; ++particle_index) {
-                for (int j = 0; j < dimension_; j++) {
-                        double position = (double) particles_[particle_index].get_action_vector()[j];
-                        if (position < min_position[j]) min_position[j] = position;
-                        if (position > max_position[j]) max_position[j] = position;
-                }
-        }
-
-        max_velocity_ = 0.25 * (max_position - min_position);
-}
-
-void PSO::cap_velocity(Eigen::VectorXd &new_velocity){
-        for (int j = 0; j < dimension_; j++) {
-                if (new_velocity[j] > max_velocity_[j]) new_velocity[j] = max_velocity_[j];
-                else if (new_velocity[j] < -max_velocity_[j]) new_velocity[j] = -max_velocity_[j];
+void PSO::cap_velocity(Eigen::VectorXd &new_velocity) {
+        for (int dim = 0; dim < dimension_; dim++) {
+                double max_velocity = 0.25 * (ub[dim] - lb[dim]);
+                if (new_velocity[dim] > max_velocity) new_velocity[dim] = max_velocity;
+                else if (new_velocity[dim] < -max_velocity)
+                        new_velocity[dim] = -max_velocity;
         }
 }
 
 void PSO::update_positions() {
         Eigen::VectorXd global_best_position = best_individual_arms_[best_particle_index_].get_action_vector().cast<double>();
-        if (cap_velocity_) calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = particles_[particle_index].get_action_vector().cast<double>();

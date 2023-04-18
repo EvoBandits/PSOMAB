@@ -30,7 +30,6 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
 
 void PSOGD::update_positions() {
         Eigen::VectorXd search_center = calculate_search_center();
-        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
