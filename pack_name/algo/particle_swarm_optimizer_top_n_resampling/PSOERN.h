@@ -17,17 +17,18 @@ class PSOERN {
         PSO pso;
         int top_n = 2;
         int n_0 = 5;
-        int additional_simulations = 25;
+        int additional_simulations = 50;
         bool new_global_best(int particle_index);
         bool new_local_best(int particle_index);
+        std::vector<int> get_subset_indices();
+        void sample();
+        void update();
 
        public:
         PSOERN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update = false, bool cap_velocity = true);
         void optimize();
         std::vector<solution> best_solutions();
-        std::vector<int> get_subset_indices();
-        void sample();
-        void update();
+        void memory_to_csv(const std::string &filename);
 };
 
 #endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_TOP_N_RESAMPLING_PSOERN_H_

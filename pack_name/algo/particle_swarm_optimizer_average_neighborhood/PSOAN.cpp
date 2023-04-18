@@ -26,7 +26,6 @@ void PSOAN::calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd>
 void PSOAN::update_positions() {
         std::vector<Eigen::VectorXd> averaged_best_individual_arms;
         calculate_averaged_best_individual_arms(averaged_best_individual_arms);
-        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -66,6 +65,8 @@ void PSOAN::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached())
                                 return;
                 }
@@ -77,4 +78,6 @@ void PSOAN::optimize() {
 std::vector<solution> PSOAN::best_solutions() {
         return pso.best_solutions();
 }
-
+void PSOAN::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
+}
