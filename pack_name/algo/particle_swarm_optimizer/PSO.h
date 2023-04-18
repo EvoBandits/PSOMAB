@@ -33,7 +33,6 @@ class PSO {
         bool new_local_best(int particle_index);
         bool new_global_best(int particle_index);
 
-        void calculate_max_velocity();
         void cap_velocity(Eigen::VectorXd &velocity);
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
@@ -63,7 +62,6 @@ class PSO {
 
         int simulations_used_ = 0;
         std::vector<Arm> particles_;
-        Eigen::VectorXd max_velocity_;
         std::vector<Eigen::VectorXd> velocity_;
         std::vector<Arm> best_individual_arms_;
         int best_particle_index_ = 0;

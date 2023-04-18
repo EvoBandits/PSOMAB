@@ -19,17 +19,18 @@
 int main() {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::string algo = "psomab";
+        std::string algo = "pso";
         int max_simulation = 10000;
         int num_particle = 50;
         bool use_random_location_update = false;
-        bool cap_velocity = true;
+        bool cap_velocity = false;
 
         int dimension = inventory_dim;
         Eigen::VectorXi lb = inventory_lb;
         Eigen::VectorXi ub = inventory_ub;
         std::function<double(Eigen::VectorXi, int)> opti_func = inventory;
 
+        /*
         if(algo == "pso"){
                 std::cout << "PSO" << std::endl;
                 PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
@@ -126,7 +127,7 @@ int main() {
                 psoer_instance.memory_to_csv(algo + "_memory_" + time + ".csv");
         }
 
-        /*
+        */
 
         double mean_reward = 0;
         int runs = 500;
@@ -135,14 +136,13 @@ int main() {
         std::cout << std::setprecision(3);
 
         for (int i = 0; i < runs; i++) {
-                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
-                psomab_instance.optimize();
-                std::cout << "Run: " << i  << " | best reward: " << psomab_instance.best_solutions().back().true_func_val << std::endl;
-                mean_reward += psomab_instance.best_solutions().back().true_func_val;
+                PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                pso_instance.optimize();
+                std::cout << "Run: " << i << " | best reward: " << pso_instance.best_solutions().back().true_func_val << std::endl;
+                mean_reward += pso_instance.best_solutions().back().true_func_val;
         }
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
-        */
 
         return 0;
 }
