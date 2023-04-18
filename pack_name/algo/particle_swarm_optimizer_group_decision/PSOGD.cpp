@@ -14,6 +14,7 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
         double min = rewards_gd_maker_layer.minCoeff();
         double max = rewards_gd_maker_layer.maxCoeff();
 
+        // adapted because of mistake in paper
         Eigen::VectorXd decision_weights = exp(-(rewards_gd_maker_layer.array() - min) / (max - min));
 
         double sum_decision_weights = decision_weights.sum();
@@ -29,7 +30,6 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
 
 void PSOGD::update_positions() {
         Eigen::VectorXd search_center = calculate_search_center();
-        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -66,6 +66,8 @@ void PSOGD::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached()) {
                                 return;
                         }
@@ -76,4 +78,7 @@ void PSOGD::optimize() {
 
 std::vector<solution> PSOGD::best_solutions() {
         return pso.best_solutions();
+}
+void PSOGD::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }

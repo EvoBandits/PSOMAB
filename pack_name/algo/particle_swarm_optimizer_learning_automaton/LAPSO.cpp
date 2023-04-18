@@ -44,6 +44,7 @@ void LAPSO::sample_la() {
 
         std::vector<int> subset_indices = get_subset_indices();
 
+        // adapted because of mistake in paper
         while (additional_simulations_done < additional_simulations_max && probabilities(subset_indices).sum() < threshold) {
                 additional_simulations_done += 1;
 
@@ -72,6 +73,10 @@ void LAPSO::sample_la() {
                 }
                 probabilities(subset_indices) = ((1 - helper_sum) / subset_capacity) * Eigen::VectorXd::Ones(subset_capacity);
         }
+        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                if (pso.memory_active)
+                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+        }
 }
 
 void LAPSO::update(){
@@ -94,7 +99,6 @@ void LAPSO::update(){
 
 void LAPSO::update_positions() {
         Eigen::VectorXd global_best_position = global_best_arm.get_action_vector().cast<double>();
-        if (pso.cap_velocity_) pso.calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = pso.particles_[particle_index].get_action_vector().cast<double>();
@@ -129,19 +133,16 @@ void LAPSO::optimize() {
 
         while (true) {
                 sample_la();
-                /*
-                for (Arm& arm : pso.particles_) {
-                        std::cout << "reward " << arm.mean_reward() << " | num pulls: " << arm.num_pulls() << std::endl;
-                }
-                std::cout << "global best reward: " << global_best_arm.mean_reward() << std::endl;
-                std::cout << "-------------------" << std::endl;
-                 */
                 update();
-                if (pso.budget_reached())
-                        return;
 
+                if (pso.budget_reached()) {
+                        for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
+                                if (pso.memory_active)
+                                        pso.save_particle_to_memory(pso.particles_[particle_index]);
+                        }
+                        return;
+                }
                 update_positions();
-                //pso.update_positions();
                 iteration++;
         }
 }
@@ -149,4 +150,6 @@ void LAPSO::optimize() {
 std::vector<solution> LAPSO::best_solutions() {
         return pso.best_solutions();
 }
-
+void LAPSO::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
+}

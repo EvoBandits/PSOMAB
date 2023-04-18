@@ -1,10 +1,15 @@
 #ifndef PSOMAB_PACK_NAME_PSOMAB_PSO_H_
 #define PSOMAB_PACK_NAME_PSOMAB_PSO_H_
 
-#include "../../objects/arm/Arm.h"
 #include "Eigen/Core"
 #include <vector>
+#include <map>
+#include <fstream>
+#include <iostream>
+#include "../../objects/arm/Arm.h"
 #include "../../objects/solution/Solution.h"
+#include "../../util/SolutionCodeCalculation.h"
+
 
 /*
  * Based on:
@@ -28,7 +33,6 @@ class PSO {
         bool new_local_best(int particle_index);
         bool new_global_best(int particle_index);
 
-        void calculate_max_velocity();
         void cap_velocity(Eigen::VectorXd &velocity);
         Eigen::VectorXi update_location_random(Eigen::VectorXi proposed_solution);
         Eigen::VectorXi update_location_cap(Eigen::VectorXi proposed_solution);
@@ -47,7 +51,7 @@ class PSO {
         double c2 = 1.49618;
         double w = 0.729844;
         bool use_random_location_update_;
-        bool cap_velocity_ = true;
+        bool cap_velocity_;
         int max_simulations_;
 
         std::function<double(Eigen::VectorXi, int)> opti_func_;
@@ -58,12 +62,17 @@ class PSO {
 
         int simulations_used_ = 0;
         std::vector<Arm> particles_;
-        Eigen::VectorXd max_velocity_;
         std::vector<Eigen::VectorXd> velocity_;
         std::vector<Arm> best_individual_arms_;
         int best_particle_index_ = 0;
         std::vector<solution> best_solutions_;
 
+
+        std::unordered_map<Eigen::VectorXi, int> memory;
+        bool memory_active = true;
+        void save_particle_to_memory(const Arm &particle);
+        void memory_to_csv(const std::string &filename);
+        void save_particle_to_memory(const Arm &particle, int num_pulls);
 };
 
 #endif//PSOMAB_PACK_NAME_PSOMAB_PSO_H_

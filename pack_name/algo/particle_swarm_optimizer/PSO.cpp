@@ -21,32 +21,17 @@ Eigen::VectorXi PSO::update_location_cap(Eigen::VectorXi proposed_solution){
         return proposed_solution;
 }
 
-void PSO::calculate_max_velocity() {
-        max_velocity_ = Eigen::VectorXd(dimension_);
-        Eigen::VectorXd min_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::max());
-        Eigen::VectorXd max_position = Eigen::VectorXd::Constant( dimension_, std::numeric_limits<double>::min());
-
-        for (int particle_index = 0; particle_index < num_particle_; ++particle_index) {
-                for (int j = 0; j < dimension_; j++) {
-                        double position = (double) particles_[particle_index].get_action_vector()[j];
-                        if (position < min_position[j]) min_position[j] = position;
-                        if (position > max_position[j]) max_position[j] = position;
-                }
-        }
-
-        max_velocity_ = 0.25 * (max_position - min_position);
-}
-
-void PSO::cap_velocity(Eigen::VectorXd &new_velocity){
-        for (int j = 0; j < dimension_; j++) {
-                if (new_velocity[j] > max_velocity_[j]) new_velocity[j] = max_velocity_[j];
-                else if (new_velocity[j] < -max_velocity_[j]) new_velocity[j] = -max_velocity_[j];
+void PSO::cap_velocity(Eigen::VectorXd &new_velocity) {
+        for (int dim = 0; dim < dimension_; dim++) {
+                double max_velocity = 0.25 * (ub[dim] - lb[dim]);
+                if (new_velocity[dim] > max_velocity) new_velocity[dim] = max_velocity;
+                else if (new_velocity[dim] < -max_velocity)
+                        new_velocity[dim] = -max_velocity;
         }
 }
 
 void PSO::update_positions() {
         Eigen::VectorXd global_best_position = best_individual_arms_[best_particle_index_].get_action_vector().cast<double>();
-        if (cap_velocity_) calculate_max_velocity();
 
         for (int particle_index = 0; particle_index < num_particle_; particle_index++) {
                 Eigen::VectorXd current_position = particles_[particle_index].get_action_vector().cast<double>();
@@ -92,6 +77,8 @@ void PSO::optimize() {
                         sample_and_update(particle_index);
 
                         save_history();
+                        if (memory_active)
+                                save_particle_to_memory(particles_[particle_index]);
                         if (budget_reached())
                                 return;
                 }
@@ -167,7 +154,7 @@ int &PSO::best_particle_index() {
 }
 
 bool PSO::budget_reached() const{
-        return simulations_used_ > max_simulations_;
+        return simulations_used_ >= max_simulations_;
 }
 
 void PSO::save_history() {
@@ -189,3 +176,33 @@ bool PSO::new_global_best(int particle_index) {
         return best_individual_arms_[particle_index].mean_reward() < best_individual_arms_[best_particle_index_].mean_reward();
 }
 
+void PSO::save_particle_to_memory(const Arm &particle) {
+        int num_pulls = particle.num_pulls();
+        save_particle_to_memory(particle, num_pulls);
+}
+
+void PSO::save_particle_to_memory(const Arm &particle, int num_pulls) {
+        Eigen::VectorXi action_vector = particle.get_action_vector();
+        memory[action_vector] += num_pulls;
+}
+
+void PSO::memory_to_csv(const std::string &filename) {
+        if (!memory_active)
+                return;
+
+        std::ofstream fs(filename);
+        for (int x = lb[0]; x <= ub[0]; x++) {
+                for (int y = lb[1]; y <= ub[1]; y++) {
+                        Eigen::VectorXi action_vector(dimension_);
+                        action_vector << x, y;
+
+                        auto particle_node = memory.find(action_vector);
+                        if (particle_node == memory.end()) {
+                                fs << 0 << ",";
+                        } else
+                                fs << particle_node->second << ",";
+                }
+                fs << "\n";
+        }
+        fs.close();
+}
