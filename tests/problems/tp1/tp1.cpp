@@ -136,7 +136,8 @@ double tp1(Eigen::VectorXi action_vector, int noise_level) {
                                               {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}};
 
         int period_number = 1200;// Supply Chain Horizon
-        double reward{0.0};
+        double reward = 0;
+
         for (int i = 0; i < period_number; i++) {
                 calc_inventory_tp1(start_inventory);
                 reward = reward + calc_TC_tp1(start_inventory);
