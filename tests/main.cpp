@@ -144,5 +144,8 @@ int main() {
 
         std::cout << "Mean reward: " << mean_reward / runs << std::endl;
 
+        Eigen::Vector2i input{53, 156};
+        tp1(input, 0);
+
         return 0;
 }
