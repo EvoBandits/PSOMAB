@@ -15,11 +15,15 @@ void calc_inventory_tp2(int start_inventory[][8][4]) {
         std::vector<int> ilt_min{0, 0, 0, 0};
         std::vector<int> ilt_max{0, 0, 0, 0};
 
-        int information_lead_times[tp2_dim] = {0, 0, 0, 0};   // Information lead time that an order takes from agent i to agent i+1
-        int transportation_lead_times[tp2_dim] = {0, 0, 0, 0};// Transportation lead time that a shipment takes from agent i+1 to agent i
+        // Information lead time that an order takes from agent i to agent i+1
+        int information_lead_times[tp2_dim] = {0, 0, 0, 0};
+        // Transportation lead time that a shipment takes from agent i+1 to agent i
+        int transportation_lead_times[tp2_dim] = {0, 0, 0, 0};
 
-        int incoming_orders[tp2_dim] = {0, 0, 0, 0};   // Demand that arrives at agent i  [cf. ORD^IN in the paper version]
-        int outgoing_shipments[tp2_dim] = {0, 0, 0, 0};// Shipment that agent i is able to place in transit to agent i-1 // [cf. DEL^OUT in the paper version]
+        // Demand that arrives at agent i  [cf. ORD^IN in the paper version]
+        int incoming_orders[tp2_dim] = {0, 0, 0, 0};
+        // Shipment that agent i is able to place in transit to agent i-1 // [cf. DEL^OUT in the paper version]
+        int outgoing_shipments[tp2_dim] = {0, 0, 0, 0};
 
         // Shipments that arrive at each agent at the next time period
         int incoming_shipments[tp2_dim] = {start_inventory[0][1][0], start_inventory[0][1][1], start_inventory[0][1][2], start_inventory[0][1][3]};// [cf. DEL^IN in the paper version]
@@ -55,25 +59,31 @@ void calc_inventory_tp2(int start_inventory[][8][4]) {
                         // sampling external customer demand
                         incoming_orders[i] = random_uniform_int(d_min, d_max);
                 }
-                if (ilt_min[i] == ilt_max[i]) {// no sampling required
+                if (ilt_min[i] == ilt_max[i]) {
+                        // no sampling required
                         information_lead_times[i] = ilt_min[i];
                 } else {
                         information_lead_times[i] = random_uniform_int(ilt_min[i], ilt_max[i]);
                 }
                 if (inventory_level[i] > 0) {
-                        if (incoming_orders[i] < incoming_shipments[i] + inventory_level[i]) {// [cf. CASE 1 in the paper version]
+                        if (incoming_orders[i] < incoming_shipments[i] + inventory_level[i]) {
+                                // [cf. CASE 1 in the paper version]
                                 outgoing_shipments[i] = incoming_orders[i];
-                        } else {// [cf. CASE 2 in the paper version]
+                        } else {
+                                // [cf. CASE 2 in the paper version]
                                 outgoing_shipments[i] = inventory_level[i] + incoming_shipments[i];
                         }
                 } else {
-                        if (incoming_orders[i] < incoming_shipments[i] + inventory_level[i]) {// [cf. CASE 3 in the Paper] Note [-(inventory_level)] is positive!
+                        if (incoming_orders[i] < incoming_shipments[i] + inventory_level[i]) {
+                                // [cf. CASE 3 in the Paper] Note [-(inventory_level)] is positive!
                                 outgoing_shipments[i] = incoming_orders[i] - inventory_level[i];
-                        } else {// [cf. CASE 4 in the Paper]
+                        } else {
+                                // [cf. CASE 4 in the Paper]
                                 outgoing_shipments[i] = incoming_shipments[i];
                         }
                 }
-                if (information_lead_times[i] == 0) {// if the information lead time of agent i equals 0, i.e. the order incoming_order[i] (= DEL^IN_i=DEL^OUT_i) arrives immediately at agent i+1.
+                if (information_lead_times[i] == 0) {
+                        // if the information lead time of agent i equals 0, i.e. the order incoming_order[i] (= DEL^IN_i=DEL^OUT_i) arrives immediately at agent i+1.
                         // incoming order(s) at agent i+1 (from agent i) = order immediately sent from agent i to agent i+1 + orders that were placed in previous time periods by agent i and that now arrive at agent i+1.
                         incoming_orders[i + 1] = incoming_orders[i] + start_inventory[1][0][i];
                 } else {
@@ -91,7 +101,8 @@ void calc_inventory_tp2(int start_inventory[][8][4]) {
         }
         // shipments are placed in transit
         for (int i = 0; i < tp2_dim; i++) {
-                if (tlt_min[i] == tlt_max[i]) {// no sampling required
+                if (tlt_min[i] == tlt_max[i]) {
+                        // no sampling required
                         transportation_lead_times[i] = tlt_min[i];
                 } else {
                         transportation_lead_times[i] = random_uniform_int(tlt_min[i], tlt_max[i]);
@@ -115,7 +126,7 @@ int calc_TC_tp2(int start_inventory[][8][4]) {
         return (((start_inventory[0][0][0] > 0) ? start_inventory[0][0][0] * h_c[0] : (-1) * start_inventory[0][0][0] * b_c[0]) + ((start_inventory[0][0][1] > 0) ? start_inventory[0][0][1] * h_c[1] : (-1) * start_inventory[0][0][1] * b_c[1]) + ((start_inventory[0][0][2] > 0) ? start_inventory[0][0][2] * h_c[2] : (-1) * start_inventory[0][0][2] * b_c[2]) + ((start_inventory[0][0][3] > 0) ? start_inventory[0][0][3] * h_c[3] : (-1) * start_inventory[0][0][3] * b_c[3]));
 }
 
-double tp2(Eigen::VectorXi action_vector, int noise_level) {
+double get_true_objective_value_tp2(const Eigen::VectorXi &action_vector) {
         int start_inventory[2][8][tp2_dim] = {{
                                                   {action_vector[0], action_vector[1], action_vector[2], action_vector[3]},
                                                   {0, 0, 0, 0},
@@ -128,7 +139,8 @@ double tp2(Eigen::VectorXi action_vector, int noise_level) {
                                               },
                                               {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
 
-        int period_number = 1200;// Supply Chain Horizon
+        // Supply Chain Horizon
+        int period_number = 1200;
         double reward = 0;
 
         for (int t = 0; t < period_number; t++) {
@@ -137,4 +149,16 @@ double tp2(Eigen::VectorXi action_vector, int noise_level) {
         }
 
         return reward;
+}
+
+double tp2(const Eigen::VectorXi &action_vector, int noise_level) {
+        if (noise_level == 0) {
+                double sum = 0;
+                for (int i = 0; i < 1000; ++i) {
+                        sum += get_true_objective_value_tp2(action_vector);
+                }
+                return sum / 1000;
+        } else {
+                return get_true_objective_value_tp2(action_vector);
+        }
 }
