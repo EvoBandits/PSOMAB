@@ -4,16 +4,16 @@ Eigen::Vector2i tp1_lb(20, 40);
 Eigen::Vector2i tp1_ub(360, 300);
 
 void calc_inventory_tp1(int start_inventory[][8][2]) {
-        int d_min = 20;
-        int d_max = 60;
+        const int d_min = 20;
+        const int d_max = 60;
 
         //transportation lead times
-        std::vector<int> tlt_min{1, 2, 4, 3};
-        std::vector<int> tlt_max{1, 4, 6, 5};
+        const int tlt_min[] = {1, 2, 4, 3};
+        const int tlt_max[] = {1, 4, 6, 5};
 
         //information lead times
-        std::vector<int> ilt_min{0, 0, 0, 0};
-        std::vector<int> ilt_max{0, 1, 1, 2};
+        const int ilt_min[] = {0, 0, 0, 0};
+        const int ilt_max[] = {0, 1, 1, 2};
 
         // Information lead time that an order takes from agent i to agent i+1
         int information_lead_times[tp1_dim] = {0, 0};
@@ -33,8 +33,8 @@ void calc_inventory_tp1(int start_inventory[][8][2]) {
         int inventory_level[tp1_dim] = {start_inventory[0][0][0], start_inventory[0][0][1]};
 
         int arr_size = 8;
-        for (int i = 0; i < tp1_dim; i++) {
-                for (int j = 0; j < arr_size; j++) {
+        for (int i = 0; i < tp1_dim; ++i) {
+                for (int j = 0; j < arr_size; ++j) {
                         if (j == 0) {
                                 // Shipments arrive
                                 start_inventory[0][j][i] = start_inventory[0][j][i] + incoming_shipments[i];
@@ -56,7 +56,7 @@ void calc_inventory_tp1(int start_inventory[][8][2]) {
                 }
         }
 
-        for (int i = 0; i < tp1_dim; i++) {
+        for (int i = 0; i < tp1_dim; ++i) {
                 if (i == 0) {
                         // sampling external customer demand
                         incoming_orders[i] = random_uniform_int(d_min, d_max);
@@ -102,12 +102,12 @@ void calc_inventory_tp1(int start_inventory[][8][2]) {
         }
 
         // updating the inventory level(s), i.e. subtracting the demand(s) in the current time period
-        for (int i = 0; i < tp1_dim; i++) {
+        for (int i = 0; i < tp1_dim; ++i) {
                 start_inventory[0][0][i] = start_inventory[0][0][i] - incoming_orders[i];
         }
 
         // shipments are placed in transit
-        for (int i = 0; i < tp1_dim; i++) {
+        for (int i = 0; i < tp1_dim; ++i) {
                 if (tlt_min[i] == tlt_max[i]) {
                         // no sampling required
                         transportation_lead_times[i] = tlt_min[i];
@@ -127,9 +127,9 @@ void calc_inventory_tp1(int start_inventory[][8][2]) {
 
 int calc_TC_tp1(int start_inventory[][8][2]) {
         // backorder costs
-        std::vector<int> b_c{24, 12, 6, 3};
+        int b_c[] = {24, 12, 6, 3};
         // holding costs
-        std::vector<int> h_c{8, 4, 2, 1};
+        int h_c[] = {8, 4, 2, 1};
 
         return (((start_inventory[0][0][0] > 0) ? start_inventory[0][0][0] * h_c[0] : (-1) * start_inventory[0][0][0] * b_c[0]) + ((start_inventory[0][0][1] > 0) ? start_inventory[0][0][1] * h_c[1] : (-1) * start_inventory[0][0][1] * b_c[1]));
 }
@@ -151,7 +151,7 @@ double get_true_objective_value_tp1(const Eigen::VectorXi &action_vector) {
         int period_number = 1200;
         double reward = 0;
 
-        for (int i = 0; i < period_number; i++) {
+        for (int i = 0; i < period_number; ++i) {
                 calc_inventory_tp1(start_inventory);
                 reward = reward + calc_TC_tp1(start_inventory);
         }
@@ -162,10 +162,10 @@ double get_true_objective_value_tp1(const Eigen::VectorXi &action_vector) {
 double tp1(const Eigen::VectorXi &action_vector, int noise_level) {
         if (noise_level == 0) {
                 double sum = 0;
-                for (int i = 0; i < 1000; ++i) {
+                for (int i = 0; i < 500; ++i) {
                         sum += get_true_objective_value_tp1(action_vector);
                 }
-                return sum / 1000;
+                return sum / 500;
         } else {
                 return get_true_objective_value_tp1(action_vector);
         }
