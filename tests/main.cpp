@@ -19,7 +19,7 @@
 #include "problems/tp2/tp2.h"
 
 void single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
-void multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs);
+double multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs);
 
 int main() {
         int max_simulation = 10000;
@@ -27,13 +27,22 @@ int main() {
         bool use_random_location_update = false;
         bool cap_velocity = true;
 
-        std::string problem = "tp1";
-        std::string algo = "pso";
+        std::string problems[] = {"styblinski-tang", "ackley", "tp1", "tp2", "inventory"};
+        std::string algos[] = {"pso", "psoan", "psoer", "psogd", "lapso", "psomab", "psoocbaa", "psoern"};
 
-        //single_run(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity);
+        int num_runs = 50;
 
-        int num_runs = 100;
-        multiple_runs(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity, num_runs);
+        for (const auto &problem : problems) {
+                for (const auto &algo : algos) {
+                        std::cout << problem << " " << algo << std::endl;
+                        double mean_reward = multiple_runs(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity, num_runs);
+                        std::cout << "Mean reward: " << mean_reward << std::endl;
+                        //write to file
+                        std::ofstream file(problem + "_" + algo + "_" + std::to_string(num_runs) + ".csv");
+                        file << num_runs << "," << mean_reward << std::endl;
+                        file.close();
+                }
+        }
 
         return 0;
 }
@@ -169,7 +178,7 @@ void single_run(const std::string &problem, const std::string &algo, int max_sim
         }
 }
 
-void multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs) {
+double multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs) {
         double mean_reward = 0;
 
         int dimension;
@@ -288,5 +297,5 @@ void multiple_runs(const std::string &problem, const std::string &algo, int max_
                 }
         }
 
-        std::cout << "Mean reward: " << mean_reward / num_runs << std::endl;
+        return mean_reward / num_runs;
 }
