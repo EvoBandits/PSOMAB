@@ -166,7 +166,7 @@ void PSOMAB::save_current_best_solution() {
 }
 
 void PSOMAB::save_history() {
-        if (pso.simulations_used() % 100 == 0) {
+        if (pso.simulations_used() % 10000 == 0) {
                 save_current_best_solution();
         }
 }

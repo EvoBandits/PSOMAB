@@ -9,8 +9,11 @@
 #include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
 #include "../pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h"
 
+#include <chrono>
 #include <ctime>
 #include <iostream>
+#include <omp.h>
+#include <thread>
 
 #include "problems/ackley/ackley.h"
 #include "problems/inventory/inventory.h"
@@ -21,27 +24,36 @@
 void single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
 double multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs);
 
+int max_simulation = 10000;
+int num_particle = 50;
+bool use_random_location_update = false;
+bool cap_velocity = true;
+
+std::string problems[] = {"tp1", "tp2", "styblinski-tang", "ackley", "inventory"};
+std::string algos[] = {"psoan", "psoern", "psomab", "psogd", "lapso", "psoocbaa", "pso"};
+
+int num_runs = 500;
+
+void run(const std::string &problem, const std::string &algo) {
+        std::cout << problem << " " << algo << std::endl;
+        double mean_reward = multiple_runs(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity, num_runs);
+        std::cout << "Mean reward: " << mean_reward << std::endl;
+        //write to file
+        std::ofstream file(problem + "_" + algo + "_" + std::to_string(num_runs) + ".csv");
+        file << num_runs << "," << mean_reward << std::endl;
+        file.close();
+}
+
 int main() {
-        int max_simulation = 10000;
-        int num_particle = 50;
-        bool use_random_location_update = false;
-        bool cap_velocity = true;
-
-        std::string problems[] = {"styblinski-tang", "ackley", "tp1", "tp2", "inventory"};
-        std::string algos[] = {"pso", "psoan", "psoer", "psogd", "lapso", "psomab", "psoocbaa", "psoern"};
-
-        int num_runs = 50;
-
+        std::vector<std::thread> threads;
         for (const auto &problem : problems) {
                 for (const auto &algo : algos) {
-                        std::cout << problem << " " << algo << std::endl;
-                        double mean_reward = multiple_runs(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity, num_runs);
-                        std::cout << "Mean reward: " << mean_reward << std::endl;
-                        //write to file
-                        std::ofstream file(problem + "_" + algo + "_" + std::to_string(num_runs) + ".csv");
-                        file << num_runs << "," << mean_reward << std::endl;
-                        file.close();
+                        threads.emplace_back(run, problem, algo);
                 }
+        }
+
+        for (auto &thread : threads) {
+                thread.join();
         }
 
         return 0;
