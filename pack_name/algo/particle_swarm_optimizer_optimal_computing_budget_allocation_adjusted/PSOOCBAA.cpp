@@ -51,7 +51,7 @@ void PSOOCBAA::sample_ocba(int iteration) {
         }
 
         int additional_simulations_used = pso.num_particle_ * n_0;
-        int additional_simulations_max = additional_simulations_used + iteration * 2;
+        int additional_simulations_max = additional_simulations_used + 50;
 
         // include the pbest of each particle in the ocba procedure
         int num_participating_particles = pso.num_particle_;
@@ -59,7 +59,7 @@ void PSOOCBAA::sample_ocba(int iteration) {
                 num_participating_particles += pso.num_particle_;
         }
 
-        int delta = std::max((int) 0.1 * num_participating_particles, 1);// suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
+        int delta = 5;
 
         int best_particle_index = find_best_particle_index(num_participating_particles);
 
