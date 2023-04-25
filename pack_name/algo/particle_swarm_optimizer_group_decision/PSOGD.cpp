@@ -1,5 +1,7 @@
 #include "PSOGD.h"
 
+#include <utility>
+
 Eigen::VectorXd PSOGD::calculate_search_center() {
         Eigen::VectorXd rewards_all(pso.num_particle_);
         for (int i = 0; i < pso.num_particle_; i++) {
@@ -56,9 +58,7 @@ void PSOGD::update_positions() {
         }
 }
 
-PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
-        pso.w = 0.4;
-}
+PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {}
 
 void PSOGD::optimize() {
         while (true) {

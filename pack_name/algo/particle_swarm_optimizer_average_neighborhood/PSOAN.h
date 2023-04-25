@@ -15,7 +15,7 @@
 class PSOAN {
        private:
         PSO pso;
-        int neighborhood_size = (int) (pso.num_particle_*0.3);
+        int neighborhood_size = (int) (pso.num_particle_);
         void update_positions();
         void calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms);
         void calculate_distance_matrix(Eigen::MatrixXd &distance_matrix);
