@@ -1,27 +1,23 @@
 #include "ackley.h"
 
-Eigen::Vector2i ackley_lb(-500, -500);
-Eigen::Vector2i ackley_ub(500, 500);
-int ackley_dim = 2;
+int ackley_dim = 1000;
+Eigen::VectorXi ackley_lb = Eigen::VectorXi::Constant(ackley_dim, -500);
+Eigen::VectorXi ackley_ub = Eigen::VectorXi::Constant(ackley_dim, 500);
 
 double get_true_objective_value_ackley(const Eigen::VectorXi &action_vector) {
-        double sum_sq = 0;
-        double sum_cos = 0;
 
         double a = 20;
         double b = 0.2;
-        double c = 2 * M_PI;
 
-        for (int i = 0; i < ackley_dim; i++) {
-                sum_sq += pow(action_vector[i], 2)/100;
-                sum_cos += cos(c * action_vector[i]);
-        }
+        double sum_sq = action_vector.array().square().sum() / 100.0;
+        double sum_cos = (action_vector.array().cos()).sum();
 
-        return -a*exp(-b*sqrt(sum_sq/ackley_dim)) - exp(sum_cos/ ackley_dim) + a + exp(1);
+        return -a * exp(-b * sqrt(sum_sq / ackley_dim)) - exp(sum_cos / ackley_dim) + a + exp(1);
 }
 
-
-double ackley(Eigen::VectorXi action_vector, int noise_level) {
-        return get_true_objective_value_ackley(action_vector) + noise_level * random_normal(0, 1);
+double ackley(const Eigen::VectorXi &action_vector, int noise_level) {
+        if (noise_level)
+                return get_true_objective_value_ackley(action_vector) * random_normal(1, 0.18);
+        else
+                return get_true_objective_value_ackley(action_vector);
 }
-
