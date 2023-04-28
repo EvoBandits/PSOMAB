@@ -40,6 +40,7 @@ void PSOAN::update_positions() {
                 Eigen::VectorXd cognitive_component = (random_uniform_double(0,1) * pso.c1) * cognitive_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + cognitive_component + social_component;
+                if (pso.cap_velocity_) pso.cap_velocity(new_velocity);
 
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
@@ -55,7 +56,7 @@ void PSOAN::update_positions() {
         }
 }
 
-PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
+PSOAN::PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
 }
 
 void PSOAN::optimize() {
@@ -64,6 +65,8 @@ void PSOAN::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached())
                                 return;
                 }
@@ -75,4 +78,6 @@ void PSOAN::optimize() {
 std::vector<solution> PSOAN::best_solutions() {
         return pso.best_solutions();
 }
-
+void PSOAN::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
+}

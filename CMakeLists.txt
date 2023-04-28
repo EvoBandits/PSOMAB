@@ -29,5 +29,22 @@ add_executable(PSOMAB
         tests/problems/ackley/ackley.cpp
         tests/problems/tp1/tp1.cpp
         tests/problems/tp1/tp1.h
+        tests/problems/tp2/tp2.cpp
         tests/problems/tp2/tp2.h
-        tests/problems/tp2/tp2.cpp pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.cpp pack_name/util/SortIndices.h pack_name/util/SortIndices.cpp)
+        tests/problems/styblinski-tang/styblinski-tang.cpp
+        tests/problems/styblinski-tang/styblinski-tang.h
+        pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h
+        pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.cpp
+        pack_name/util/SortIndices.h pack_name/util/SortIndices.cpp
+        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.cpp
+        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h
+        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h
+        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.cpp
+        pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.cpp
+        pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h
+        pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.cpp
+        pack_name/util/SmartRounding.cpp pack_name/util/SmartRounding.h
+        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.cpp
+        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h
+        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.cpp
+        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h)
