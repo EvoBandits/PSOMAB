@@ -68,20 +68,31 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         } else {
                 local_arm_memories[particle_index].push_back(pso.particles()[particle_index]);
                 Arm &local_arm = local_arm_memories[particle_index].back();
-                arm_index_local =  (int) local_arm_memories[particle_index].size() - 1;
+                arm_index_local = (int) local_arm_memories[particle_index].size() - 1;
 
                 local_arm.pull();
                 pso.update_simulation_budget();
 
-                global_arm_memory.push_back(local_arm_memories[particle_index].back());
-                Arm &global_arm = global_arm_memory.back();
-                int arm_index_global = (int) global_arm_memory.size() - 1;
+                int arm_index_global = get_arm_index(local_arm, global_lookup_table);
+                if (arm_index_global >= 0) {
+                        Arm &global_arm = global_arm_memory[arm_index_global];
 
-                local_lookup_tables[particle_index].emplace(local_arm.get_action_vector(),arm_index_local);
-                global_lookup_table.emplace(local_arm.get_action_vector(), arm_index_global);
+                        delete_sat_node(arm_index_global, global_arm, global_sat);
 
+                        global_arm.update_num_pulls(1);
+                        global_arm.update_reward(local_arm.reward());
+
+                        global_sat.emplace(global_arm.mean_reward(), arm_index_global);
+                } else {
+                        global_arm_memory.push_back(local_arm_memories[particle_index].back());
+                        Arm &global_arm = global_arm_memory.back();
+                        arm_index_global = (int) global_arm_memory.size() - 1;
+
+                        global_lookup_table.emplace(local_arm.get_action_vector(), arm_index_global);
+                        global_sat.emplace(global_arm.mean_reward(), arm_index_global);
+                }
+                local_lookup_tables[particle_index].emplace(local_arm.get_action_vector(), arm_index_local);
                 local_sats[particle_index].emplace(local_arm.mean_reward(), arm_index_local);
-                global_sat.emplace(global_arm.mean_reward(), arm_index_global);
         }
 }
 
@@ -160,7 +171,7 @@ void PSOMAB::save_history() {
         }
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update) {
+PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool cap_velocity) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update, cap_velocity) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 std::unordered_map<Eigen::VectorXi, int> local_lookup_table;
                 local_lookup_tables.push_back(local_lookup_table);
@@ -197,17 +208,27 @@ void PSOMAB::optimize() {
                         int arm_index_local = get_arm_index(pso.particles()[particle_index], local_lookup_tables[particle_index]);
                         sample_and_update(particle_index, arm_index_local);
                         pso.save_history();
-                        if (pso.budget_reached()) return;
+                        if (pso.budget_reached())
+                                return;
 
                         // sample for best individual solution and update local and global memory
                         arm_index_local = best_individual_arm_indices[particle_index];
                         sample_and_update(particle_index, arm_index_local);
                         save_history();
-                        if (pso.budget_reached()) return;
+                        if (pso.budget_reached())
+                                return;
                 }
         }
 }
 
 std::vector<solution> PSOMAB::best_solutions() {
         return pso.best_solutions();
+}
+void PSOMAB::memory_to_csv(const std::string &filename) {
+        //ToDo: sum of pulls not equal to 10.000
+        for (const auto& arm: global_arm_memory){
+                pso.save_particle_to_memory(arm);
+        }
+
+        pso.memory_to_csv(filename);
 }

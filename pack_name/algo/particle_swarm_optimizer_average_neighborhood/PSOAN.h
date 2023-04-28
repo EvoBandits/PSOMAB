@@ -6,18 +6,25 @@
 #include "../../util/SortIndices.h"
 #include <iostream>
 
-    class PSOAN {
+/*
+ * Based on:
+ * Juan Rada-Vilela, Mark Johnston, and Mengjie Zhang. Population statistics for particle swarm optimization: Single-evaluation methods in noisy optimization problems.
+ * Soft computing, 19:2691–2716, 2015a
+ */
+
+class PSOAN {
        private:
         PSO pso;
-        int neighborhood_size = pso.num_particle_*0.3;
+        int neighborhood_size = (int) (pso.num_particle_);
         void update_positions();
         void calculate_averaged_best_individual_arms(std::vector<Eigen::VectorXd> &averaged_best_individual_arms);
         void calculate_distance_matrix(Eigen::MatrixXd &distance_matrix);
 
        public:
-        PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false);
+        PSOAN(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false, bool cap_velocity=true);
         void optimize();
         std::vector<solution> best_solutions();
+        void memory_to_csv(const std::string& filename);
 };
 
-#endif PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_AVERAGE_NEIGHBORHOOD_PSOAN_H_
+#endif //PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_AVERAGE_NEIGHBORHOOD_PSOAN_H_

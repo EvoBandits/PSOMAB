@@ -30,7 +30,7 @@ class PSOMAB {
         PSO pso;
 
         std::vector<int> retrieve_best_solutions();
-        int get_arm_index(const Arm& particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table);
+        static int get_arm_index(const Arm& particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table);
         static void delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
         void sample_and_update(int particle_index,  int best_individual_arm_index);
         int max_num_pulls();
@@ -39,9 +39,10 @@ class PSOMAB {
         void save_history();
 
        public:
-        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false);
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool cap_velocity=true);
         void optimize();
         std::vector<solution> best_solutions();
+        void memory_to_csv(const std::string& filename);
 };
 
 #endif// _PSOMAB_H_

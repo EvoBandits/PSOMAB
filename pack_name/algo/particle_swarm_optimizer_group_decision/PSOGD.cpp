@@ -1,5 +1,7 @@
 #include "PSOGD.h"
 
+#include <utility>
+
 Eigen::VectorXd PSOGD::calculate_search_center() {
         Eigen::VectorXd rewards_all(pso.num_particle_);
         for (int i = 0; i < pso.num_particle_; i++) {
@@ -14,6 +16,7 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
         double min = rewards_gd_maker_layer.minCoeff();
         double max = rewards_gd_maker_layer.maxCoeff();
 
+        // adapted because of mistake in paper
         Eigen::VectorXd decision_weights = exp(-(rewards_gd_maker_layer.array() - min) / (max - min));
 
         double sum_decision_weights = decision_weights.sum();
@@ -39,6 +42,7 @@ void PSOGD::update_positions() {
                 Eigen::VectorXd social_component = random_uniform_double(0,1) * alpha* social_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + social_component;
+                if (pso.cap_velocity_) pso.cap_velocity(new_velocity);
 
                 pso.velocity_[particle_index] = new_velocity;
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
@@ -54,10 +58,7 @@ void PSOGD::update_positions() {
         }
 }
 
-PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update) {
-        pso.w = 0.4;
-        alpha = 3.2;
-}
+PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {}
 
 void PSOGD::optimize() {
         while (true) {
@@ -65,6 +66,8 @@ void PSOGD::optimize() {
                         pso.sample_and_update(particle_index);
 
                         pso.save_history();
+                        if (pso.memory_active)
+                                pso.save_particle_to_memory(pso.particles_[particle_index]);
                         if (pso.budget_reached()) {
                                 return;
                         }
@@ -75,4 +78,7 @@ void PSOGD::optimize() {
 
 std::vector<solution> PSOGD::best_solutions() {
         return pso.best_solutions();
+}
+void PSOGD::memory_to_csv(const std::string &filename) {
+        pso.memory_to_csv(filename);
 }
