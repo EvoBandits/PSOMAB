@@ -166,7 +166,7 @@ void PSOMAB::save_current_best_solution() {
 }
 
 void PSOMAB::save_history() {
-        if (pso.simulations_used() % 100 == 0) {
+        if (pso.simulations_used() % pso.save_after == 0) {
                 save_current_best_solution();
         }
 }
@@ -225,7 +225,6 @@ std::vector<solution> PSOMAB::best_solutions() {
         return pso.best_solutions();
 }
 void PSOMAB::memory_to_csv(const std::string &filename) {
-        //ToDo: sum of pulls not equal to 10.000
         for (const auto& arm: global_arm_memory){
                 pso.save_particle_to_memory(arm);
         }
