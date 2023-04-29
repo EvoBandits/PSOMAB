@@ -18,15 +18,15 @@ git submodule update --init --recursive
 To use MEMO PSO, include the relevant headers and create an instance of the MEMOPSO class:
 
 ```c++
-#include "./pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
+#include "./pack_name/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
 #include "./problems/ackley/ackley.h"
 
 #include <iostream>
 
-PSOMAB psomab_instance = PSOMAB(ackley, 10000, 10, ackley_lb, ackley_ub, ackley_dim, false);
-psomab_instance.optimize();
+MEMOPSO memopso_instance = MEMOPSO(ackley, 10000, 10, ackley_lb, ackley_ub, ackley_dim, false);
+memopso_instance.optimize();
 
-std::cout << psomab_instance.get_best_solution().back().get_action_vector() << std::endl;
+std::cout << memopso_instance.get_best_solution().back().get_action_vector() << std::endl;
 ```
 
 ## Contributing

@@ -1,10 +1,10 @@
 #ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_OPTIMAL_COMPUTING_BUDGET_ALLOCATION_ADJUSTED_PSOOCBAA_H_
 #define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_OPTIMAL_COMPUTING_BUDGET_ALLOCATION_ADJUSTED_PSOOCBAA_H_
 
+#include "../../../../util/SmartRounding.h"
+#include "../../../../util/SortIndices.h"
+#include "../../PSO.h"
 #include "Eigen/Core"
-#include "../particle_swarm_optimizer/PSO.h"
-#include "../../util/SortIndices.h"
-#include "../../util/SmartRounding.h"
 #include <iostream>
 
 /*
