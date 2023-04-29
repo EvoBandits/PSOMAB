@@ -1,8 +1,9 @@
 #ifndef _PSOMAB_H_
 #define _PSOMAB_H_
-#include "../../objects/arm/Arm.h"
-#include "../../objects/solution/Solution.h"
-#include "../particle_swarm_optimizer/PSO.h"
+#include "../../../../objects/arm/Arm.h"
+#include "../../../../objects/solution/Solution.h"
+#include "../../../../util/SolutionCodeCalculation.h"
+#include "../../PSO.h"
 #include "Eigen/Core"
 #include <cmath>
 #include <map>
@@ -12,10 +13,8 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "../../util/SolutionCodeCalculation.h"
 
-
-class PSOMAB {
+class MEMOPSO {
        private:
         // local SATs, arm_memory, LUTs
         std::vector<std::multimap<double, int>> local_sats;
@@ -39,7 +38,7 @@ class PSOMAB {
         void save_history();
 
        public:
-        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, bool use_random_location_update=false, bool cap_velocity=true);
+        MEMOPSO(std::function<double(Eigen::VectorXi, int)> func, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, int max_sim, int pop_s = 50, bool use_random_location_update=false, bool cap_velocity=true);
         void optimize();
         std::vector<solution> best_solutions();
         void memory_to_csv(const std::string& filename);
