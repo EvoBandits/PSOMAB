@@ -36,8 +36,9 @@ int main() {
     int function_dim = 2;
     Eigen::Vector2i function_lb(-500, -500);
     Eigen::Vector2i function_ub(500, 500);
+    int max_function_evaluations = 10000;
     
-    MEMOPSO memopso_instance = MEMOPSO(problem_function, 10000, 10, function_lb, function_ub, function_dim, false);
+    MEMOPSO memopso_instance = MEMOPSO(problem_function, function_lb, function_ub, function_dim, max_function_evaluations);
     memopso_instance.optimize();
 
     std::cout << memopso_instance.get_best_solution().back().get_action_vector() << std::endl;

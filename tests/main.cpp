@@ -160,7 +160,7 @@ std::vector<solution> single_run(const std::string &problem, const std::string &
                 return lapso_instance.best_solutions();
         } else if (algo == "memopso") {
                 std::cout << "MEMOPSO: ";
-                MEMOPSO memopso_instance = MEMOPSO(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
+                MEMOPSO memopso_instance = MEMOPSO(opti_func, lb, ub, dimension, max_simulation, num_particle, use_random_location_update, cap_velocity);
                 memopso_instance.optimize();
                 if (memory)
                         memopso_instance.memory_to_csv(problem + "_" + algo + "_memory_" + time + ".csv");
