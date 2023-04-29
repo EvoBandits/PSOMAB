@@ -1,4 +1,4 @@
-#include "PSOMAB.h"
+#include "MEMOPSO.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -7,7 +7,7 @@
 #include <set>
 #include <utility>
 
-std::vector<int> PSOMAB::retrieve_best_solutions() {
+std::vector<int> MEMOPSO::retrieve_best_solutions() {
         std::vector<int> best_individual_arm_indices;
 
         double best_global_mean_reward;
@@ -29,7 +29,7 @@ std::vector<int> PSOMAB::retrieve_best_solutions() {
         return best_individual_arm_indices;
 }
 
-int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table) {
+int MEMOPSO::get_arm_index(const Arm &particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table) {
         auto arm_index = lookup_table.find(particle.get_action_vector());
         if (arm_index == lookup_table.end())
                 return -1;
@@ -37,7 +37,7 @@ int PSOMAB::get_arm_index(const Arm &particle, std::unordered_map<Eigen::VectorX
                 return (*arm_index).second;
 }
 
-void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat) {
+void MEMOPSO::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat) {
         auto sat_node = sat.find(arm.mean_reward());
 
         while ((*sat_node).second != arm_index)
@@ -46,7 +46,7 @@ void PSOMAB::delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int>
         sat.erase(sat_node);
 }
 
-void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
+void MEMOPSO::sample_and_update(int particle_index, int arm_index_local) {
         if (arm_index_local >= 0) {
                 Arm &local_arm = local_arm_memories[particle_index][arm_index_local];
                 int arm_index_global = get_arm_index(local_arm, global_lookup_table);
@@ -96,7 +96,7 @@ void PSOMAB::sample_and_update(int particle_index, int arm_index_local) {
         }
 }
 
-int PSOMAB::max_num_pulls() {
+int MEMOPSO::max_num_pulls() {
         int max_number_pulls = std::numeric_limits<int>::min();
         for (const auto &arm : global_arm_memory) {
                 max_number_pulls = std::max(max_number_pulls, arm.num_pulls());
@@ -104,7 +104,7 @@ int PSOMAB::max_num_pulls() {
         return max_number_pulls;
 }
 
-int PSOMAB::find_best_ucb() {
+int MEMOPSO::find_best_ucb() {
         // find min mean of non-dominated set
         int arm_index_ucb_norm_min = (*global_sat.begin()).second;
         double ucb_norm_min = global_arm_memory[arm_index_ucb_norm_min].mean_reward();
@@ -152,7 +152,7 @@ int PSOMAB::find_best_ucb() {
         return best_arm_index;
 }
 
-void PSOMAB::save_current_best_solution() {
+void MEMOPSO::save_current_best_solution() {
         int best_arm_index = find_best_ucb();
         Arm &best_arm = global_arm_memory[best_arm_index];
 
@@ -165,13 +165,13 @@ void PSOMAB::save_current_best_solution() {
         pso.best_solutions().emplace_back(num_pulls_all, best_solution, num_pulls_best, mean_value, true_value);
 }
 
-void PSOMAB::save_history() {
+void MEMOPSO::save_history() {
         if (pso.simulations_used() % pso.save_after == 0) {
                 save_current_best_solution();
         }
 }
 
-PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool cap_velocity) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update, cap_velocity) {
+MEMOPSO::MEMOPSO(std::function<double(Eigen::VectorXi, int)> func, int max_sim, int pop_s, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, bool use_random_location_update, bool cap_velocity) : pso(pop_s, D, x_lb, x_ub, std::move(func), max_sim, use_random_location_update, cap_velocity) {
         for (int particle_index = 0; particle_index < pso.num_particle(); particle_index++) {
                 std::unordered_map<Eigen::VectorXi, int> local_lookup_table;
                 local_lookup_tables.push_back(local_lookup_table);
@@ -197,7 +197,7 @@ PSOMAB::PSOMAB(std::function<double(Eigen::VectorXi, int)> func, int max_sim, in
         save_current_best_solution();
 }
 
-void PSOMAB::optimize() {
+void MEMOPSO::optimize() {
         while (true) {
                 std::vector<int> best_individual_arm_indices = retrieve_best_solutions();
 
@@ -221,10 +221,10 @@ void PSOMAB::optimize() {
         }
 }
 
-std::vector<solution> PSOMAB::best_solutions() {
+std::vector<solution> MEMOPSO::best_solutions() {
         return pso.best_solutions();
 }
-void PSOMAB::memory_to_csv(const std::string &filename) {
+void MEMOPSO::memory_to_csv(const std::string &filename) {
         for (const auto& arm: global_arm_memory){
                 pso.save_particle_to_memory(arm);
         }

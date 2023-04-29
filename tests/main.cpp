@@ -1,13 +1,13 @@
 #include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
-#include "../pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h"
-#include "../pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h"
-#include "../pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h"
-#include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h"
-#include "../pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.h"
-#include "../pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
-#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h"
-#include "../pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
-#include "../pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
+#include "../pack_name/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h"
 
 #include <chrono>
 #include <ctime>
@@ -35,7 +35,7 @@ bool memory_ = false;
 bool to_csv_ = true;
 
 std::string problems[] = {"ackley"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
-std::string algos[] = {"psomab"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
+std::string algos[] = {"memopso"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
 
 int num_runs_ = 10;
 
@@ -158,13 +158,13 @@ std::vector<solution> single_run(const std::string &problem, const std::string &
                 if (memory)
                         lapso_instance.memory_to_csv(problem + "_" + algo + "_memory_" + time + ".csv");
                 return lapso_instance.best_solutions();
-        } else if (algo == "psomab") {
-                std::cout << "PSOMAB: ";
-                PSOMAB psomab_instance = PSOMAB(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
-                psomab_instance.optimize();
+        } else if (algo == "memopso") {
+                std::cout << "MEMOPSO: ";
+                MEMOPSO memopso_instance = MEMOPSO(opti_func, max_simulation, num_particle, lb, ub, dimension, use_random_location_update, cap_velocity);
+                memopso_instance.optimize();
                 if (memory)
-                        psomab_instance.memory_to_csv(problem + "_" + algo + "_memory_" + time + ".csv");
-                return psomab_instance.best_solutions();
+                        memopso_instance.memory_to_csv(problem + "_" + algo + "_memory_" + time + ".csv");
+                return memopso_instance.best_solutions();
         } else if (algo == "psoern") {
                 std::cout << "PSOERN: ";
                 PSOERN psoern_instance = PSOERN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
