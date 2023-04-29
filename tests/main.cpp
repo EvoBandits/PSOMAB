@@ -1,13 +1,13 @@
-#include "../pack_name/algo/particle_swarm_optimizer/PSO.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
-#include "../pack_name/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h"
+#include "../memo/algo/particle_swarm_optimizer/PSO.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
+#include "../memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h"
 
 #include <chrono>
 #include <ctime>
@@ -21,7 +21,7 @@
 #include "problems/tp1/tp1.h"
 #include "problems/tp2/tp2.h"
 
-#include "../pack_name/objects/solution/Solution.h"
+#include "../memo/objects/solution/Solution.h"
 
 std::vector<solution> single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
 std::vector<std::vector<solution>> multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory);
