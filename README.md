@@ -1,6 +1,6 @@
-# MEMO PSO
+# MEMO
 
-MEMO PSO is a C++ library for solving stochastic optimization problems using a memory-enhanced particle swarm optimizer.
+MEMO is a C++ library for solving stochastic optimization problems using a memory-enhanced optimizer.
 
 [![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml)
 
@@ -18,15 +18,32 @@ git submodule update --init --recursive
 To use MEMO PSO, include the relevant headers and create an instance of the MEMOPSO class:
 
 ```c++
-#include "./pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h"
-#include "./problems/ackley/ackley.h"
+#include "./memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
 
 #include <iostream>
 
-PSOMAB psomab_instance = PSOMAB(ackley, 10000, 10, ackley_lb, ackley_ub, ackley_dim, false);
-psomab_instance.optimize();
+double problem_function(const std::vector<double> &x) {
+    double a = 20;
+    double b = 0.2;
 
-std::cout << psomab_instance.get_best_solution().back().get_action_vector() << std::endl;
+    double sum_sq = x.array().square().sum() / 100.0;
+    double sum_cos = (x.array().cos()).sum();
+
+    return -a * exp(-b * sqrt(sum_sq / ackley_dim)) - exp(sum_cos / ackley_dim) + a + exp(1);
+}
+
+int main() {
+    int function_dim = 2;
+    Eigen::Vector2i function_lb(-500, -500);
+    Eigen::Vector2i function_ub(500, 500);
+    int max_function_evaluations = 10000;
+    
+    MEMOPSO memopso_instance = MEMOPSO(problem_function, function_lb, function_ub, function_dim, max_function_evaluations);
+    memopso_instance.optimize();
+
+    std::cout << memopso_instance.get_best_solution().back().get_action_vector() << std::endl;
+    return 0;
+}
 ```
 
 ## Contributing
@@ -35,11 +52,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Licence
 
-MEMO PSO is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
+MEMO is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
 
 ## Credit
 
-MEMO PSO was developed by:
+MEMO was developed by:
 
 * Deniz Preil
 * Timo Kühne
@@ -52,4 +69,4 @@ If you use MEMO PSO in your scientific work, please cite it as follows:
 tbd
 
 ## Third Party Dependencies
-MEMO PSO relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
+MEMO relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
