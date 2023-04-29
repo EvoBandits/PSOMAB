@@ -70,6 +70,7 @@ class PSO {
 
         std::unordered_map<Eigen::VectorXi, int> memory;
         bool memory_active = true;
+        int save_after = 100;
         void save_particle_to_memory(const Arm &particle);
         void memory_to_csv(const std::string &filename);
         void save_particle_to_memory(const Arm &particle, int num_pulls);

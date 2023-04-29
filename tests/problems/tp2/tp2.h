@@ -17,6 +17,7 @@ constexpr int tp2_dim = 4;
 
 void calc_inventory_tp2(int start_inventory[][8][4]);
 int calc_TC_tp2(int start_inventory[][8][4]);
-double tp2(Eigen::VectorXi action_vector, int noise_level);
+double get_true_objective_value_tp2(const Eigen::VectorXi &action_vector);
+double tp2(const Eigen::VectorXi &action_vector, int noise_level);
 
 #endif//PSOMAB_TESTS_PROBLEMS_TP2_TP2_H_
