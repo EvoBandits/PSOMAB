@@ -1,6 +1,6 @@
-# MEMO PSO
+# MEMO
 
-MEMO PSO is a C++ library for solving stochastic optimization problems using a memory-enhanced particle swarm optimizer.
+MEMO is a C++ library for solving stochastic optimization problems using a memory-enhanced optimizer.
 
 [![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml)
 
@@ -35,11 +35,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Licence
 
-MEMO PSO is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
+MEMO is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
 
 ## Credit
 
-MEMO PSO was developed by:
+MEMO was developed by:
 
 * Deniz Preil
 * Timo Kühne
@@ -52,4 +52,4 @@ If you use MEMO PSO in your scientific work, please cite it as follows:
 tbd
 
 ## Third Party Dependencies
-MEMO PSO relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
+MEMO relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
