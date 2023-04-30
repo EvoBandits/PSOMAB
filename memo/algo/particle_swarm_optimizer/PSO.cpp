@@ -158,7 +158,7 @@ bool PSO::budget_reached() const{
 }
 
 void PSO::save_history() {
-        if (simulations_used_ % 100 == 0)
+        if (simulations_used_ % save_after == 0)
                 save_current_best_solution();
 }
 

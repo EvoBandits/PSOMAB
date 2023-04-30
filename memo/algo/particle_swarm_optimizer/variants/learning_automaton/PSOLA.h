@@ -1,12 +1,12 @@
 #ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_PSOLA_H_
 #define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_PSOLA_H_
 
-#include <iostream>
+#include "../../../../util/RandomNumber.h"
+#include "../../../../util/SortIndices.h"
+#include "../../PSO.h"
 #include "Eigen/Core"
-#include "../particle_swarm_optimizer/PSO.h"
-#include "../../util/SortIndices.h"
-#include "../../util/RandomNumber.h"
 #include "Eigen/src/Core/Matrix.h"
+#include <iostream>
 
 /*
  * Based on:
