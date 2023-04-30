@@ -1,8 +1,8 @@
 #ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_EQUAL_RESAMPLING_PSOER_H_
 #define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_EQUAL_RESAMPLING_PSOER_H_
 
-#include "../particle_swarm_optimizer/PSO.h"
-#include "../../util/RandomNumber.h"
+#include "../../../../util/RandomNumber.h"
+#include "../../PSO.h"
 
 class PSOER {
        private:

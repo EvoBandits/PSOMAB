@@ -9,22 +9,22 @@ include_directories(third_party/eigen)
 
 
 add_executable(PSOMAB
-        pack_name/objects/arm/Arm.cpp
-        pack_name/objects/arm/Arm.h
-        pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.cpp
-        pack_name/algo/particle_swarm_optimizer_multi_armed_bandit/PSOMAB.h
-        pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.cpp
-        pack_name/algo/particle_swarm_optimizer_average_neighborhood/PSOAN.h
-        pack_name/util/RandomNumber.cpp
-        pack_name/util/RandomNumber.h
+        memo/objects/arm/Arm.cpp
+        memo/objects/arm/Arm.h
+        memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.cpp
+        memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h
+        memo/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.cpp
+        memo/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h
+        memo/util/RandomNumber.cpp
+        memo/util/RandomNumber.h
         tests/main.cpp
         tests/problems/inventory/inventory.h
         tests/problems/inventory/inventory.cpp
-        pack_name/algo/particle_swarm_optimizer/PSO.cpp
-        pack_name/algo/particle_swarm_optimizer/PSO.h
-        pack_name/objects/solution/Solution.cpp
-        pack_name/objects/solution/Solution.h
-        pack_name/util/SolutionCodeCalculation.h
+        memo/algo/particle_swarm_optimizer/PSO.cpp
+        memo/algo/particle_swarm_optimizer/PSO.h
+        memo/objects/solution/Solution.cpp
+        memo/objects/solution/Solution.h
+        memo/util/SolutionCodeCalculation.h
         tests/problems/ackley/ackley.h
         tests/problems/ackley/ackley.cpp
         tests/problems/tp1/tp1.cpp
@@ -33,18 +33,18 @@ add_executable(PSOMAB
         tests/problems/tp2/tp2.h
         tests/problems/styblinski-tang/styblinski-tang.cpp
         tests/problems/styblinski-tang/styblinski-tang.h
-        pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.h
-        pack_name/algo/particle_swarm_optimizer_group_decision/PSOGD.cpp
-        pack_name/util/SortIndices.h pack_name/util/SortIndices.cpp
-        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.cpp
-        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation/PSOOCBA.h
-        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.h
-        pack_name/algo/particle_swarm_optimizer_optimal_computing_budget_allocation_adjusted/PSOOCBAA.cpp
-        pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.cpp
-        pack_name/algo/particle_swarm_optimizer_learning_automaton/LAPSO.h
-        pack_name/algo/particle_swarm_optimizer_learning_automaton/PSOLA.cpp
-        pack_name/util/SmartRounding.cpp pack_name/util/SmartRounding.h
-        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.cpp
-        pack_name/algo/particle_swarm_optimizer_top_n_resampling/PSOERN.h
-        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.cpp
-        pack_name/algo/particle_swarm_optimizer_equal_resampling/PSOER.h)
+        memo/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h
+        memo/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.cpp
+        memo/util/SortIndices.h memo/util/SortIndices.cpp
+        memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.cpp
+        memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h
+        memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h
+        memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.cpp
+        memo/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.cpp
+        memo/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h
+        memo/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.cpp
+        memo/util/SmartRounding.cpp memo/util/SmartRounding.h
+        memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.cpp
+        memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h
+        memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.cpp
+        memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h)
