@@ -1,9 +1,9 @@
 #ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_GROUP_DECISION_PSOGD_H_
 #define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_GROUP_DECISION_PSOGD_H_
 
-#include "../particle_swarm_optimizer/PSO.h"
-#include "../../util/RandomNumber.h"
-#include "../../util/SortIndices.h"
+#include "../../../../util/RandomNumber.h"
+#include "../../../../util/SortIndices.h"
+#include "../../PSO.h"
 #include <climits>
 #include <iostream>
 

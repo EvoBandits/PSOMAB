@@ -30,7 +30,7 @@ void PSOOCBA::sample_ocba(int iteration) {
         }
 
         int additional_simulations_done = pso.num_particle_ * n_0;
-        int additional_simulations_max = additional_simulations_done + iteration * 2;
+        int additional_simulations_max = additional_simulations_done + 50;
 
         int delta = std::max((int) 0.1 * pso.num_particle_, 1); // suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
 
