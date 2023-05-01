@@ -23,6 +23,8 @@
 
 #include "../memo/objects/solution/Solution.h"
 
+// test linter
+
 std::vector<solution> single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
 std::vector<std::vector<solution>> multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory);
 void run(const std::string &problem, const std::string &algo);
