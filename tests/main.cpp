@@ -36,13 +36,13 @@ const bool cap_velocity_ = true;
 const bool memory_ = false;
 const bool to_csv_ = true;
 
-std::string problems[] = {"ackley"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
-std::string algos[] = {"memopso"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
+const std::array<std::string, 1> problems = {"ackley"};
+const std::array<std::string, 1> algos = {"memopso"};
 
-int num_runs_ = 1;
+const int NUM_RUNS = 1;
 
 int main() {
-        std::vector<std::thread> threads;
+        std::vector<std::thread> threads = {};
         for (const auto &problem : problems) {
                 for (const auto &algo : algos) {
                         threads.emplace_back(run, problem, algo);
@@ -59,9 +59,9 @@ int main() {
 auto single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, bool memory) {
         std::string time = std::to_string(std::time(nullptr));
 
-        int dimension;
-        Eigen::VectorXi lb;
-        Eigen::VectorXi ub;
+        int dimension = 0;
+        Eigen::VectorXi lb = Eigen::VectorXi::Zero(0);
+        Eigen::VectorXi ub = Eigen::VectorXi::Zero(0);
         std::function<double(Eigen::VectorXi, int)> opti_func;
         if (problem == "inventory") {
                 dimension = inventory_dim;
@@ -181,7 +181,7 @@ auto multiple_runs(const std::string &problem, const std::string &algo, int max_
 
 void run(const std::string &problem, const std::string &algo) {
         std::cout << problem << " " << algo << std::endl;
-        std::vector<std::vector<solution>> solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, use_random_location_update_, cap_velocity_, num_runs_, memory_);
+        std::vector<std::vector<solution>> solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, use_random_location_update_, cap_velocity_, NUM_RUNS, memory_);
         if (to_csv_) {
                 std::string time = std::to_string(std::time(nullptr));
                 std::string file_name = problem + "_" + algo + "_" + time + ".csv";
