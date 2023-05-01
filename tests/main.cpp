@@ -25,21 +25,21 @@
 
 // test linter
 
-std::vector<solution> single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
-std::vector<std::vector<solution>> multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory);
+auto single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
+auto multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory);
 void run(const std::string &problem, const std::string &algo);
 
-int max_simulation_ = 10000;
-int num_particle_ = 50;
-bool use_random_location_update_ = false;
-bool cap_velocity_ = true;
-bool memory_ = false;
-bool to_csv_ = true;
+const int MAX_SIMULATIONS = 10000;
+const int NUM_PARTICLES = 50;
+const bool use_random_location_update_ = false;
+const bool cap_velocity_ = true;
+const bool memory_ = false;
+const bool to_csv_ = true;
 
-std::string problems[] = {"e"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
-std::string algos[] = {"e"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
+std::string problems[] = {"ackley"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
+std::string algos[] = {"memopso"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
 
-int num_runs_ = 10;
+int num_runs_ = 1;
 
 int main() {
         std::vector<std::thread> threads;
@@ -56,25 +56,7 @@ int main() {
         return 0;
 }
 
-void run(const std::string &problem, const std::string &algo) {
-        std::cout << problem << " " << algo << std::endl;
-        std::vector<std::vector<solution>> solutions = multiple_runs(problem, algo, max_simulation_, num_particle_, use_random_location_update_, cap_velocity_, num_runs_, memory_);
-        if (to_csv_) {
-                std::string time = std::to_string(std::time(nullptr));
-                std::string file_name = problem + "_" + algo + "_" + time + ".csv";
-                std::ofstream file(file_name);
-                file << std::fixed;
-                file << std::setprecision(3);
-                for (const auto &solution : solutions) {
-                        for (const auto &s : solution) {
-                                file << s.true_func_val << ",";
-                        }
-                        file << "\n";
-                }
-        }
-}
-
-std::vector<solution> single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, bool memory) {
+auto single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, bool memory) {
         std::string time = std::to_string(std::time(nullptr));
 
         int dimension;
@@ -184,7 +166,7 @@ std::vector<solution> single_run(const std::string &problem, const std::string &
         }
 }
 
-std::vector<std::vector<solution>> multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory) {
+auto multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory) {
         std::vector<std::vector<solution>> all_solutions;
 
         for (int i = 0; i < num_runs; i++) {
@@ -195,4 +177,22 @@ std::vector<std::vector<solution>> multiple_runs(const std::string &problem, con
         }
 
         return all_solutions;
+}
+
+void run(const std::string &problem, const std::string &algo) {
+        std::cout << problem << " " << algo << std::endl;
+        std::vector<std::vector<solution>> solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, use_random_location_update_, cap_velocity_, num_runs_, memory_);
+        if (to_csv_) {
+                std::string time = std::to_string(std::time(nullptr));
+                std::string file_name = problem + "_" + algo + "_" + time + ".csv";
+                std::ofstream file(file_name);
+                file << std::fixed;
+                file << std::setprecision(3);
+                for (const auto &solution : solutions) {
+                        for (const auto &s : solution) {
+                                file << s.true_func_val << ",";
+                        }
+                        file << "\n";
+                }
+        }
 }

@@ -1,6 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
-#include "Eigen/Core"
 #include "../memo/util/SortIndices.h"
+#include "Eigen/Core"
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("sort_indices sorts vector indices correctly", "[sort_indices]") {
         // Create an unsorted vector
