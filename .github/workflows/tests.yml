@@ -45,7 +45,7 @@
       - name: Generate code coverage report
         run: |
           lcov --directory . --capture --output-file coverage.info
-          lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' '${{github.workspace}}/third_party/*' --output-file coverage.info
           lcov --list coverage.info
 
       - name: Save code coverage report as artifact

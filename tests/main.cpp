@@ -36,8 +36,8 @@ bool cap_velocity_ = true;
 bool memory_ = false;
 bool to_csv_ = true;
 
-std::string problems[] = {"ackley"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
-std::string algos[] = {"memopso"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
+std::string problems[] = {"e"};//, "tp1", "tp2", "styblinski-tang", "inventory"};
+std::string algos[] = {"e"};   //,"psoan", "psoern",  "psogd", "lapso", "psoocbaa", "pso"};
 
 int num_runs_ = 10;
 
