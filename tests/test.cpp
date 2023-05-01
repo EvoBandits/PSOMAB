@@ -1,12 +1,19 @@
 #include <catch2/catch_test_macros.hpp>
+#include "Eigen/Core"
+#include "../memo/util/SortIndices.h"
 
-unsigned int Factorial( unsigned int number ) {
-        return number <= 1 ? number : Factorial(number-1)*number;
-}
+TEST_CASE("sort_indices sorts vector indices correctly", "[sort_indices]") {
+        // Create an unsorted vector
+        Eigen::VectorXd unsorted_vector(5);
+        unsorted_vector << 5.0, 2.0, 1.0, 4.0, 3.0;
 
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-        REQUIRE( Factorial(1) == 1 );
-        REQUIRE( Factorial(2) == 2 );
-        REQUIRE( Factorial(3) == 6 );
-        REQUIRE( Factorial(10) == 3628800 );
+        // Call the sort_indices function to get the sorted indices
+        std::vector<int> sorted_indices = sort_indices(unsorted_vector);
+
+        // Check that the indices are sorted correctly
+        REQUIRE(sorted_indices[0] == 2);
+        REQUIRE(sorted_indices[1] == 1);
+        REQUIRE(sorted_indices[2] == 4);
+        REQUIRE(sorted_indices[3] == 3);
+        REQUIRE(sorted_indices[4] == 0);
 }
