@@ -31,18 +31,18 @@ void run(const std::string &problem, const std::string &algo);
 
 const int MAX_SIMULATIONS = 10000;
 const int NUM_PARTICLES = 50;
-const bool use_random_location_update_ = false;
-const bool cap_velocity_ = true;
-const bool memory_ = false;
+const bool USE_RANDOM_LOCATION_UPDATE = false;
+const bool CAP_VELOCITY = true;
+const bool MEMORY = true;
 const bool to_csv_ = true;
 
-const std::array<std::string, 1> problems = {"ackley"};
+const std::array<std::string, 1> problems = {"inventory"};
 const std::array<std::string, 1> algos = {"memopso"};
 
-const int NUM_RUNS = 1;
+const int NUM_RUNS = 2;
 
 auto main() -> int {
-        std::vector<std::thread> threads{};
+        auto threads = std::vector<std::thread>();
         for (const auto &problem : problems) {
                 for (const auto &algo : algos) {
                         threads.emplace_back(run, problem, algo);
@@ -56,16 +56,16 @@ auto main() -> int {
         return 0;
 }
 
-auto single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, bool memory) {
+auto single_run(const std::string &problem, const std::string &algo) {
         std::string time = std::to_string(std::time(nullptr));
 
-        std::stringstream filename_stream;
+        std::stringstream filename_stream("");
         filename_stream << problem << "_" << algo << "_memory_" << time << ".csv";
 
-        int dimension = 0;
+        int dimension = 2;
         Eigen::VectorXi lb(dimension);
         Eigen::VectorXi ub(dimension);
-        std::function<double(Eigen::VectorXi, int)> opti_func(nullptr);
+        auto opti_func = inventory;
         if (problem == "inventory") {
                 dimension = inventory_dim;
                 lb = inventory_lb;
@@ -75,22 +75,22 @@ auto single_run(const std::string &problem, const std::string &algo, int max_sim
                 dimension = tp1_dim;
                 lb = tp1_lb;
                 ub = tp1_ub;
-                opti_func = tp1;
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(tp1);
         } else if (problem == "tp2") {
                 dimension = tp2_dim;
                 lb = tp2_lb;
                 ub = tp2_ub;
-                opti_func = tp2;
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(tp2);
         } else if (problem == "ackley") {
                 dimension = ackley_dim;
                 lb = ackley_lb;
                 ub = ackley_ub;
-                opti_func = ackley;
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(ackley);
         } else if (problem == "styblinski-tang") {
                 dimension = styblinski_tang_dim;
                 lb = styblinski_tang_lb;
                 ub = styblinski_tang_ub;
-                opti_func = styblinski_tang;
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(styblinski_tang);
         }
 
         std::cout << std::fixed;
@@ -98,94 +98,106 @@ auto single_run(const std::string &problem, const std::string &algo, int max_sim
 
         if (algo == "pso") {
                 std::cout << "PSO ";
-                PSO pso_instance = PSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSO pso_instance = PSO(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 pso_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         pso_instance.memory_to_csv(filename_stream.str());
                 }
                 return pso_instance.best_solutions();
-        } else if (algo == "psoan") {
+        }
+        if (algo == "psoan") {
                 std::cout << "PSOAN ";
-                PSOAN psoan_instance = PSOAN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOAN psoan_instance = PSOAN(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psoan_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psoan_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoan_instance.best_solutions();
-        } else if (algo == "psogd") {
+        }
+        if (algo == "psogd") {
                 std::cout << "PSOGD ";
-                PSOGD psogd_instance = PSOGD(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOGD psogd_instance = PSOGD(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psogd_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psogd_instance.memory_to_csv(filename_stream.str());
                 }
                 return psogd_instance.best_solutions();
-        } else if (algo == "psoocba") {
+        }
+        if (algo == "psoocba") {
                 std::cout << "PSOOCBA ";
-                PSOOCBA psoocba_instance = PSOOCBA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOOCBA psoocba_instance = PSOOCBA(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psoocba_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psoocba_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoocba_instance.best_solutions();
-        } else if (algo == "psoocbaa") {
+        }
+        if (algo == "psoocbaa") {
                 std::cout << "PSOOCBAA ";
-                PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOOCBAA psoocbaa_instance = PSOOCBAA(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psoocbaa_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psoocbaa_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoocbaa_instance.best_solutions();
-        } else if (algo == "psola") {
+        }
+        if (algo == "psola") {
                 std::cout << "PSOLA ";
-                PSOLA psola_instance = PSOLA(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOLA psola_instance = PSOLA(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psola_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psola_instance.memory_to_csv(filename_stream.str());
                 }
                 return psola_instance.best_solutions();
-        } else if (algo == "lapso") {
+        }
+        if (algo == "lapso") {
                 std::cout << "LAPSO ";
-                LAPSO lapso_instance = LAPSO(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                LAPSO lapso_instance = LAPSO(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 lapso_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         lapso_instance.memory_to_csv(filename_stream.str());
                 }
                 return lapso_instance.best_solutions();
-        } else if (algo == "memopso") {
+        }
+        if (algo == "memopso") {
                 std::cout << "MEMOPSO: ";
-                MEMOPSO memopso_instance = MEMOPSO(opti_func, lb, ub, dimension, max_simulation, num_particle, use_random_location_update, cap_velocity);
+                MEMOPSO memopso_instance = MEMOPSO(opti_func, lb, ub, dimension, MAX_SIMULATIONS, NUM_PARTICLES, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 memopso_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         memopso_instance.memory_to_csv(filename_stream.str());
                 }
                 return memopso_instance.best_solutions();
-        } else if (algo == "psoern") {
+        }
+        if (algo == "psoern") {
                 std::cout << "PSOERN: ";
-                PSOERN psoern_instance = PSOERN(num_particle, dimension, lb, ub, opti_func, max_simulation, use_random_location_update, cap_velocity);
+                PSOERN psoern_instance = PSOERN(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psoern_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psoern_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoern_instance.best_solutions();
-        } else if (algo == "psoer") {
+        }
+        if (algo == "psoer") {
                 std::cout << "PSOER: ";
-                PSOER psoer_instance = PSOER(num_particle, dimension, lb, ub, opti_func, max_simulation, 20, use_random_location_update, cap_velocity);
+                PSOER psoer_instance = PSOER(NUM_PARTICLES, dimension, lb, ub, opti_func, MAX_SIMULATIONS, 20, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY);
                 psoer_instance.optimize();
-                if (memory) {
+                if (MEMORY) {
                         psoer_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoer_instance.best_solutions();
         }
 }
 
-auto multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory) {
-        std::vector<std::vector<solution>> all_solutions;
+auto multiple_runs(const std::string &problem, const std::string &algo) {
+        auto all_solutions = std::array<std::vector<solution>, NUM_RUNS>{};
 
-        for (int i = 0; i < num_runs; i++) {
-                std::vector<solution> best_solutions = single_run(problem, algo, max_simulation, num_particle, use_random_location_update, cap_velocity, memory);
-                all_solutions.push_back(best_solutions);
-                double reward = best_solutions.back().true_func_val;
+        for (int i = 0; i < NUM_RUNS; ++i) {
+                auto best_solutions = single_run(problem, algo);
+                all_solutions[i] = best_solutions;
+                double reward = 0.0;
+                if (!best_solutions.empty()) {
+                        reward = best_solutions.back().true_func_val;
+                }
                 std::cout << "Run: " << i << " | best reward: " << reward << std::endl;
         }
 
@@ -194,11 +206,12 @@ auto multiple_runs(const std::string &problem, const std::string &algo, int max_
 
 void run(const std::string &problem, const std::string &algo) {
         std::cout << problem << " " << algo << std::endl;
-        std::vector<std::vector<solution>> solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, use_random_location_update_, cap_velocity_, NUM_RUNS, memory_);
+        auto solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY, NUM_RUNS, MEMORY);
         if (to_csv_) {
                 std::string time = std::to_string(std::time(nullptr));
-                std::string file_name = problem + "_" + algo + "_" + time + ".csv";
-                std::ofstream file(file_name);
+                std::stringstream file_name("");
+                file_name << problem << "_" << algo << "_" << time << ".csv";
+                std::ofstream file(file_name.str());
                 file << std::fixed;
                 file << std::setprecision(3);
                 for (const auto &solution : solutions) {
