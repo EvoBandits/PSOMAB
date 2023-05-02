@@ -25,8 +25,8 @@
 
 // test linter
 
-auto single_run(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity);
-auto multiple_runs(const std::string &problem, const std::string &algo, int max_simulation, int num_particle, bool use_random_location_update, bool cap_velocity, int num_runs, bool memory);
+auto single_run(const std::string &problem, const std::string &algo);
+auto multiple_runs(const std::string &problem, const std::string &algo);
 void run(const std::string &problem, const std::string &algo);
 
 const int MAX_SIMULATIONS = 10000;
@@ -206,7 +206,7 @@ auto multiple_runs(const std::string &problem, const std::string &algo) {
 
 void run(const std::string &problem, const std::string &algo) {
         std::cout << problem << " " << algo << std::endl;
-        auto solutions = multiple_runs(problem, algo, MAX_SIMULATIONS, NUM_PARTICLES, USE_RANDOM_LOCATION_UPDATE, CAP_VELOCITY, NUM_RUNS, MEMORY);
+        auto solutions = multiple_runs(problem, algo);
         if (to_csv_) {
                 std::string time = std::to_string(std::time(nullptr));
                 std::stringstream file_name("");
