@@ -1,0 +1,26 @@
+name: linter
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  cpp-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cpp-linter/cpp-linter-action@main
+        id: linter
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          style: file
+
+      - name: Fail fast?!
+        if: steps.linter.outputs.checks-failed > 1
+        run: |
+          echo "some linter checks failed. ${{ steps.linter.outputs.checks-failed }}"
+          exit 1

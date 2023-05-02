@@ -3,3 +3,7 @@
 	path = third_party/eigen
 	url = https://gitlab.com/libeigen/eigen.git
 	branch = 3.4
+[submodule "third_party/Catch2"]
+	path = third_party/Catch2
+	url = https://github.com/catchorg/Catch2.git
+	branch = v3.3.2
