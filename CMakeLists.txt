@@ -2,11 +2,20 @@ cmake_minimum_required(VERSION 3.22)
 project(MEMO)
 
 set(CMAKE_CXX_STANDARD 20)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_FLAGS "--coverage")
 
 include_directories(third_party/eigen)
 add_subdirectory(third_party/Catch2)
+
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+        GIT_TAG 1.10.5)
+FetchContent_MakeAvailable(cpr)
+
+FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3)
+FetchContent_MakeAvailable(nlohmann_json)
 
 add_executable(MEMO
         memo/objects/arm/Arm.cpp
@@ -47,7 +56,11 @@ add_executable(MEMO
         memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.cpp
         memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h
         memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.cpp
-        memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h)
+        memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h
+        tests/MLflowLogger.cpp
+        tests/MLflowLogger.h
+        tests/SecretManagement.cpp
+        tests/SecretManagement.h)
 
 
 add_executable(tests tests/test.cpp
@@ -81,6 +94,8 @@ add_executable(tests tests/test.cpp
         memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h)
 
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(MEMO PRIVATE cpr::cpr)
+target_link_libraries(MEMO PRIVATE nlohmann_json::nlohmann_json)
 
 include(CTest)
 include(Catch)

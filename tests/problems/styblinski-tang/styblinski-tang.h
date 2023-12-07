@@ -9,8 +9,11 @@
 extern Eigen::VectorXi styblinski_tang_lb;
 extern Eigen::VectorXi styblinski_tang_ub;
 extern int styblinski_tang_dim;
+extern double styblinski_tang_step_size;
+
+extern double styblinski_tang_noise_level;
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector);
-double styblinski_tang(const Eigen::VectorXi& action_vector, int noise_level);
+double styblinski_tang(const Eigen::VectorXi &action_vector, bool noisy);
 
 #endif//PSOMAB_TESTS_PROBLEMS_STYBLINSKI_TANG_STYBLINSKI_TANG_H_
