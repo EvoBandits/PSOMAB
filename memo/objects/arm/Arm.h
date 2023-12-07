@@ -26,7 +26,7 @@ class Arm {
         double reward_squared_ = 0;
         int num_pulls_;
         // ToDo: check if pointer to function is better
-        std::function<double(Eigen::VectorXi, int)> arm_func_;
+        std::function<double(Eigen::VectorXi, bool)> arm_func_;
 };
 
 #endif// _Arm_H_

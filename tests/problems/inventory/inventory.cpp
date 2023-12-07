@@ -4,6 +4,7 @@ Eigen::Vector2i inventory_lb (1, 1);
 Eigen::Vector2i inventory_ub (100, 100);
 int inventory_dim = 2;
 
+double inventory_noise_level = 1.0;
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
@@ -1260,7 +1261,7 @@ double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         return Results[(action_vector.coeffRef(0) - 1) * 100 + (action_vector.coeffRef(1) - 1)];
 }
 
-double inventory(Eigen::VectorXi action_vector, int noise_level) {
+double inventory(Eigen::VectorXi action_vector, bool noisy) {
         int s = action_vector[0];
         int S = action_vector[1] + s;
         int inventory_before_ordering = S;
@@ -1295,5 +1296,5 @@ double inventory(Eigen::VectorXi action_vector, int noise_level) {
         }
         costs = costs / 30;
 
-        return get_true_objective_value(action_vector) + noise_level * (costs - get_true_objective_value(action_vector));
+        return get_true_objective_value(action_vector) + noisy * inventory_noise_level * (costs - get_true_objective_value(action_vector));
 }

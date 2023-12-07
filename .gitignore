@@ -165,3 +165,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Vscode
+.vscode/
+
+# exclude build folder
+build/

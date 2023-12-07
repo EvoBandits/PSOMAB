@@ -12,7 +12,6 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include <omp.h>
 #include <thread>
 
 #include "problems/ackley/ackley.h"
@@ -21,32 +20,48 @@
 #include "problems/tp1/tp1.h"
 #include "problems/tp2/tp2.h"
 
-#include "../memo/objects/solution/Solution.h"
+#include "MLflowLogger.h"
+#include "SecretManagement.h"
 
-// test linter
+#include "../memo/objects/solution/Solution.h"
 
 auto single_run(const std::string &problem, const std::string &algo);
 auto multiple_runs(const std::string &problem, const std::string &algo);
 void run(const std::string &problem, const std::string &algo);
 
-const int MAX_SIMULATIONS = 10000;
+const int MAX_SIMULATIONS = 15000;
 const int NUM_PARTICLES = 50;
 const bool USE_RANDOM_LOCATION_UPDATE = false;
 const bool CAP_VELOCITY = true;
-const bool MEMORY = true;
+
+const bool MEMORY = false;
 const bool to_csv_ = true;
+const bool track_experiments = true;
 
-const std::array<std::string, 1> problems = {"inventory"};
-const std::array<std::string, 1> algos = {"memopso"};
+const std::string test_problem = "styblinski-tang";
+const std::array<std::string, 3> algos = {"pso", "memopso", "psoan"};
+const std::string experiment_name = "Standard";
+std::string experiment_id;
+std::unique_ptr<MLflowLogger> mlflow_logger;
 
-const int NUM_RUNS = 2;
+const int NUM_RUNS = 50;
+
+int dimension = 2;// dummy value
+Eigen::VectorXi lb(dimension);
+Eigen::VectorXi ub(dimension);
+double step_size = 0.01;// dummy value
+
+double noise_level = 0.5;// dummy value
 
 auto main() -> int {
+        if (track_experiments) {
+                mlflow_logger = std::make_unique<MLflowLogger>();
+                experiment_id = mlflow_logger->get_or_create_experiment(experiment_name);
+        }
+
         auto threads = std::vector<std::thread>();
-        for (const auto &problem : problems) {
-                for (const auto &algo : algos) {
-                        threads.emplace_back(run, problem, algo);
-                }
+        for (const auto &algo : algos) {
+                threads.emplace_back(run, test_problem, algo);
         }
 
         for (auto &thread : threads) {
@@ -62,35 +77,34 @@ auto single_run(const std::string &problem, const std::string &algo) {
         std::stringstream filename_stream("");
         filename_stream << problem << "_" << algo << "_memory_" << time << ".csv";
 
-        int dimension = 2;
-        Eigen::VectorXi lb(dimension);
-        Eigen::VectorXi ub(dimension);
         auto opti_func = inventory;
         if (problem == "inventory") {
                 dimension = inventory_dim;
                 lb = inventory_lb;
                 ub = inventory_ub;
+                step_size = 1;
+
+                noise_level = inventory_noise_level;
+
                 opti_func = inventory;
-        } else if (problem == "tp1") {
-                dimension = tp1_dim;
-                lb = tp1_lb;
-                ub = tp1_ub;
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(tp1);
-        } else if (problem == "tp2") {
-                dimension = tp2_dim;
-                lb = tp2_lb;
-                ub = tp2_ub;
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(tp2);
         } else if (problem == "ackley") {
                 dimension = ackley_dim;
                 lb = ackley_lb;
                 ub = ackley_ub;
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(ackley);
+                step_size = ackley_step_size;
+
+                noise_level = ackley_noise_level;
+
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(ackley);
         } else if (problem == "styblinski-tang") {
                 dimension = styblinski_tang_dim;
                 lb = styblinski_tang_lb;
                 ub = styblinski_tang_ub;
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, int)>(styblinski_tang);
+                step_size = styblinski_tang_step_size;
+
+                noise_level = styblinski_tang_noise_level;
+
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(styblinski_tang);
         }
 
         std::cout << std::fixed;
@@ -207,6 +221,34 @@ auto multiple_runs(const std::string &problem, const std::string &algo) {
 void run(const std::string &problem, const std::string &algo) {
         std::cout << problem << " " << algo << std::endl;
         auto solutions = multiple_runs(problem, algo);
+        // log average true func value
+        double avg_true_func_val = 0.0;
+        for (const auto &solution : solutions) {
+                avg_true_func_val += solution.back().true_func_val;
+        }
+        avg_true_func_val /= NUM_RUNS;
+
+        std::string run_id;
+        if (!experiment_id.empty()) {
+                run_id = mlflow_logger->start_run(experiment_id);
+
+                mlflow_logger->log_param(run_id, "problem", problem);
+                mlflow_logger->log_param(run_id, "dimension", std::to_string(dimension));
+                mlflow_logger->log_param(run_id, "lb", std::to_string(lb(0) * step_size));
+                mlflow_logger->log_param(run_id, "ub", std::to_string(ub(0) * step_size));
+                mlflow_logger->log_param(run_id, "step_size", std::to_string(step_size));
+                mlflow_logger->log_param(run_id, "noise_level", std::to_string(noise_level));
+
+                mlflow_logger->log_param(run_id, "algorithm", algo);
+
+                mlflow_logger->log_param(run_id, "runs", std::to_string(NUM_RUNS));
+                mlflow_logger->log_param(run_id, "num_particles", std::to_string(NUM_PARTICLES));
+                mlflow_logger->log_param(run_id, "max_simulations", std::to_string(MAX_SIMULATIONS));
+                mlflow_logger->log_param(run_id, "use_random_location_update", std::to_string(USE_RANDOM_LOCATION_UPDATE));
+                mlflow_logger->log_param(run_id, "cap_velocity", std::to_string(CAP_VELOCITY));
+
+                mlflow_logger->log_metric(run_id, "avg_true_func_val", avg_true_func_val);
+        }
         if (to_csv_) {
                 std::string time = std::to_string(std::time(nullptr));
                 std::stringstream file_name("");
@@ -219,6 +261,10 @@ void run(const std::string &problem, const std::string &algo) {
                                 file << s.true_func_val << ",";
                         }
                         file << "\n";
+                }
+                file.close();
+                if (!experiment_id.empty()) {
+                        mlflow_logger->upload_artifact(run_id, file_name.str());
                 }
         }
 }

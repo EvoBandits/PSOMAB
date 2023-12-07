@@ -3,11 +3,11 @@
 #include <utility>
 
 double Arm::function_value() const {
-        return arm_func_(action_vector_, 1);
+        return arm_func_(action_vector_, true);
 }
 
 double Arm::true_value() const {
-        return arm_func_(action_vector_, 0);
+        return arm_func_(action_vector_, false);
 }
 
 double Arm::pull() {
