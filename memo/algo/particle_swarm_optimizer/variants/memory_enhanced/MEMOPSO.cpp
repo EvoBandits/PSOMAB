@@ -212,8 +212,8 @@ void MEMOPSO::optimize() {
                                 return;
 
                         // sample for best individual solution and update local and global memory
-                        arm_index_local = best_individual_arm_indices[particle_index];
-                        sample_and_update(particle_index, arm_index_local);
+                        int arm_index_local_best = best_individual_arm_indices[particle_index];
+                        sample_and_update(particle_index, arm_index_local_best);
                         save_history();
                         if (pso.budget_reached())
                                 return;
