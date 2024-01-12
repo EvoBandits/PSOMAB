@@ -2,8 +2,14 @@
 
 void PSOAN::calculate_distance_matrix(Eigen::MatrixXd &distance_matrix) {
         for (int particle_index_1 = 0; particle_index_1 < pso.num_particle_; particle_index_1++) {
-                for (int particle_index_2 = 0; particle_index_2 < pso.num_particle_; particle_index_2++) {
-                        distance_matrix(particle_index_1, particle_index_2) = (pso.particles_[particle_index_1].get_action_vector() - pso.particles_[particle_index_2].get_action_vector()).norm();
+                for (int particle_index_2 = particle_index_1; particle_index_2 < pso.num_particle_; particle_index_2++) {
+                        if (particle_index_1 == particle_index_2) {
+                                distance_matrix(particle_index_1, particle_index_2) = 0;
+                        } else {
+                                double distance = (pso.particles_[particle_index_1].get_action_vector() - pso.particles_[particle_index_2].get_action_vector()).norm();
+                                distance_matrix(particle_index_1, particle_index_2) = distance;
+                                distance_matrix(particle_index_2, particle_index_1) = distance;
+                        }
                 }
         }
 }
