@@ -2,7 +2,7 @@
 
 MEMO is a C++ library for solving stochastic optimization problems using a memory-enhanced optimizer.
 
-[![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/cmake.yml)
+[![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml)
 
 ## Installation
 
