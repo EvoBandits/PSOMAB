@@ -1,5 +1,5 @@
-#ifndef _PSOMAB_H_
-#define _PSOMAB_H_
+#ifndef PSOMAB_H_
+#define PSOMAB_H_
 #include "../../../../objects/arm/Arm.h"
 #include "../../../../objects/solution/Solution.h"
 #include "../../../../util/SolutionCodeCalculation.h"
@@ -29,19 +29,19 @@ class MEMOPSO {
         PSO pso;
 
         std::vector<int> retrieve_best_solutions();
-        static int get_arm_index(const Arm& particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table);
+        static int get_arm_index(const Arm &particle, std::unordered_map<Eigen::VectorXi, int> &lookup_table);
         static void delete_sat_node(int arm_index, Arm &arm, std::multimap<double, int> &sat);
-        void sample_and_update(int particle_index,  int best_individual_arm_index);
+        void sample_and_update(int particle_index, int arm_index_local);
         int max_num_pulls();
         int find_best_ucb();
         void save_current_best_solution();
         void save_history();
 
        public:
-        MEMOPSO(std::function<double(Eigen::VectorXi, int)> func, const Eigen::VectorXi &s_ll, const Eigen::VectorXi &s_ul, int D, int max_sim, int pop_s = 50, bool use_random_location_update=false, bool cap_velocity=true);
+        MEMOPSO(std::function<double(Eigen::VectorXi, int)> func, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, int max_sim, double w, double c1, double c2, int pop_s = 50, bool use_random_location_update = false, bool cap_velocity = true);
         void optimize();
         std::vector<solution> best_solutions();
-        void memory_to_csv(const std::string& filename);
+        void memory_to_csv(const std::string &filename);
 };
 
-#endif// _PSOMAB_H_
+#endif// PSOMAB_H_

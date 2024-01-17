@@ -1,8 +1,9 @@
 #include "PSOOCBA.h"
 #include <cmath>
 #include <iostream>
+#include <utility>
 
-PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
+PSOOCBA::PSOOCBA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, double w, double c1, double c2, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, w, c1, c2, use_random_location_update, cap_velocity) {
 }
 
 int PSOOCBA::find_best_particle_index() {
@@ -32,7 +33,7 @@ void PSOOCBA::sample_ocba(int iteration) {
         int additional_simulations_done = pso.num_particle_ * n_0;
         int additional_simulations_max = additional_simulations_done + 50;
 
-        int delta = std::max((int) 0.1 * pso.num_particle_, 1); // suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
+        int delta = std::max((int) 0.1 * pso.num_particle_, 1);// suggested choice for delta is a number bigger than 5 but smaller than 10% of the simulated designs
 
         int best_particle_index = find_best_particle_index();
 
@@ -86,7 +87,7 @@ void PSOOCBA::sample_ocba(int iteration) {
         }
 }
 
-void PSOOCBA::update(){
+void PSOOCBA::update() {
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 if (pso.new_local_best(particle_index))
                         pso.best_individual_arms_[particle_index] = pso.particles_[particle_index];

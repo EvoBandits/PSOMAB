@@ -16,17 +16,17 @@
 class PSOGD {
        private:
         PSO pso;
-        int decision_layer_size =  (int) (pso.num_particle_*0.3);
+        int decision_layer_size = (int) (pso.num_particle_ * 0.3);
         double alpha = 3.2;
 
         void update_positions();
         Eigen::VectorXd calculate_search_center();
 
        public:
-        PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false, bool cap_velocity=true);
+        PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, double w, double c1, double c2, bool use_random_location_update = false, bool cap_velocity = true);
         void optimize();
         std::vector<solution> best_solutions();
-        void memory_to_csv(const std::string& filename);
+        void memory_to_csv(const std::string &filename);
 };
 
-#endif //PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_GROUP_DECISION_PSOGD_H_
+#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_GROUP_DECISION_PSOGD_H_

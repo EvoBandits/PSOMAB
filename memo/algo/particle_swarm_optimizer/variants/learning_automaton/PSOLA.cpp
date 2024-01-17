@@ -2,8 +2,9 @@
 #include <cmath>
 #include <iostream>
 #include <iterator>
+#include <utility>
 
-PSOLA::PSOLA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) :pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {
+PSOLA::PSOLA(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, double w, double c1, double c2, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, w, c1, c2, use_random_location_update, cap_velocity) {
 }
 
 void PSOLA::sample_la() {
@@ -73,7 +74,7 @@ void PSOLA::sample_la() {
         }
 }
 
-void PSOLA::update(){
+void PSOLA::update() {
         for (int particle_index = 0; particle_index < pso.num_particle_; particle_index++) {
                 if (pso.new_local_best(particle_index))
                         pso.best_individual_arms_[particle_index] = pso.particles_[particle_index];

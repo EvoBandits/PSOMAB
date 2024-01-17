@@ -1,11 +1,15 @@
 #include "styblinski-tang.h"
+#include <fstream>
+#include <nlohmann/json.hpp>
 
-int styblinski_tang_dim = 10;
-Eigen::VectorXi styblinski_tang_lb = Eigen::VectorXi::Constant(styblinski_tang_dim, -5000);
-Eigen::VectorXi styblinski_tang_ub = Eigen::VectorXi::Constant(styblinski_tang_dim, 5000);
-double styblinski_tang_step_size = 0.001;
+nlohmann::json configS = nlohmann::json::parse(std::ifstream("config.json"));
 
-double styblinski_tang_noise_level = 1.5;
+int styblinski_tang_dim = configS["problems"]["styblinski-tang"]["DIMENSIONS"];
+Eigen::VectorXi styblinski_tang_lb = Eigen::VectorXi::Constant(styblinski_tang_dim, configS["problems"]["styblinski-tang"]["LOWER_BOUND"]);
+Eigen::VectorXi styblinski_tang_ub = Eigen::VectorXi::Constant(styblinski_tang_dim, configS["problems"]["styblinski-tang"]["UPPER_BOUND"]);
+double styblinski_tang_step_size = configS["problems"]["styblinski-tang"]["STEP_SIZE"];
+
+double styblinski_tang_noise_level = configS["problems"]["styblinski-tang"]["NOISE_LEVEL"];
 
 double get_true_objective_value_styblinski_tang(const Eigen::VectorXi& action_vector) {
         double sum = 0.0;

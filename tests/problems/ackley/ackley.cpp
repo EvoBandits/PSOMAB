@@ -1,11 +1,15 @@
 #include "ackley.h"
+#include <fstream>
+#include <nlohmann/json.hpp>
 
-int ackley_dim = 10;
-double ackley_step_size = 0.01;
-Eigen::VectorXi ackley_lb = Eigen::VectorXi::Constant(ackley_dim, -2000);
-Eigen::VectorXi ackley_ub = Eigen::VectorXi::Constant(ackley_dim, 2000);
+nlohmann::json configA = nlohmann::json::parse(std::ifstream("config.json"));
 
-double ackley_noise_level = 2;
+int ackley_dim = configA["problems"]["ackley"]["DIMENSIONS"];
+double ackley_step_size = configA["problems"]["ackley"]["STEP_SIZE"];
+Eigen::VectorXi ackley_lb = Eigen::VectorXi::Constant(ackley_dim, configA["problems"]["ackley"]["LOWER_BOUND"]);
+Eigen::VectorXi ackley_ub = Eigen::VectorXi::Constant(ackley_dim, configA["problems"]["ackley"]["UPPER_BOUND"]);
+
+double ackley_noise_level = configA["problems"]["ackley"]["NOISE_LEVEL"];
 
 double get_true_objective_value_ackley(const Eigen::VectorXi &action_vector) {
 

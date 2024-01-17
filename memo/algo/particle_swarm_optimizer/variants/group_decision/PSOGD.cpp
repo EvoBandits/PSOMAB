@@ -24,7 +24,7 @@ Eigen::VectorXd PSOGD::calculate_search_center() {
 
         Eigen::VectorXd search_center = Eigen::VectorXd::Zero(pso.dimension_);
         for (int i = 0; i < decision_layer_size; i++) {
-                search_center+= decision_weights(i) * pso.particles_[indices_gd_maker_layer[i]].get_action_vector().cast<double>();
+                search_center += decision_weights(i) * pso.particles_[indices_gd_maker_layer[i]].get_action_vector().cast<double>();
         }
 
         return search_center;
@@ -38,8 +38,8 @@ void PSOGD::update_positions() {
 
                 Eigen::VectorXd social_direction = search_center - current_position;
 
-                Eigen::VectorXd old_velocity = random_uniform_double(0,1) * pso.w * pso.velocity_[particle_index].cast<double>();
-                Eigen::VectorXd social_component = random_uniform_double(0,1) * alpha* social_direction;
+                Eigen::VectorXd old_velocity = random_uniform_double(0, 1) * pso.w_ * pso.velocity_[particle_index].cast<double>();
+                Eigen::VectorXd social_component = random_uniform_double(0, 1) * alpha * social_direction;
 
                 Eigen::VectorXd new_velocity = old_velocity + social_component;
                 if (pso.cap_velocity_) pso.cap_velocity(new_velocity);
@@ -48,7 +48,7 @@ void PSOGD::update_positions() {
                 Eigen::VectorXi proposed_position = pso.particles_[particle_index].get_action_vector() + pso.velocity_[particle_index].cast<int>();
 
                 Eigen::VectorXi new_position;
-                if(pso.use_random_location_update_)
+                if (pso.use_random_location_update_)
                         new_position = pso.update_location_random(proposed_position);
                 else
                         new_position = pso.update_location_cap(proposed_position);
@@ -58,7 +58,7 @@ void PSOGD::update_positions() {
         }
 }
 
-PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, use_random_location_update, cap_velocity) {}
+PSOGD::PSOGD(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, double w, double c1, double c2, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, w, c1, c2, use_random_location_update, cap_velocity) {}
 
 void PSOGD::optimize() {
         while (true) {
