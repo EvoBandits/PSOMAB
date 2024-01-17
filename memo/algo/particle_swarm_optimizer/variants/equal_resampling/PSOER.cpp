@@ -1,5 +1,7 @@
 #include "PSOER.h"
 
+#include <utility>
+
 void PSOER::sample_and_update(int particle_index) {
         pso.particles_[particle_index].pull(num_pulls_);
         pso.update_simulation_budget(num_pulls_);
@@ -26,7 +28,7 @@ void PSOER::optimize() {
         }
 }
 
-PSOER::PSOER(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, int num_sample, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, x_min, x_max, std::move(opti_func), max_simulation, use_random_location_update, cap_velocity), num_pulls_{num_sample} {
+PSOER::PSOER(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, int num_sample, double w, double c1, double c2, bool use_random_location_update, bool cap_velocity) : pso(num_particle, dimension, std::move(x_min), std::move(x_max), std::move(opti_func), max_simulation, w, c1, c2, use_random_location_update, cap_velocity), num_pulls_{num_sample} {
 }
 
 std::vector<solution> PSOER::best_solutions() {

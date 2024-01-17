@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 
+#ifndef _WIN32
 auto SecretManagement::get_secret_from_1password(const std::string &item_name, const std::string &field_name) -> std::string {
         std::string command = "op item get " + item_name + " --fields " + field_name + " 2>/dev/null";
 
@@ -38,6 +39,7 @@ auto SecretManagement::get_secret_from_1password(const std::string &item_name, c
 
         return result;
 }
+#endif
 
 auto SecretManagement::read_dotenv(const std::string &filename) -> std::unordered_map<std::string, std::string> {
         std::unordered_map<std::string, std::string> env;
@@ -62,6 +64,7 @@ auto SecretManagement::read_dotenv(const std::string &filename) -> std::unordere
 }
 
 auto SecretManagement::get_secret(const std::string &item_name, const std::string &field_name) -> std::string {
+#ifndef _WIN32
         try {
                 std::string secret = get_secret_from_1password(item_name, field_name);
                 if (!secret.empty()) {
@@ -75,6 +78,7 @@ auto SecretManagement::get_secret(const std::string &item_name, const std::strin
                         std::cerr << "Error: " << e.what() << std::endl;
                 }
         }
+#endif
 
         auto env_vars = read_dotenv(".env");
         auto it = env_vars.find(field_name);

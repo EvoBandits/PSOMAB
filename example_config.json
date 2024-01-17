@@ -1,0 +1,37 @@
+{
+  "MAX_SIMULATIONS": 15000,
+  "NUM_PARTICLES": 50,
+  "USE_RANDOM_LOCATION_UPDATE": false,
+  "CAP_VELOCITY": true,
+  "MEMORY": false,
+  "to_csv": true,
+  "track_experiments": false,
+  "test_problem": "ackley",
+  "algos": ["pso", "memopso"],
+  "experiment_name": "Standard",
+  "NUM_RUNS": 50,
+  "W": 0.729844,
+  "C1": 1.49618,
+  "C2": 1.49618,
+  "problems": {
+    "styblinski-tang": {
+      "DIMENSIONS": 6,
+      "LOWER_BOUND": -5000,
+      "UPPER_BOUND": 5000,
+      "STEP_SIZE": 0.001,
+      "NOISE_LEVEL": 1.5
+    },
+    "ackley": {
+      "DIMENSIONS": 6,
+      "LOWER_BOUND": -32.768,
+      "UPPER_BOUND": 32.768,
+      "STEP_SIZE": 0.001,
+      "NOISE_LEVEL": 1.5
+    },
+    "inventory": {
+      "LOWER_BOUND": 0,
+      "UPPER_BOUND": 100,
+      "NOISE_LEVEL": 1.5
+    }
+  }
+}

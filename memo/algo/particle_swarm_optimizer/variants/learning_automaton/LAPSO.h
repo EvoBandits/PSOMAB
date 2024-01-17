@@ -1,5 +1,5 @@
-#ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
-#define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
+#ifndef PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_LEARNING_AUTOMATON_LAPSO_H_
+#define PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_LEARNING_AUTOMATON_LAPSO_H_
 
 #include "../../../../util/RandomNumber.h"
 #include "../../../../util/SortIndices.h"
@@ -30,10 +30,10 @@ class LAPSO {
         std::vector<int> get_subset_indices();
 
        public:
-        LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, bool use_random_location_update=false, bool cap_velocity=true);
+        LAPSO(int num_particle, int dimension, Eigen::VectorXi x_min, Eigen::VectorXi x_max, std::function<double(Eigen::VectorXi, int)> opti_func, int max_simulation, double w, double c1, double c2, bool use_random_location_update = false, bool cap_velocity = true);
         void optimize();
         std::vector<solution> best_solutions();
-        void memory_to_csv(const std::string& filename);
+        void memory_to_csv(const std::string &filename);
 };
 
-#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER__LEARNING_AUTOMATON_LAPSO_H_
+#endif//PSOMAB_PACK_NAME_ALGO_PARTICLE_SWARM_OPTIMIZER_LEARNING_AUTOMATON_LAPSO_H_
