@@ -2,16 +2,10 @@
 #define PSOMAB_TESTS_PROBLEMS_STYBLINSKI_TANG_STYBLINSKI_TANG_H_
 
 #include "../../../memo/util/RandomNumber.h"
+#include "../../problem_parameter.h"
 #include "Eigen/Core"
 #include <random>
 #include <vector>
-
-extern Eigen::VectorXi styblinski_tang_lb;
-extern Eigen::VectorXi styblinski_tang_ub;
-extern int styblinski_tang_dim;
-extern double styblinski_tang_step_size;
-
-extern double styblinski_tang_noise_level;
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector);
 double styblinski_tang(const Eigen::VectorXi &action_vector, bool noisy);
