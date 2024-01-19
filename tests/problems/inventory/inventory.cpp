@@ -1,14 +1,4 @@
 #include "inventory.h"
-#include "nlohmann/json.hpp"
-#include <fstream>
-
-nlohmann::json configI = nlohmann::json::parse(std::ifstream("config.json"));
-
-Eigen::Vector2i inventory_lb(configI["problems"]["inventory"]["LOWER_BOUND"], configI["problems"]["inventory"]["LOWER_BOUND"]);
-Eigen::Vector2i inventory_ub(configI["problems"]["inventory"]["UPPER_BOUND"], configI["problems"]["inventory"]["UPPER_BOUND"]);
-int inventory_dim = 2;
-
-double inventory_noise_level = configI["problems"]["inventory"]["NOISE_LEVEL"];
 
 double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         std::vector<double> Results{
@@ -1300,5 +1290,5 @@ double inventory(Eigen::VectorXi action_vector, bool noisy) {
         }
         costs = costs / 30;
 
-        return get_true_objective_value(action_vector) + noisy * inventory_noise_level * (costs - get_true_objective_value(action_vector));
+        return get_true_objective_value(action_vector) + noisy * noise_level * (costs - get_true_objective_value(action_vector));
 }

@@ -1,37 +1,63 @@
 {
-  "MAX_SIMULATIONS": 15000,
-  "NUM_PARTICLES": 50,
-  "USE_RANDOM_LOCATION_UPDATE": false,
-  "CAP_VELOCITY": true,
+  "MAX_SIMULATIONS": 50000,
+  "NUM_PARTICLES": [
+    5,
+    100
+  ],
+  "USE_RANDOM_LOCATION_UPDATE": [
+    true,
+    false
+  ],
+  "CAP_VELOCITY": [
+    false
+  ],
   "MEMORY": false,
-  "to_csv": true,
-  "track_experiments": false,
-  "test_problem": "ackley",
-  "algos": ["pso", "memopso"],
-  "experiment_name": "Standard",
-  "NUM_RUNS": 50,
+  "to_csv": false,
+  "track_experiments": true,
+  "test_problem": "styblinski-tang",
+  "algos": [
+    "memopso"
+  ],
+  "experiment_name": "styblinski-tang",
+  "NUM_RUNS": 1,
   "W": 0.729844,
   "C1": 1.49618,
   "C2": 1.49618,
   "problems": {
     "styblinski-tang": {
-      "DIMENSIONS": 6,
+      "DIMENSIONS": [
+        2,
+        6
+      ],
       "LOWER_BOUND": -5000,
       "UPPER_BOUND": 5000,
       "STEP_SIZE": 0.001,
-      "NOISE_LEVEL": 1.5
+      "NOISE_LEVEL": [
+        1.5,
+        5
+      ]
     },
     "ackley": {
-      "DIMENSIONS": 6,
-      "LOWER_BOUND": -32.768,
-      "UPPER_BOUND": 32.768,
+      "DIMENSIONS": [
+        6
+      ],
+      "LOWER_BOUND": -32768,
+      "UPPER_BOUND": 32768,
       "STEP_SIZE": 0.001,
-      "NOISE_LEVEL": 1.5
+      "NOISE_LEVEL": [
+        1.5
+      ]
     },
     "inventory": {
+      "DIMENSIONS": [
+        6
+      ],
       "LOWER_BOUND": 0,
       "UPPER_BOUND": 100,
-      "NOISE_LEVEL": 1.5
+      "STEP_SIZE": 1,
+      "NOISE_LEVEL": [
+        1.5
+      ]
     }
   }
 }
