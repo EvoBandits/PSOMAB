@@ -53,4 +53,3 @@
         with:
           name: code-coverage-report
           path: coverage.txt
-

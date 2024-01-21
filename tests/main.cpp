@@ -18,7 +18,10 @@
 
 #include "problem_parameter.h"
 #include "problems/ackley/ackley.h"
+#include "problems/eggholder/eggholder.h"
 #include "problems/inventory/inventory.h"
+#include "problems/michalewicz_ackley/michalewicz_ackley.h"
+#include "problems/michalewicz_sphere/michalewicz_sphere.h"
 #include "problems/styblinski-tang/styblinski-tang.h"
 #include "problems/tp1/tp1.h"
 #include "problems/tp2/tp2.h"
@@ -113,6 +116,12 @@ auto single_run(const std::string &problem, const std::string &algo, const int n
                 opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(ackley);
         } else if (problem == "styblinski-tang") {
                 opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(styblinski_tang);
+        } else if (problem == "eggholder") {
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(eggholder);
+        } else if (problem == "michalewicz_ackley") {
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(michalewicz_ackley);
+        } else if (problem == "michalewicz_sphere") {
+                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(michalewicz_sphere);
         }
 
         /*

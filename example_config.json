@@ -1,25 +1,27 @@
 {
   "MAX_SIMULATIONS": 50000,
   "NUM_PARTICLES": [
-    5,
-    100
+    100,
+    50
   ],
   "USE_RANDOM_LOCATION_UPDATE": [
     true,
     false
   ],
   "CAP_VELOCITY": [
-    false
+    false,
+    true
   ],
   "MEMORY": false,
   "to_csv": false,
   "track_experiments": true,
-  "test_problem": "styblinski-tang",
+  "test_problem": "michalewicz_sphere",
   "algos": [
-    "memopso"
+    "memopso",
+    "pso"
   ],
-  "experiment_name": "styblinski-tang",
-  "NUM_RUNS": 1,
+  "experiment_name": "michalewicz_sphere",
+  "NUM_RUNS": 10,
   "W": 0.729844,
   "C1": 1.49618,
   "C2": 1.49618,
@@ -57,6 +59,39 @@
       "STEP_SIZE": 1,
       "NOISE_LEVEL": [
         1.5
+      ]
+    },
+    "eggholder": {
+      "DIMENSIONS": [
+        2
+      ],
+      "LOWER_BOUND": -512,
+      "UPPER_BOUND": 512,
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [
+        100
+      ]
+    },
+    "michalewicz_ackley": {
+      "DIMENSIONS": [
+        2
+      ],
+      "LOWER_BOUND": -500,
+      "UPPER_BOUND": 500,
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [
+        2
+      ]
+    },
+    "michalewicz_sphere": {
+      "DIMENSIONS": [
+        2
+      ],
+      "LOWER_BOUND": -500,
+      "UPPER_BOUND": 500,
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [
+        2
       ]
     }
   }
