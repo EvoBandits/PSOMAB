@@ -69,7 +69,13 @@ add_executable(MEMO
         tests/SecretManagement.h
         tests/problem_parameter.h
         tests/util/ProgressBar.cpp
-        tests/util/ProgressBar.h)
+        tests/util/ProgressBar.h
+        tests/problems/eggholder/eggholder.cpp
+        tests/problems/eggholder/eggholder.h
+        tests/problems/michalewicz_ackley/michalewicz_ackley.cpp
+        tests/problems/michalewicz_ackley/michalewicz_ackley.h
+        tests/problems/michalewicz_sphere/michalewicz_sphere.cpp
+        tests/problems/michalewicz_sphere/michalewicz_sphere.h)
 
 if (BUILD_TESTS)
     add_executable(tests tests/test.cpp
