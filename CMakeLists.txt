@@ -67,7 +67,9 @@ add_executable(MEMO
         tests/MLflowLogger.h
         tests/SecretManagement.cpp
         tests/SecretManagement.h
-        tests/problem_parameter.h)
+        tests/problem_parameter.h
+        tests/util/ProgressBar.cpp
+        tests/util/ProgressBar.h)
 
 if (BUILD_TESTS)
     add_executable(tests tests/test.cpp

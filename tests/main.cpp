@@ -26,6 +26,8 @@
 #include "MLflowLogger.h"
 #include "SecretManagement.h"
 
+#include "util/ProgressBar.h"
+
 #include "../memo/objects/solution/Solution.h"
 
 auto single_run(const std::string &problem, const std::string &algo, int num_particles, bool use_random_location_update, bool cap_velocity);
@@ -61,6 +63,8 @@ std::string experiment_name;
 std::string experiment_id;
 std::unique_ptr<MLflowLogger> mlflow_logger;
 
+ProgressBar progress_bar;
+
 auto main() -> int {
         parse_config();
 
@@ -70,6 +74,8 @@ auto main() -> int {
         }
 
         print_info();
+
+        progress_bar = ProgressBar(total_num_configs, 50);
 
         for (const auto &dim : dimensions) {
                 dimension = dim;
@@ -81,6 +87,8 @@ auto main() -> int {
                         run_all_configs(test_problem);
                 }
         }
+
+        progress_bar.finish();
 
         return 0;
 }
@@ -269,9 +277,13 @@ void run_config(const std::string &problem, const std::string &algo, const int n
         }
 
         configs_done++;
-        std::cout.flush();
+
+        /*
         std::cout << '\r';
-        std::cout << configs_done << "/" << total_num_configs;
+        std::cout << configs_done << "/" << total_num_configs << " configs done" << std::flush;
+        */
+
+        progress_bar.update(configs_done);
 }
 
 void run_all_configs(const std::string &problem) {
@@ -318,25 +330,24 @@ void parse_config() {
 }
 
 void print_info() {
-        std::cout << "###################################################################" << std::endl;
-        std::cout << "\tRunning problem: " << test_problem << std::endl;
-        std::cout << "\tNumber of dimension configurations:  " << dimensions.size() << std::endl;
-        std::cout << "\tNumber of noise level configurations:  " << noise_levels.size() << std::endl;
-        std::cout << "\n\tTotal number of experiment configurations: " << dimensions.size() * noise_levels.size() << std::endl;
-        std::cout << "###################################################################" << std::endl;
-        std::cout << "\tAlgo size: " << algos.size() << std::endl;
-        std::cout << "\tNumber of num_particles configurations: " << nums_particles.size() << std::endl;
-        std::cout << "\tNumber of random_location_update configurations: " << use_random_location_updates.size() << std::endl;
-        std::cout << "\tNumber of cap_velocities configurations: " << cap_velocities.size() << std::endl;
-        std::cout << "\n\tTotal number algorithm combinations: " << algos.size() * nums_particles.size() * use_random_location_updates.size() * cap_velocities.size() << std::endl;
-        std::cout << "###################################################################" << std::endl;
-        std::cout << "\tOverall number of configurations: " << total_num_configs << std::endl;
-        std::cout << "###################################################################" << std::endl;
+        std::cout << "##########################################################################" << std::endl;
+        std::cout << "Running problem: " << test_problem << std::endl;
+        std::cout << "Number of dimension configurations:  " << dimensions.size() << std::endl;
+        std::cout << "Number of noise level configurations:  " << noise_levels.size() << std::endl;
+        std::cout << "\nTotal number of experiment configurations: " << dimensions.size() * noise_levels.size() << std::endl;
+        std::cout << "##########################################################################" << std::endl;
+        std::cout << "Algo size: " << algos.size() << std::endl;
+        std::cout << "Number of num_particles configurations: " << nums_particles.size() << std::endl;
+        std::cout << "Number of random_location_update configurations: " << use_random_location_updates.size() << std::endl;
+        std::cout << "Number of cap_velocities configurations: " << cap_velocities.size() << std::endl;
+        std::cout << "\nTotal number algorithm combinations: " << algos.size() * nums_particles.size() * use_random_location_updates.size() * cap_velocities.size() << std::endl;
+        std::cout << "##########################################################################" << std::endl;
+        std::cout << "Overall number of configurations: " << total_num_configs << std::endl;
+
         if (track_experiments) {
-                std::cout << "\tResults will be tracked in experiment: " << experiment_name << std::endl;
+                std::cout << "\nResults will be tracked in experiment: " << experiment_name << std::endl;
         } else {
-                std::cout << "\tResults will not be tracked" << std::endl;
+                std::cout << "\nResults will not be tracked" << std::endl;
         }
-        std::cout << "###################################################################\n"
-                  << std::endl;
+        std::cout << "##########################################################################" << std::endl;
 }
