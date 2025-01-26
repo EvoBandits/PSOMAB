@@ -1,11 +1,11 @@
 #include "styblinski-tang.h"
 
-double get_true_objective_value_styblinski_tang(const Eigen::VectorXi& action_vector) {
+double get_true_objective_value_styblinski_tang(const Eigen::VectorXi &action_vector) {
         double sum = 0.0;
-        const double a = 16.0;
-        const double b = 5.0;
+        constexpr double a = 16.0;
+        constexpr double b = 5.0;
 
-        Eigen::VectorXd action_vector_scaled = action_vector.cast<double>() * step_size;
+        const Eigen::VectorXd action_vector_scaled = action_vector.cast<double>() * step_size;
 
         for (const auto x : action_vector_scaled)
                 sum += pow(x, 4) - a * pow(x, 2) + b * x;

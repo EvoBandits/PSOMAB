@@ -1,17 +1,8 @@
 {
   "MAX_SIMULATIONS": 50000,
-  "NUM_PARTICLES": [
-    100,
-    50
-  ],
-  "USE_RANDOM_LOCATION_UPDATE": [
-    true,
-    false
-  ],
-  "CAP_VELOCITY": [
-    false,
-    true
-  ],
+  "NUM_PARTICLES": [50, 100],
+  "USE_RANDOM_LOCATION_UPDATE": [true, false],
+  "CAP_VELOCITY": [true, false],
   "MEMORY": false,
   "to_csv": false,
   "track_experiments": true,
@@ -27,72 +18,67 @@
   "C2": 1.49618,
   "problems": {
     "styblinski-tang": {
-      "DIMENSIONS": [
-        2,
-        6
-      ],
+      "DIMENSIONS": [2,6],
       "LOWER_BOUND": -5000,
       "UPPER_BOUND": 5000,
       "STEP_SIZE": 0.001,
-      "NOISE_LEVEL": [
-        1.5,
-        5
-      ]
-    },
-    "ackley": {
-      "DIMENSIONS": [
-        6
-      ],
-      "LOWER_BOUND": -32768,
-      "UPPER_BOUND": 32768,
-      "STEP_SIZE": 0.001,
-      "NOISE_LEVEL": [
-        1.5
-      ]
+      "NOISE_LEVEL": [1.5,5]
     },
     "inventory": {
-      "DIMENSIONS": [
-        6
-      ],
+      "DIMENSIONS": [6],
       "LOWER_BOUND": 0,
       "UPPER_BOUND": 100,
       "STEP_SIZE": 1,
-      "NOISE_LEVEL": [
-        1.5
-      ]
+      "NOISE_LEVEL": [1.5]
     },
     "eggholder": {
-      "DIMENSIONS": [
-        2
-      ],
+      "DIMENSIONS": [2],
       "LOWER_BOUND": -512,
       "UPPER_BOUND": 512,
       "STEP_SIZE": 0.01,
-      "NOISE_LEVEL": [
-        100
-      ]
+      "NOISE_LEVEL": [10]
     },
     "michalewicz_ackley": {
-      "DIMENSIONS": [
-        2
-      ],
+      "DIMENSIONS": [2],
       "LOWER_BOUND": -500,
       "UPPER_BOUND": 500,
       "STEP_SIZE": 0.01,
-      "NOISE_LEVEL": [
-        2
-      ]
+      "NOISE_LEVEL": [2]
     },
     "michalewicz_sphere": {
-      "DIMENSIONS": [
-        2
-      ],
+      "DIMENSIONS": [2],
       "LOWER_BOUND": -500,
       "UPPER_BOUND": 500,
       "STEP_SIZE": 0.01,
-      "NOISE_LEVEL": [
-        2
-      ]
+      "NOISE_LEVEL": [2]
+    },
+    "f1_rosenbrock": {
+      "DIMENSIONS": [2],
+      "LOWER_BOUND_VECTOR": [-200, -100],
+      "UPPER_BOUND_VECTOR": [200, 300],
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [2]
+    },
+    "f2_six_hump_camel_back": {
+      "DIMENSIONS": [2],
+      "LOWER_BOUND_VECTOR": [-200, -100],
+      "UPPER_BOUND_VECTOR": [200, 100],
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [2]
+    },
+    "f3_elliptic": {
+      "DIMENSIONS": [30],
+      "LOWER_BOUND": -10000,
+      "UPPER_BOUND": 10000,
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [2]
+    },
+    "f4_ackley": {
+      "DIMENSIONS": [10],
+      "LOWER_BOUND": -400,
+      "UPPER_BOUND": 400,
+      "STEP_SIZE": 0.01,
+      "NOISE_LEVEL": [2]
     }
   }
 }

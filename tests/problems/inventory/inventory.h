@@ -9,7 +9,7 @@
 
 // 17 36
 
-double get_true_objective_value(const Eigen::VectorXi& action_vector);
-double inventory(Eigen::VectorXi action_vector, bool noisy);
+double get_true_objective_value(const Eigen::VectorXi &action_vector);
+double inventory(const Eigen::VectorXi &action_vector, bool noisy);
 
 #endif// PSOMAB_TESTS_PROBLEMS_INVENTORY_H_
