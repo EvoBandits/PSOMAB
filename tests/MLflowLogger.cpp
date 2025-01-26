@@ -28,8 +28,16 @@ auto parse_experiment_id(const std::string &response) -> std::string {
         // Parse the JSON response
         auto json = nlohmann::json::parse(response);
         // Extract the experiment_id
-        std::string experiment_id = json["experiment"]["experiment_id"].get<std::string>();
-        return experiment_id;
+        if (json.contains("experiment_id")) {
+                std::string experiment_id = json["experiment_id"].get<std::string>();
+                return experiment_id;
+        }
+        if (json.contains("experiment")) {
+                std::string experiment_id = json["experiment"]["experiment_id"].get<std::string>();
+                return experiment_id;
+        }
+        std::cerr << "Failed to parse experiment ID: " << response << std::endl;
+        exit(1);
 }
 
 auto read_file_to_string(const std::string &file_path) -> std::string {
