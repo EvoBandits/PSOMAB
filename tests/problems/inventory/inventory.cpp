@@ -1,6 +1,6 @@
 #include "inventory.h"
 
-double get_true_objective_value(const Eigen::VectorXi& action_vector) {
+double get_true_objective_value(const Eigen::VectorXi &action_vector) {
         std::vector<double> Results{
             218.435, 213.435, 208.435, 203.435, 198.435, 193.435, 188.435, 183.436,
             178.437, 173.443, 168.457, 163.494, 158.577, 153.751, 149.088, 144.692,
@@ -1255,15 +1255,15 @@ double get_true_objective_value(const Eigen::VectorXi& action_vector) {
         return Results[(action_vector.coeffRef(0) - 1) * 100 + (action_vector.coeffRef(1) - 1)];
 }
 
-double inventory(Eigen::VectorXi action_vector, bool noisy) {
-        int s = action_vector[0];
-        int S = action_vector[1] + s;
+double inventory(const Eigen::VectorXi &action_vector, bool noisy) {
+        const int s = action_vector[0];
+        const int S = action_vector[1] + s;
         int inventory_before_ordering = S;
         int inventory_after_ordering = 0;
         int order = 0;
         double costs = 0.0;
 
-        int t = 30;
+        constexpr int t = 30;
 
         for (int i = 1; i <= t; i++) {
 

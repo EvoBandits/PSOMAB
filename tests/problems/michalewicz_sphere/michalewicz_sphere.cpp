@@ -2,11 +2,11 @@
 
 double get_true_objective_value_michalewicz_sphere(const Eigen::VectorXi &action_vector) {
         // Parameters for Michalewicz Function
-        double m = 10;
+        constexpr double m = 10;
 
         // Sphere Function
         Eigen::VectorXd action_vector_scaled = action_vector.cast<double>() * step_size;
-        double sphere_sum = action_vector_scaled.array().square().sum();
+        const double sphere_sum = action_vector_scaled.array().square().sum();
 
         // Michalewicz Function
         double michalewicz_sum = 0;

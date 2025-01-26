@@ -40,8 +40,14 @@ add_executable(MEMO
         memo/objects/solution/Solution.cpp
         memo/objects/solution/Solution.h
         memo/util/SolutionCodeCalculation.h
-        tests/problems/ackley/ackley.h
-        tests/problems/ackley/ackley.cpp
+        tests/problems/f1_rosenbrock/f1_rosenbrock.h
+        tests/problems/f1_rosenbrock/f1_rosenbrock.cpp
+        tests/problems/f2_six_hump_camel_back/f2_six_hump_camel_back.h
+        tests/problems/f2_six_hump_camel_back/f2_six_hump_camel_back.cpp
+        tests/problems/f3_elliptic/f3_elliptic.h
+        tests/problems/f3_elliptic/f3_elliptic.cpp
+        tests/problems/f4_ackley/f4_ackley.h
+        tests/problems/f4_ackley/f4_ackley.cpp
         tests/problems/tp1/tp1.cpp
         tests/problems/tp1/tp1.h
         tests/problems/tp2/tp2.cpp

@@ -17,8 +17,11 @@
 #include <nlohmann/json.hpp>
 
 #include "problem_parameter.h"
-#include "problems/ackley/ackley.h"
 #include "problems/eggholder/eggholder.h"
+#include "problems/f1_rosenbrock/f1_rosenbrock.h"
+#include "problems/f2_six_hump_camel_back/f2_six_hump_camel_back.h"
+#include "problems/f3_elliptic/f3_elliptic.h"
+#include "problems/f4_ackley/f4_ackley.h"
 #include "problems/inventory/inventory.h"
 #include "problems/michalewicz_ackley/michalewicz_ackley.h"
 #include "problems/michalewicz_sphere/michalewicz_sphere.h"
@@ -38,6 +41,7 @@ auto multiple_runs(const std::string &problem, const std::string &algo, int num_
 void run_config(const std::string &problem, const std::string &algo, int num_particles, bool use_random_location_update, bool cap_velocity);
 void run_all_configs(const std::string &problem);
 void parse_config();
+void parse_lb_ub();
 void print_info();
 
 nlohmann::json config;
@@ -84,8 +88,7 @@ auto main() -> int {
                 dimension = dim;
                 for (const auto &noise_lvl : noise_levels) {
                         noise_level = noise_lvl;
-                        lb = Eigen::VectorXi::Constant(dimension, test_problem_config["LOWER_BOUND"]);
-                        ub = Eigen::VectorXi::Constant(dimension, test_problem_config["UPPER_BOUND"]);
+                        parse_lb_ub();
 
                         run_all_configs(test_problem);
                 }
@@ -109,26 +112,29 @@ auto single_run(const std::string &problem, const std::string &algo, const int n
         std::stringstream filename_stream("");
         filename_stream << problem << "_" << algo << "_memory_" << time << ".csv";
 
-        auto opti_func = inventory;
+        double (*opti_func)(const Eigen::VectorXi &action_vector, bool noisy);
         if (problem == "inventory") {
                 opti_func = inventory;
-        } else if (problem == "ackley") {
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(ackley);
         } else if (problem == "styblinski-tang") {
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(styblinski_tang);
+                opti_func = styblinski_tang;
         } else if (problem == "eggholder") {
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(eggholder);
+                opti_func = eggholder;
         } else if (problem == "michalewicz_ackley") {
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(michalewicz_ackley);
+                opti_func = michalewicz_ackley;
         } else if (problem == "michalewicz_sphere") {
-                opti_func = reinterpret_cast<double (*)(Eigen::VectorXi, bool)>(michalewicz_sphere);
+                opti_func = michalewicz_sphere;
+        } else if (problem == "f1_rosenbrock") {
+                opti_func = rosenbrock;
+        } else if (problem == "f2_six_hump_camel_back") {
+                opti_func = six_hump_camel_back;
+        } else if (problem == "f3_elliptic") {
+                opti_func = elliptic;
+        } else if (problem == "f4_ackley") {
+                opti_func = ackley;
+        } else {
+                std::cerr << "Problem not found" << std::endl;
+                exit(1);
         }
-
-        /*
-        std::cout << std::fixed;
-        std::cout << std::setprecision(3);
-        std::cout << algo << " ";
-         */
 
         if (algo == "pso") {
                 PSO pso_instance = PSO(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
@@ -137,78 +143,72 @@ auto single_run(const std::string &problem, const std::string &algo, const int n
                         pso_instance.memory_to_csv(filename_stream.str());
                 }
                 return pso_instance.best_solutions();
-        }
-        if (algo == "psoan") {
+        } else if (algo == "psoan") {
                 PSOAN psoan_instance = PSOAN(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psoan_instance.optimize();
                 if (MEMORY) {
                         psoan_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoan_instance.best_solutions();
-        }
-        if (algo == "psogd") {
+        } else if (algo == "psogd") {
                 PSOGD psogd_instance = PSOGD(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psogd_instance.optimize();
                 if (MEMORY) {
                         psogd_instance.memory_to_csv(filename_stream.str());
                 }
                 return psogd_instance.best_solutions();
-        }
-        if (algo == "psoocba") {
+        } else if (algo == "psoocba") {
                 PSOOCBA psoocba_instance = PSOOCBA(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psoocba_instance.optimize();
                 if (MEMORY) {
                         psoocba_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoocba_instance.best_solutions();
-        }
-        if (algo == "psoocbaa") {
+        } else if (algo == "psoocbaa") {
                 PSOOCBAA psoocbaa_instance = PSOOCBAA(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psoocbaa_instance.optimize();
                 if (MEMORY) {
                         psoocbaa_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoocbaa_instance.best_solutions();
-        }
-        if (algo == "psola") {
+        } else if (algo == "psola") {
                 PSOLA psola_instance = PSOLA(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psola_instance.optimize();
                 if (MEMORY) {
                         psola_instance.memory_to_csv(filename_stream.str());
                 }
                 return psola_instance.best_solutions();
-        }
-        if (algo == "lapso") {
+        } else if (algo == "lapso") {
                 LAPSO lapso_instance = LAPSO(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 lapso_instance.optimize();
                 if (MEMORY) {
                         lapso_instance.memory_to_csv(filename_stream.str());
                 }
                 return lapso_instance.best_solutions();
-        }
-        if (algo == "memopso") {
+        } else if (algo == "memopso") {
                 MEMOPSO memopso_instance = MEMOPSO(opti_func, lb, ub, dimension, MAX_SIMULATIONS, W, C1, C2, num_particles, use_random_location_update, cap_velocity);
                 memopso_instance.optimize();
                 if (MEMORY) {
                         memopso_instance.memory_to_csv(filename_stream.str());
                 }
                 return memopso_instance.best_solutions();
-        }
-        if (algo == "psoern") {
+        } else if (algo == "psoern") {
                 PSOERN psoern_instance = PSOERN(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psoern_instance.optimize();
                 if (MEMORY) {
                         psoern_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoern_instance.best_solutions();
-        }
-        if (algo == "psoer") {
+        } else if (algo == "psoer") {
                 PSOER psoer_instance = PSOER(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, 20, W, C1, C2, use_random_location_update, cap_velocity);
                 psoer_instance.optimize();
                 if (MEMORY) {
                         psoer_instance.memory_to_csv(filename_stream.str());
                 }
                 return psoer_instance.best_solutions();
+        } else {
+                std::cerr << "Algorithm not found" << std::endl;
+                exit(1);
         }
 }
 
@@ -287,11 +287,6 @@ void run_config(const std::string &problem, const std::string &algo, const int n
 
         configs_done++;
 
-        /*
-        std::cout << '\r';
-        std::cout << configs_done << "/" << total_num_configs << " configs done" << std::flush;
-        */
-
         progress_bar.update(configs_done);
 }
 
@@ -332,10 +327,31 @@ void parse_config() {
                 noise_levels.push_back(noise_lvl);
         step_size = test_problem_config["STEP_SIZE"];
 
-        total_num_configs = (int) (dimensions.size() * noise_levels.size() * algos.size() * nums_particles.size() * use_random_location_updates.size() * cap_velocities.size());
+        total_num_configs = static_cast<int>(dimensions.size() * noise_levels.size() * algos.size() * nums_particles.size() * use_random_location_updates.size() * cap_velocities.size());
 
         track_experiments = config["track_experiments"];
         experiment_name = config["experiment_name"];
+}
+
+void parse_lb_ub() {
+        if (test_problem_config.contains("LOWER_BOUND_VECTOR") && test_problem_config.contains("UPPER_BOUND_VECTOR")) {
+                std::vector<int> lb_input = test_problem_config["LOWER_BOUND_VECTOR"].get<std::vector<int>>();
+                std::vector<int> ub_input = test_problem_config["UPPER_BOUND_VECTOR"].get<std::vector<int>>();
+
+                if (lb_input.size() != dimension || ub_input.size() != dimension) {
+                        std::cerr << "Dimension mismatch between dimension and lower/upper bound vector" << std::endl;
+                        exit(1);
+                }
+
+                lb = Eigen::Map<Eigen::VectorXi>(lb_input.data(), dimension);
+                ub = Eigen::Map<Eigen::VectorXi>(ub_input.data(), dimension);
+        } else if (test_problem_config.contains("LOWER_BOUND") && test_problem_config.contains("UPPER_BOUND")) {
+                lb = Eigen::VectorXi::Constant(dimension, test_problem_config["LOWER_BOUND"]);
+                ub = Eigen::VectorXi::Constant(dimension, test_problem_config["UPPER_BOUND"]);
+        } else {
+                std::cerr << "No lower and upper bound given" << std::endl;
+                exit(1);
+        }
 }
 
 void print_info() {
