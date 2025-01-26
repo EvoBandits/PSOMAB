@@ -6,9 +6,9 @@
 
 class SecretManagement {
        public:
-        static std::string get_secret_from_1password(const std::string &item_name, const std::string &field_name);
+        static std::string get_secret_from_1password(const std::string &vault_name, const std::string &item_name, const std::string &field_name);
         static std::unordered_map<std::string, std::string> read_dotenv(const std::string &filename);
-        static std::string get_secret(const std::string &item_name, const std::string &field_name);
+        static std::string get_secret(const std::string &vault_name, const std::string &item_name, const std::string &field_name);
 };
 
 #endif//MEMO_SECRETMANAGEMENT_H
