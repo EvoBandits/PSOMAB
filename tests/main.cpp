@@ -217,6 +217,7 @@ auto multiple_runs(const std::string &problem, const std::string &algo, const in
         std::vector<std::vector<solution>> all_solutions(NUM_RUNS);
 
         for (int i = 0; i < NUM_RUNS; ++i) {
+                seed_generator(i);
                 auto best_solutions = single_run(problem, algo, num_particles, use_random_location_update, cap_velocity);
                 all_solutions[i] = best_solutions;
                 double reward = 0.0;
