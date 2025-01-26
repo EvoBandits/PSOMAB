@@ -1,11 +1,13 @@
 #include "RandomNumber.h"
 
-std::random_device rd;// obtain a random number from hardware
-std::default_random_engine generator(111);
+thread_local std::default_random_engine generator;
 
+void seed_generator(unsigned int seed) {
+        generator.seed(seed);
+}
 
 int random_uniform_int(int a, int b) {
-        std::uniform_int_distribution<int> random_value(a,b);
+        std::uniform_int_distribution<int> random_value(a, b);
         return random_value(generator);
 }
 

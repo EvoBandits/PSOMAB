@@ -3,7 +3,9 @@
 
 #include <random>
 
-extern std::default_random_engine generator;
+extern thread_local std::default_random_engine generator;
+
+void seed_generator(unsigned int seed);
 
 int random_uniform_int(int a, int b);
 double random_uniform_double(double a, double b);
