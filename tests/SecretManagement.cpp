@@ -8,8 +8,8 @@
 #include <memory>
 
 #ifndef _WIN32
-auto SecretManagement::get_secret_from_1password(const std::string &item_name, const std::string &field_name) -> std::string {
-        std::string command = "op item get " + item_name + " --fields " + field_name + " 2>/dev/null";
+auto SecretManagement::get_secret_from_1password(const std::string &vault_name, const std::string &item_name, const std::string &field_name) -> std::string {
+        std::string command = "op read op://" + vault_name + "/" + item_name + "/" + field_name;
 
         std::array<char, 128> buffer{};
         std::string result;
@@ -63,10 +63,10 @@ auto SecretManagement::read_dotenv(const std::string &filename) -> std::unordere
         return env;
 }
 
-auto SecretManagement::get_secret(const std::string &item_name, const std::string &field_name) -> std::string {
+auto SecretManagement::get_secret(const std::string &vault_name, const std::string &item_name, const std::string &field_name) -> std::string {
 #ifndef _WIN32
         try {
-                std::string secret = get_secret_from_1password(item_name, field_name);
+                std::string secret = get_secret_from_1password(vault_name, item_name, field_name);
                 if (!secret.empty()) {
                         secret.erase(std::remove(secret.begin(), secret.end(), '\n'), secret.end());
                         return secret;

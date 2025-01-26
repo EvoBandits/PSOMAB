@@ -14,8 +14,8 @@ const std::string MLflowLogger::GET_RUN_INFO_ENDPOINT = "/api/2.0/mlflow/runs/ge
 
 MLflowLogger::MLflowLogger() {
         try {
-                MLflowLogger::mlflow_access_token = SecretManagement::get_secret("MLflow", "password");
-                MLflowLogger::mlflow_url = SecretManagement::get_secret("MLflow", "username");
+                mlflow_access_token = SecretManagement::get_secret("TeamMoos", "MLflow", "password");
+                mlflow_url = SecretManagement::get_secret("TeamMoos", "MLflow", "username");
 
                 // Use the mlflow_access_token in your application
         } catch (const std::exception &e) {
