@@ -12,10 +12,10 @@ double get_true_objective_value_six_hump_camel_back(const Eigen::VectorXi &actio
             + x * y
             - 4 * std::pow(y, 2)
             + 4 * std::pow(y, 4)
-            + 1.0316;
+            + 1.0315704;
 
-        // scale to larger values
-        result *= 10;
+        // scale value range to approx. [0;100]
+        result *= 15;
 
         return result;
 }
