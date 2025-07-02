@@ -1,13 +1,13 @@
-#include "../memo/algo/particle_swarm_optimizer/PSO.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
-#include "../memo/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h"
+#include "../src/algo/particle_swarm_optimizer/PSO.h"
+#include "../src/algo/particle_swarm_optimizer/variants/average_neighborhood/PSOAN.h"
+#include "../src/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h"
+#include "../src/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h"
+#include "../src/algo/particle_swarm_optimizer/variants/learning_automaton/LAPSO.h"
+#include "../src/algo/particle_swarm_optimizer/variants/learning_automaton/PSOLA.h"
+#include "../src/algo/particle_swarm_optimizer/variants/memory_enhanced/PSOMAB.h"
+#include "../src/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation/PSOOCBA.h"
+#include "../src/algo/particle_swarm_optimizer/variants/optimal_computing_budget_allocation_adjusted/PSOOCBAA.h"
+#include "../src/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h"
 
 #include <chrono>
 #include <ctime>
@@ -34,7 +34,7 @@
 
 #include "util/ProgressBar.h"
 
-#include "../memo/objects/solution/Solution.h"
+#include "../src/objects/solution/Solution.h"
 
 auto single_run(const std::string &problem, const std::string &algo, int num_particles, bool use_random_location_update, bool cap_velocity);
 auto multiple_runs(const std::string &problem, const std::string &algo, int num_particles, bool use_random_location_update, bool cap_velocity);
@@ -185,13 +185,13 @@ auto single_run(const std::string &problem, const std::string &algo, const int n
                         lapso_instance.memory_to_csv(filename_stream.str());
                 }
                 return lapso_instance.best_solutions();
-        } else if (algo == "memopso") {
-                MEMOPSO memopso_instance = MEMOPSO(opti_func, lb, ub, dimension, MAX_SIMULATIONS, W, C1, C2, num_particles, use_random_location_update, cap_velocity);
-                memopso_instance.optimize();
+        } else if (algo == "psomab") {
+                PSOMAB psomab_instance = PSOMAB(opti_func, lb, ub, dimension, MAX_SIMULATIONS, W, C1, C2, num_particles, use_random_location_update, cap_velocity);
+                psomab_instance.optimize();
                 if (MEMORY) {
-                        memopso_instance.memory_to_csv(filename_stream.str());
+                        psomab_instance.memory_to_csv(filename_stream.str());
                 }
-                return memopso_instance.best_solutions();
+                return psomab_instance.best_solutions();
         } else if (algo == "psoern") {
                 PSOERN psoern_instance = PSOERN(num_particles, dimension, lb, ub, opti_func, MAX_SIMULATIONS, W, C1, C2, use_random_location_update, cap_velocity);
                 psoern_instance.optimize();

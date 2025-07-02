@@ -171,3 +171,9 @@ $RECYCLE.BIN/
 
 # exclude build folder
 build/
+
+# exclude config
+config.json
+
+# exclude clangd cache
+.cache/

@@ -1,7 +1,7 @@
 #ifndef PSOMAB_TESTS_PROBLEMS_TP1_TP1_H_
 #define PSOMAB_TESTS_PROBLEMS_TP1_TP1_H_
 
-#include "../../memo/util/RandomNumber.h"
+#include "../../src/util/RandomNumber.h"
 #include "Eigen/Core"
 #include <iomanip>
 #include <iostream>

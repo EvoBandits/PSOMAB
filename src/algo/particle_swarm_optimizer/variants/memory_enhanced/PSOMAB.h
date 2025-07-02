@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-class MEMOPSO {
+class PSOMAB {
        private:
         // local SATs, arm_memory, LUTs
         std::vector<std::multimap<double, int>> local_sats;
@@ -38,7 +38,7 @@ class MEMOPSO {
         void save_history();
 
        public:
-        MEMOPSO(std::function<double(Eigen::VectorXi, int)> func, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, int max_sim, double w, double c1, double c2, int pop_s = 50, bool use_random_location_update = false, bool cap_velocity = true);
+        PSOMAB(std::function<double(Eigen::VectorXi, int)> func, const Eigen::VectorXi &x_lb, const Eigen::VectorXi &x_ub, int D, int max_sim, double w, double c1, double c2, int pop_s = 50, bool use_random_location_update = false, bool cap_velocity = true);
         void optimize();
         std::vector<solution> best_solutions();
         void memory_to_csv(const std::string &filename);

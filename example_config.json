@@ -5,12 +5,9 @@
   "CAP_VELOCITY": [true, false],
   "MEMORY": false,
   "to_csv": false,
-  "track_experiments": true,
+  "track_experiments": false,
   "test_problem": "michalewicz_sphere",
-  "algos": [
-    "memopso",
-    "pso"
-  ],
+  "algos": ["psomab", "pso"],
   "experiment_name": "michalewicz_sphere",
   "NUM_RUNS": 10,
   "W": 0.729844,
@@ -18,11 +15,11 @@
   "C2": 1.49618,
   "problems": {
     "styblinski-tang": {
-      "DIMENSIONS": [2,6],
+      "DIMENSIONS": [2, 6],
       "LOWER_BOUND": -5000,
       "UPPER_BOUND": 5000,
       "STEP_SIZE": 0.001,
-      "NOISE_LEVEL": [1.5,5]
+      "NOISE_LEVEL": [1.5, 5]
     },
     "inventory": {
       "DIMENSIONS": [6],

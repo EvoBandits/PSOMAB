@@ -3,7 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "../../../memo/util/RandomNumber.h"
+#include "../../../src/util/RandomNumber.h"
 #include "../../problem_parameter.h"
 #include "Eigen/Core"
 
