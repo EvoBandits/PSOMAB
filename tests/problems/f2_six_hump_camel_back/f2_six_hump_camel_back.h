@@ -1,7 +1,7 @@
 #ifndef PSOMAB_TESTS_PROBLEMS_SIX_HUMP_CAMEL_BACK_H_
 #define PSOMAB_TESTS_PROBLEMS_SIX_HUMP_CAMEL_BACK_H_
 
-#include "../../../memo/util/RandomNumber.h"
+#include "../../../src/util/RandomNumber.h"
 #include "../../problem_parameter.h"
 #include "Eigen/Core"
 

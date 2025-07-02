@@ -2,7 +2,7 @@
 #define PSOMAB_TESTS_PROBLEMS_F4_ACKLEY_H_
 #define _USE_MATH_DEFINES
 
-#include "../../../memo/util/RandomNumber.h"
+#include "../../../src/util/RandomNumber.h"
 #include "../../problem_parameter.h"
 #include "Eigen/Core"
 #include <cmath>

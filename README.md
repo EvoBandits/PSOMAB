@@ -1,6 +1,6 @@
-# MEMO
+# PSOMAB
 
-MEMO is a C++ library for solving stochastic optimization problems using a memory-enhanced optimizer.
+PSOMAB is a C++ library for solving stochastic optimization problems using multi armed bandits.
 
 [![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml)
 
@@ -9,16 +9,16 @@ MEMO is a C++ library for solving stochastic optimization problems using a memor
 To install the library, clone the repository and initialize submodules:
 
 ```bash
-git clone 
+git clone
 git submodule update --init --recursive
 ```
 
 ## Usage
 
-To use MEMO PSO, include the relevant headers and create an instance of the MEMOPSO class:
+To use PSOMAB, include the relevant headers and create an instance of the PSOMAB class:
 
 ```c++
-#include "./memo/algo/particle_swarm_optimizer/variants/memory_enhanced/MEMOPSO.h"
+#include "./src/algo/particle_swarm_optimizer/variants/memory_enhanced/PSOMAB.h"
 
 #include <iostream>
 
@@ -37,11 +37,11 @@ int main() {
     Eigen::Vector2i function_lb(-500, -500);
     Eigen::Vector2i function_ub(500, 500);
     int max_function_evaluations = 10000;
-    
-    MEMOPSO memopso_instance = MEMOPSO(problem_function, function_lb, function_ub, function_dim, max_function_evaluations);
-    memopso_instance.optimize();
 
-    std::cout << memopso_instance.get_best_solution().back().get_action_vector() << std::endl;
+    PSOMAB psomab_instance = PSOMAB(problem_function, function_lb, function_ub, function_dim, max_function_evaluations);
+    psomab_instance.optimize();
+
+    std::cout << psomab_instance.get_best_solution().back().get_action_vector() << std::endl;
     return 0;
 }
 ```
@@ -64,7 +64,7 @@ MEMO was developed by:
 
 ## Citing memo-pso
 
-If you use MEMO PSO in your scientific work, please cite it as follows:
+If you use PSOMAB in your scientific work, please cite it as follows:
 
 tbd
 

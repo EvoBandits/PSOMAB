@@ -1,4 +1,4 @@
-#include "../memo/util/SortIndices.h"
+#include "../src/util/SortIndices.h"
 #include "Eigen/Core"
 #include <catch2/catch_test_macros.hpp>
 

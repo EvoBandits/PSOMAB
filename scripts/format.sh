@@ -2,4 +2,4 @@
 
 set -x
 
-find tests memo -iname '*.cpp' -o -iname '*.h' | xargs clang-format -i
+find tests src -iname '*.cpp' -o -iname '*.h' | xargs clang-format -i
