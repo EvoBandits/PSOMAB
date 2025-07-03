@@ -70,21 +70,21 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Licence
 
-MEMO is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
+PSOMAB is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
 
 ## Credit
 
-MEMO was developed by:
+PSOMAB was developed by:
 
 * Deniz Preil
 * Timo Kühne
 * Jonathan Laib
 
-## Citing memo-pso
+## Citing PSOMAB
 
 If you use PSOMAB in your scientific work, please cite it as follows:
 
 tbd
 
 ## Third Party Dependencies
-MEMO relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
+PSOMAB relies on external libraries to provide its features. You can find these libraries in the /third_party folder.
