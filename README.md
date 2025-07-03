@@ -13,6 +13,24 @@ git clone
 git submodule update --init --recursive
 ```
 
+To build and run PSOMAB, you need to have CMake and Ninja installed. You can install them using the following commands:
+
+```bash
+sudo apt install cmake ninja-build
+```
+Then, create a build directory and generate the project build system:
+
+```bash
+mkdir build
+cmake -DCMAKE_MAKE_PROGRAM=ninja -G Ninja -S . -B ./build
+```
+
+Finally, build the project and run PSOMAB (make sure to add a configuration file):
+```bash
+cmake --build ./build --target PSOMAB -j 6
+./build/PSOMAB
+```
+
 ## Usage
 
 To use PSOMAB, include the relevant headers and create an instance of the PSOMAB class:
