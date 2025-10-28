@@ -177,3 +177,5 @@ config.json
 
 # exclude clangd cache
 .cache/
+
+.venv/
