@@ -22,12 +22,12 @@
 #include "problems/f2_six_hump_camel_back/f2_six_hump_camel_back.h"
 #include "problems/f3_elliptic/f3_elliptic.h"
 #include "problems/f4_ackley/f4_ackley.h"
+#include "problems/four_agent_supply_chain/four_agent_supply_chain.h"
 #include "problems/inventory/inventory.h"
 #include "problems/michalewicz_ackley/michalewicz_ackley.h"
 #include "problems/michalewicz_sphere/michalewicz_sphere.h"
 #include "problems/styblinski-tang/styblinski-tang.h"
-#include "problems/tp1/tp1.h"
-#include "problems/tp2/tp2.h"
+#include "problems/two_agent_supply_chain/two_agent_supply_chain.h"
 
 #include "MLflowLogger.h"
 #include "SecretManagement.h"
@@ -131,6 +131,10 @@ auto single_run(const std::string &problem, const std::string &algo, const int n
                 opti_func = elliptic;
         } else if (problem == "f4_ackley") {
                 opti_func = ackley;
+        } else if (problem == "two_agent_supply_chain") {
+                opti_func = two_agent_supply_chain;
+        } else if (problem == "four_agent_supply_chain") {
+                opti_func = four_agent_supply_chain;
         } else {
                 std::cerr << "Problem not found" << std::endl;
                 exit(1);
@@ -217,14 +221,16 @@ auto multiple_runs(const std::string &problem, const std::string &algo, const in
         std::vector<std::vector<solution>> all_solutions(NUM_RUNS);
 
         for (int i = 0; i < NUM_RUNS; ++i) {
-                seed_generator(i);
+                seed_generator(i * 123);
                 auto best_solutions = single_run(problem, algo, num_particles, use_random_location_update, cap_velocity);
                 all_solutions[i] = best_solutions;
                 double reward = 0.0;
                 if (!best_solutions.empty()) {
                         reward = best_solutions.back().true_func_val;
                 }
-                //std::cout << "Run: " << i << " | best reward: " << reward << std::endl;
+                //std::cout << algo << " | Run: " << i << " | best reward: " << reward << std::endl;
+                //best_solutions.back().print();
+                //std::cout << "----------------------------------------" << std::endl;
         }
 
         return all_solutions;
@@ -235,7 +241,6 @@ void run_config(const std::string &problem, const std::string &algo, const int n
         const int NUM_RUNS = config["NUM_RUNS"];
         const bool to_csv_ = config["to_csv"];
 
-        //std::cout << problem << " " << algo << std::endl;
         auto solutions = multiple_runs(problem, algo, num_particles, use_random_location_update, cap_velocity);
 
         // log average true func value

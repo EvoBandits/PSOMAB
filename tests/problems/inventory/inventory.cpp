@@ -1267,12 +1267,11 @@ double inventory(const Eigen::VectorXi &action_vector, bool noisy) {
 
         for (int i = 1; i <= t; i++) {
 
-                if (inventory_before_ordering <= s) {         // falls inventory on hand vor bestellung ->(kleiner gleich)<- s
-                                                              // ist
-                        order = S - inventory_before_ordering;// das was bestellt wird
+                if (inventory_before_ordering <= s) {
+                        order = S - inventory_before_ordering;
                         costs = costs + (32 + 3 * order);
                         inventory_after_ordering = S;
-                } else {// keine order
+                } else {
                         inventory_after_ordering = inventory_before_ordering;
                 }
 
@@ -1281,11 +1280,11 @@ double inventory(const Eigen::VectorXi &action_vector, bool noisy) {
 
                 if (inventory_after_ordering >= 0) {
                         costs = costs + 1 * inventory_after_ordering;
-                } else {// shortage
+                } else {
                         costs = costs + 5 * (-inventory_after_ordering);
                 }
 
-                inventory_before_ordering = inventory_after_ordering;// für nächste Periode
+                inventory_before_ordering = inventory_after_ordering;
                 order = 0;
         }
         costs = costs / 30;

@@ -48,10 +48,10 @@ add_executable(PSOMAB
         tests/problems/f3_elliptic/f3_elliptic.cpp
         tests/problems/f4_ackley/f4_ackley.h
         tests/problems/f4_ackley/f4_ackley.cpp
-        tests/problems/tp1/tp1.cpp
-        tests/problems/tp1/tp1.h
-        tests/problems/tp2/tp2.cpp
-        tests/problems/tp2/tp2.h
+        tests/problems/two_agent_supply_chain/two_agent_supply_chain.cpp
+        tests/problems/two_agent_supply_chain/two_agent_supply_chain.h
+        tests/problems/four_agent_supply_chain/four_agent_supply_chain.cpp
+        tests/problems/four_agent_supply_chain/four_agent_supply_chain.h
         tests/problems/styblinski-tang/styblinski-tang.cpp
         tests/problems/styblinski-tang/styblinski-tang.h
         src/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h

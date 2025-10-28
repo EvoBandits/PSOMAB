@@ -76,6 +76,20 @@
       "UPPER_BOUND": 400,
       "STEP_SIZE": 0.01,
       "NOISE_LEVEL": [2]
+    },
+    "two_agent_supply_chain": {
+      "DIMENSIONS": [2],
+      "LOWER_BOUND_VECTOR": [20, 40],
+      "UPPER_BOUND_VECTOR": [360, 300],
+      "STEP_SIZE": 1.0,
+      "NOISE_LEVEL": [2]
+    },
+    "four_agent_supply_chain": {
+      "DIMENSIONS": [4],
+      "LOWER_BOUND_VECTOR": [20, 40, 80, 60],
+      "UPPER_BOUND_VECTOR": [1200, 1140, 840, 420],
+      "STEP_SIZE": 1.0,
+      "NOISE_LEVEL": [2]
     }
   }
 }
