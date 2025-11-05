@@ -13,16 +13,6 @@ if (BUILD_TESTS)
     add_subdirectory(third_party/Catch2)
 endif ()
 
-include(FetchContent)
-FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG 1.10.5)
-set(BUILD_SHARED_LIBS OFF)
-FetchContent_MakeAvailable(cpr)
-
-FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3)
-FetchContent_MakeAvailable(nlohmann_json)
-
 add_executable(PSOMAB
         src/objects/arm/Arm.cpp
         src/objects/arm/Arm.h
@@ -33,8 +23,6 @@ add_executable(PSOMAB
         src/util/RandomNumber.cpp
         src/util/RandomNumber.h
         tests/main.cpp
-        tests/problems/inventory/inventory.h
-        tests/problems/inventory/inventory.cpp
         src/algo/particle_swarm_optimizer/PSO.cpp
         src/algo/particle_swarm_optimizer/PSO.h
         src/objects/solution/Solution.cpp
@@ -52,8 +40,6 @@ add_executable(PSOMAB
         tests/problems/two_agent_supply_chain/two_agent_supply_chain.h
         tests/problems/four_agent_supply_chain/four_agent_supply_chain.cpp
         tests/problems/four_agent_supply_chain/four_agent_supply_chain.h
-        tests/problems/styblinski-tang/styblinski-tang.cpp
-        tests/problems/styblinski-tang/styblinski-tang.h
         src/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.h
         src/algo/particle_swarm_optimizer/variants/group_decision/PSOGD.cpp
         src/util/SortIndices.h src/util/SortIndices.cpp
@@ -69,19 +55,8 @@ add_executable(PSOMAB
         src/algo/particle_swarm_optimizer/variants/top_n_resampling/PSOERN.h
         src/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.cpp
         src/algo/particle_swarm_optimizer/variants/equal_resampling/PSOER.h
-        tests/MLflowLogger.cpp
-        tests/MLflowLogger.h
-        tests/SecretManagement.cpp
-        tests/SecretManagement.h
         tests/problem_parameter.h
-        tests/util/ProgressBar.cpp
-        tests/util/ProgressBar.h
-        tests/problems/eggholder/eggholder.cpp
-        tests/problems/eggholder/eggholder.h
-        tests/problems/michalewicz_ackley/michalewicz_ackley.cpp
-        tests/problems/michalewicz_ackley/michalewicz_ackley.h
-        tests/problems/michalewicz_sphere/michalewicz_sphere.cpp
-        tests/problems/michalewicz_sphere/michalewicz_sphere.h)
+)
 
 if (BUILD_TESTS)
     add_executable(tests tests/test.cpp
@@ -116,9 +91,6 @@ if (BUILD_TESTS)
 
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 endif ()
-
-target_link_libraries(PSOMAB PRIVATE cpr::cpr)
-target_link_libraries(PSOMAB PRIVATE nlohmann_json::nlohmann_json)
 
 if (BUILD_TESTS)
     include(CTest)

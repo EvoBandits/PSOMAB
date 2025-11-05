@@ -2,7 +2,7 @@
 
 PSOMAB is a C++ library for solving stochastic optimization problems using multi armed bandits.
 
-[![](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml/badge.svg)](https://github.com/H3nkl3r/PSOMAB/actions/workflows/tests.yml)
+[![](https://github.com/EvoBandits/PSOMAB/actions/workflows/tests.yml/badge.svg)](https://github.com/EvoBandits/PSOMAB/actions/workflows/tests.yml)
 
 ## Installation
 

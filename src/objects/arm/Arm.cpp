@@ -46,11 +46,11 @@ double Arm::mean_reward() const {
 }
 
 Arm::Arm(std::function<double(Eigen::VectorXi, int)> func, Eigen::VectorXi action_vector, double initial_reward, int initial_num_pulls)
-    : arm_func_{std::move(func)}, action_vector_{std::move(action_vector)}, reward_{initial_reward}, num_pulls_{initial_num_pulls}, reward_squared_{initial_reward*initial_reward} {}
+    : arm_func_{std::move(func)}, action_vector_{std::move(action_vector)}, reward_{initial_reward}, num_pulls_{initial_num_pulls}, reward_squared_{initial_reward * initial_reward} {}
 
 double Arm::variance() const {
         if (num_pulls_ <= 1)
                 return 0;
         else
-                return (reward_squared_ - reward_ * reward_ / num_pulls_) / (num_pulls_-1);
+                return (reward_squared_ - reward_ * reward_ / num_pulls_) / (num_pulls_ - 1);
 }
