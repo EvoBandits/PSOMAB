@@ -69,7 +69,7 @@ double get_true_objective_value_ackley(const Eigen::VectorXi &action_vector) {
         double sum_sq = (transformed_action_vector.array().square()).sum() / dimension;
         const double sum_cos = (transformed_action_vector.array() * 2 * M_PI).cos().sum() / dimension;
         sum_sq = sqrt(sum_sq);
-        const double result = (-a * exp(-b * sum_sq) - exp(sum_cos) + 20 + exp(1)) * 8; // scale value range to approx. [0;100]
+        const double result = (-a * exp(-b * sum_sq) - exp(sum_cos) + 20 + exp(1)) * 8;// scale value range to approx. [0;100]
 
         return result;
 }

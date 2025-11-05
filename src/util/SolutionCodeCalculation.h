@@ -15,6 +15,6 @@ struct hash<Eigen::VectorXi> {
                 return h;
         }
 };
-}
+}// namespace std
 
 #endif//PSOMAB_PACK_NAME_UTIL_SOLUTIONCODECALCULATION_H_
