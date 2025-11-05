@@ -9,7 +9,7 @@ PSOMAB is a C++ library for solving stochastic optimization problems using multi
 To install the library, clone the repository and initialize submodules:
 
 ```bash
-git clone
+git clone https://github.com/EvoBandits/PSOMAB.git
 git submodule update --init --recursive
 ```
 
@@ -59,10 +59,11 @@ int main() {
     PSOMAB psomab_instance = PSOMAB(problem_function, function_lb, function_ub, function_dim, max_function_evaluations);
     psomab_instance.optimize();
 
-    std::cout << psomab_instance.get_best_solution().back().get_action_vector() << std::endl;
+    std::cout << psomab_instance.best_solution().back().get_action_vector() << std::endl;
     return 0;
 }
 ```
+For a complete example, please refer to the `tests/main.cpp` file in the repository.
 
 ## Contributing
 
@@ -70,7 +71,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Licence
 
-PSOMAB is open-source software released under the [AGPLv3]() license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
+PSOMAB is open-source software released under the [AGPLv3](https://github.com/EvoBandits/PSOMAB?tab=AGPL-3.0-1-ov-file) license. This means that any derivative work based on the publicly available source code also needs to be licensed under AGPLv3. However, we can provide a different license for closed-source use cases.
 
 ## Credit
 

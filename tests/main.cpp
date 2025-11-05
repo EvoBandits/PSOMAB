@@ -12,7 +12,13 @@
 #include <iostream>
 
 #include "problem_parameter.h"
+
 #include "problems/f1_rosenbrock/f1_rosenbrock.h"
+#include "problems/f2_six_hump_camel_back/f2_six_hump_camel_back.h"
+#include "problems/f3_elliptic/f3_elliptic.h"
+#include "problems/f4_ackley/f4_ackley.h"
+#include "problems/two_agent_supply_chain/two_agent_supply_chain.h"
+#include "problems/four_agent_supply_chain/four_agent_supply_chain.h"
 
 // the following variables are defined as extern variables in problem_parameter.h
 double step_size;
