@@ -76,7 +76,6 @@ PSOMAB is open-source software released under the [AGPLv3](https://github.com/Ev
 ## Credit
 
 PSOMAB was developed by:
-
 * Deniz Preil
 * Timo Kühne
 * Jonathan Laib
